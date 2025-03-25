@@ -1,0 +1,214 @@
+<div class="container mt-3">
+
+
+  <form [formGroup]="form">
+
+
+    <mat-card>
+      <mat-card-content>
+        <!-- Table to display items -->
+        <div class="d-none d-sm-block d-md-none">
+          <div formArrayName="ItemsInfo" class="row ">
+            <div class="col-sm-6 col-6 mb-2"><input class="form-control" placeholder="Description of Goods"
+                formControlName="description"></div>
+            <div class="col-sm-6 col-6 mb-2" *ngIf="this.headerDetailsData?.CompanyInfo?.Gstin"><input type="number"
+                class="form-control text-right" placeholder="HSN / SAC" formControlName="hsnSac"> </div>
+            <div class="col-6 mb-2"><input type="number" class="form-control text-right" placeholder="QTY"
+                formControlName="qty"></div>
+            <div class="col-6 mb-2"><input type="text" placeholder="Uqc" aria-label="Number" matInput
+                formControlName="uqc" [matAutocomplete]="auto" class="form-control">
+              <mat-autocomplete #auto="matAutocomplete">
+                @for (option of filteredUqcDetails | async; track option) {
+                <mat-option [value]="option.code">{{option.code}}</mat-option>
+                }
+              </mat-autocomplete>
+            </div>
+            <div class="col-6"><input type="number" class="form-control text-right" placeholder="Rate"
+                formControlName="rate"></div>
+            <div class="col-6" *ngIf="this.headerDetailsData?.CompanyInfo?.Gstin"><input type="number"
+                class="form-control" placeholder="Gst%" formControlName="taxPercentage"></div>
+            <div class="col-6 mb-2" [attr.colspan]="this.headerDetailsData?.CompanyInfo?.Gstin ? 4 : 3">
+              <button mat-raised-button color="primary" (click)="addRow()"
+                [disabled]="!this.form.get('ItemsInfo')?.valid">
+                Add<mat-icon>add</mat-icon>
+              </button>
+            </div>
+          </div>
+        </div>
+        <div class="table-responsive">
+          <table class="table table-bordered table-striped">
+            <thead style="  position: sticky;    top: 0; z-index:50;">
+              <tr formArrayName="ItemsInfo" class="dis_none_sm">
+                <th colspan="2"><input class="form-control" placeholder="Description of Goods"
+                    formControlName="description"></th>
+                <th *ngIf="this.headerDetailsData?.CompanyInfo?.Gstin"><input type="number"
+                    class="form-control text-right" placeholder="HSN / SAC" formControlName="hsnSac"> </th>
+                <th><input type="number" class="form-control text-right" placeholder="QTY" formControlName="qty"></th>
+                <th>
+
+                  <input type="text" placeholder="Uqc" aria-label="Number" matInput formControlName="uqc"
+                    [matAutocomplete]="auto" class="form-control">
+                  <mat-autocomplete #auto="matAutocomplete">
+                    @for (option of filteredUqcDetails | async; track option) {
+                    <mat-option [value]="option.code">{{option.code}}</mat-option>
+                    }
+                  </mat-autocomplete>
+                </th>
+                <th><input type="number" class="form-control text-right" placeholder="Rate" formControlName="rate"></th>
+                <th *ngIf="this.headerDetailsData?.CompanyInfo?.Gstin"><input type="number" class="form-control"
+                    placeholder="Gst%" formControlName="taxPercentage"></th>
+                <th [attr.colspan]="this.headerDetailsData?.CompanyInfo?.Gstin ? 4 : 3">
+                  <button mat-raised-button color="primary" (click)="addRow()"
+                    [disabled]="!this.form.get('ItemsInfo')?.valid">
+                    Add<mat-icon>add</mat-icon>
+                  </button>
+                </th>
+              </tr>
+              <tr>
+                <th class="text-center" width="50">Sl</th>
+                <th width="300">Description of Goods</th>
+                <th *ngIf="this.headerDetailsData?.CompanyInfo?.Gstin">HSN / SAC</th>
+                <th class="text-right">QTY</th>
+                <th width="200">UQC</th>
+                <th class="text-right">Rate</th>
+                <th class="text-right" style="width: 80px;">Net Value</th>
+                <th class="text-right" *ngIf="this.headerDetailsData?.CompanyInfo?.Gstin">%</th>
+                <th class="text-right" *ngIf="this.headerDetailsData?.CompanyInfo?.Gstin">GST</th>
+                <th class="text-right" style="width:120px;">Total Amount</th>
+                <th>Action</th>
+              </tr>
+            </thead>
+            <tbody formArrayName="items">
+              <tr *ngFor="let item of items.controls; let i = index" [formGroupName]="i">
+                <td>{{ i + 1 }}</td>
+                <td><input class="form-control" formControlName="description" style="width: 200px !important;"></td>
+                <td *ngIf="this.headerDetailsData?.CompanyInfo?.Gstin"><input type="number"
+                    class="form-control text-center" formControlName="hsnSac" style="width: 70px !important;"></td>
+                <td><input type="number" class="form-control text-right" formControlName="qty"
+                    style="width: 70px !important;"></td>
+                <td><input type="text" class="form-control" formControlName="uqc" style="width: 150px !important;"></td>
+                <td><input type="number" class="form-control text-right" formControlName="rate"
+                    style="width: 100px !important;"></td>
+                <td class="text-right" style="width: 100px !important;">{{ calculateNetValue(i) | number:'1.2-2'}}</td>
+                <td *ngIf="this.headerDetailsData?.CompanyInfo?.Gstin"><input type="number"
+                    class="form-control text-right" formControlName="taxPercentage" style="width: 100px !important;">
+                </td>
+                <td class="text-right" *ngIf="this.headerDetailsData?.CompanyInfo?.Gstin"
+                  style="width: 100px !important;">{{ calculateGST(i) |
+                  number:'1.2-2'}}</td>
+                <td class="text-right" style="width: 100px !important;">{{ calculateTotalAmount(i) | number:'1.2-2'}}
+                </td>
+                <td><button mat-icon-button (click)="removeItem(i)"><mat-icon
+                      class="text-danger">delete</mat-icon></button></td>
+              </tr>
+              <tr class="bg-light">
+                <th [attr.colspan]="this.headerDetailsData?.CompanyInfo?.Gstin ? 6 : 5" class="text-center">Total</th>
+                <th class="text-right">{{ getTotalNetValue() | number:'1.2-2'}}</th>
+                <th *ngIf="this.headerDetailsData?.CompanyInfo?.Gstin"></th>
+                <th class="text-right" *ngIf="this.headerDetailsData?.CompanyInfo?.Gstin">{{ getTotalGST() |
+                  number:'1.2-2'}}</th>
+                <th class="text-right">{{ getTotalAmount() | number:'1.2-2'}}</th>
+                <th></th>
+              </tr>
+
+            </tbody>
+
+          </table>
+        </div>
+      </mat-card-content>
+    </mat-card>
+
+    <mat-card class="mt-3 mb-3" formArrayName="BankInfo">
+      <mat-card-content>
+        <div class="row">
+          <div class="col-sm-4">
+            <h4><b>Bank Account Details</b></h4>
+            <div class="col-sm-12">
+              <mat-form-field appearance="outline" class="w-100">
+                <mat-label>Account Name</mat-label>
+                <input type="text" matInput placeholder="accountName" formControlName="accountName">
+                <mat-error *ngIf="form.get('BankInfo.accountName')?.hasError('required')">
+                  AccountName is required
+                </mat-error>
+              </mat-form-field>
+              <div class="row">
+                <div class="col-sm-6">
+                  <mat-form-field appearance="outline" class="w-100">
+                    <mat-label>Account No</mat-label>
+                    <input type="number" matInput placeholder="accountNo" formControlName="accountNo">
+                    <mat-error *ngIf="form.get('BankInfo.accountNo')?.hasError('required')">
+                      AccountNo is required
+                    </mat-error>
+                  </mat-form-field>
+                </div>
+                <div class="col-sm-6">
+                  <mat-form-field appearance="outline" class="w-100">
+                    <mat-label>IFS Code</mat-label>
+                    <input maxlength="11" type="text" matInput placeholder="ifsCode" formControlName="ifsCode">
+                    <mat-error *ngIf="form.get('BankInfo.ifsCode')?.hasError('required')">
+                      IFSCode is required
+                    </mat-error>
+                    <mat-error *ngIf="form.get('BankInfo.ifsCode')?.hasError('pattern')">
+                      Invalid IFS Code format
+                    </mat-error>
+                  </mat-form-field>
+                </div>
+              </div>
+
+              <mat-form-field appearance="outline" class="w-100">
+                <mat-label>Bank Name</mat-label>
+                <input type="text" matInput placeholder="bankName" formControlName="bankName">
+                <mat-error *ngIf="form.get('BankInfo.bankName')?.hasError('required')">
+                  Bank Name is required
+                </mat-error>
+              </mat-form-field>
+            </div>
+          </div>
+          <div class="col-sm-4">
+            <div class="w-100">
+              <h4><b>Declaration</b></h4>
+
+              <mat-form-field appearance="outline" class="w-100 textareaClass">
+                <mat-label>Declaration</mat-label>
+                <textarea rows="6" matInput placeholder="Declaration" formControlName="declaration"></textarea>
+                <mat-error *ngIf="form.get('BankInfo.declaration')?.hasError('required')">
+                  Declaration is required
+                </mat-error>
+              </mat-form-field>
+            </div>
+          </div>
+          <div class="col-sm-4">
+            <h4><b>Other Details</b></h4>
+
+            <table class="table w-100">
+              <tr class="border border-top">
+                <th class="p-2">Taxable Value </th>
+                <td>{{ getTotalNetValue() || 0 | number:'1.2-2' }}</td>
+              </tr>
+
+              <tr *ngIf="this.headerDetailsData?.BillingDetails?.BillingState != this.headerDetailsData?.CompanyInfo?.State &&
+                this.headerDetailsData?.CompanyInfo?.Gstin">
+                <th class="p-2">IGST</th>
+                <td>{{ this.totalGstResult || 0 | number:'1.2-2' }}</td>
+              </tr>
+              <tr *ngIf="this.headerDetailsData?.BillingDetails?.BillingState == this.headerDetailsData?.CompanyInfo?.State &&
+                this.headerDetailsData?.CompanyInfo?.Gstin">
+                <th class="p-2">CGST</th>
+                <td>{{this.totalGstResult / 2 || 0 | number:'1.2-2'}}</td>
+              </tr>
+              <tr *ngIf="this.headerDetailsData?.BillingDetails?.BillingState == this.headerDetailsData?.CompanyInfo?.State &&
+                this.headerDetailsData?.CompanyInfo?.Gstin">
+                <th class="p-2">SGST</th>
+                <td>{{this.totalGstResult / 2 || 0 | number:'1.2-2'}}</td>
+              </tr>
+              <tr class="border border-top bg-light">
+                <th class="p-2">TOTAL AMOUNT</th>
+                <td>{{ getTotalAmount() || 0 | number:'1.2-2'}}</td>
+              </tr>
+            </table>
+          </div>
+        </div>
+      </mat-card-content>
+    </mat-card>
+
+  </form>

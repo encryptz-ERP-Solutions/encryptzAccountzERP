@@ -1,0 +1,30 @@
+<section>
+  <h1 class="text-center my-3 header-text">TAX INVOICE</h1>
+  <mat-stepper #stepper class="pt-3">
+    <mat-step label="Fill Company Info">
+      <div  class="mt-5"><app-header></app-header></div>
+    </mat-step>
+    <mat-step label="Fill Item Details">
+      <div  class="mt-5"><app-input-data></app-input-data></div>
+    </mat-step>
+    <mat-step label="Print Invoice">
+      <div  class="mt-5"><app-invoice></app-invoice></div>
+    </mat-step>
+  </mat-stepper>
+  
+  <!-- Common Buttons -->
+  <div class="position-fixed fixed-bottom bg-light w-100 bottom-bar p-2">
+    <div class="d-flex justify-content-end container">
+      <!-- Back Button -->
+      <button mat-stroked-button color="primary"  *ngIf="stepper.selectedIndex > 0" (click)="GoBack(stepper)"><mat-icon>chevron_left</mat-icon> Back</button>      
+      <!-- Reset Button -->
+      <button mat-raised-button color="warn" (click)="ResetAll()" class="bg-danger ms-2">Reset <mat-icon>restart_alt</mat-icon></button>      
+       <!-- Print Button -->
+      <button mat-raised-button color="primary" class="ms-2" *ngIf="stepper.selectedIndex === stepper.steps.length - 1" (click)="PrintDiv('itemsSummary')"><mat-icon>print</mat-icon> Print</button>      
+      <!-- Next Button -->
+      <button mat-raised-button color="primary" class="bg-success ms-2" *ngIf="stepper.selectedIndex < stepper.steps.length - 1" (click)="GoForward(stepper)">
+        {{ stepper.selectedIndex == 0 ? 'Add Items / Services' : 'Next' }}  <mat-icon>chevron_right</mat-icon></button>
+    </div>
+  </div>
+</section>
+

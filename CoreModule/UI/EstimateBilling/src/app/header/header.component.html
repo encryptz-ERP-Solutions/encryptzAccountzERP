@@ -1,0 +1,542 @@
+<div class="container pb-5">
+    <header>
+        <form [formGroup]="headerForm">
+            <div class="row">
+                <div class="col-sm-12">
+                    <mat-card class="p-3 mb-3">
+                        <h3 class="pb-2 mb-0">Seller Information</h3>
+                        <div class="row">
+                            <div class="col-sm-2 mt-2">
+                                <div *ngIf="!imagePreview" class="d-flex" (click)="fileInput.click()">
+                                    <div class="browse">
+                                        <div class="text-center mt-3">
+                                            <mat-icon>image</mat-icon>
+                                            <p class="text-secondary">Add Bussiness Logo</p>
+                                        </div>
+                                    </div>
+                                </div>
+                                <!-- Hidden File Input -->
+                                <input type="file" #fileInput (change)="onFileSelected($event)" accept="image/*"
+                                    style="display: none;">
+                                <div *ngIf="imagePreview" (click)="fileInput.click()">
+                                    <img [src]="imagePreview" alt="Image preview" style="width: 100px;">
+                                    <button type="button" mat-icon-button class="ms-1">
+                                        <mat-icon>edit</mat-icon>
+                                    </button>
+                                </div>
+                            </div>
+                            <div formArrayName="CompanyInfo" class="col-sm-10">
+                                <div class="row ">
+                                    <div class="col-sm-3">
+                                        <mat-form-field appearance="outline" class="w-100">
+                                            <mat-label>Billed By</mat-label>
+                                            <input matInput placeholder="Billed By" formControlName="CompanyName">
+                                            <mat-error
+                                                *ngIf="headerForm.get('CompanyInfo.CompanyName')?.hasError('required')">
+                                                Billed By is required
+                                            </mat-error>
+                                        </mat-form-field>
+                                    </div>
+                                    <div class="col-sm-3">
+                                        <mat-form-field appearance="outline" class="w-100">
+                                            <mat-label>Phone Number</mat-label>
+                                            <input type="tel" matInput placeholder="Phone Number"
+                                                formControlName="PhoneNumber" maxlength="10">
+                                            <mat-error
+                                                *ngIf="headerForm.get('CompanyInfo.PhoneNumber')?.hasError('required')">
+                                                Required
+                                            </mat-error>
+                                            <mat-error
+                                                *ngIf="headerForm.get('CompanyInfo.PhoneNumber')?.hasError('pattern')">
+                                                10-digit number
+                                            </mat-error>
+                                        </mat-form-field>
+                                    </div>
+
+                                    <div class="col-sm-3">
+                                        <mat-form-field appearance="outline" class="w-100">
+                                            <mat-label>Email</mat-label>
+                                            <input type="email" matInput placeholder="Email" formControlName="Email">
+                                            <mat-error
+                                                *ngIf="headerForm.get('CompanyInfo.Email')?.hasError('required')">
+                                                Email is required
+                                            </mat-error>
+                                            <mat-error *ngIf="headerForm.get('CompanyInfo.Email')?.hasError('email')">
+                                                Please enter a valid email address
+                                            </mat-error>
+                                        </mat-form-field>
+                                    </div>
+                                    <div class="col-sm-3">
+                                        <mat-form-field appearance="outline" class="w-100">
+                                            <mat-label>Website</mat-label>
+                                            <input matInput placeholder="Website" formControlName="WebSite">
+                                            <mat-error
+                                                *ngIf="headerForm.get('CompanyInfo.WebSite')?.hasError('required')">
+                                                WebSite is required
+                                            </mat-error>
+                                        </mat-form-field>
+                                    </div>
+                                </div>
+                                <div class="row">
+
+                                    <div class="col-sm-3">
+                                        <mat-form-field appearance="outline" class="w-100">
+                                            <mat-label>Address</mat-label>
+                                            <input matInput placeholder="Address" formControlName="CompanyAddress">
+                                            <mat-error
+                                                *ngIf="headerForm.get('CompanyInfo.CompanyAddress')?.hasError('required')">
+                                                Address is required
+                                            </mat-error>
+                                        </mat-form-field>
+                                    </div>
+
+                                    <div class="col-sm-3">
+                                        <mat-form-field appearance="outline" class="w-100">
+                                            <mat-label>Place</mat-label>
+                                            <input matInput placeholder="Place" formControlName="CompanyPlace">
+                                            <mat-error
+                                                *ngIf="headerForm.get('CompanyInfo.CompanyPlace')?.hasError('required')">
+                                                Place is required
+                                            </mat-error>
+                                        </mat-form-field>
+                                    </div>
+
+                                    <div class="col-sm-3">
+                                        <mat-form-field appearance="outline" class="w-100">
+                                            <mat-label>City/Town</mat-label>
+                                            <input matInput placeholder="City/Town" formControlName="CompanyCityTown">
+                                            <mat-error
+                                                *ngIf="headerForm.get('CompanyInfo.CompanyCityTown')?.hasError('required')">
+                                                City/Town is required
+                                            </mat-error>
+                                        </mat-form-field>
+                                    </div>
+
+                                    <div class="col-sm-3">
+                                        <mat-form-field appearance="outline" class="w-100">
+                                            <mat-label>Postal Code</mat-label>
+                                            <input maxlength="6" matInput placeholder="PostalCode"
+                                                formControlName="CompanyPostalCode">
+                                            <mat-error
+                                                *ngIf="headerForm.get('CompanyInfo.CompanyPostalCode')?.hasError('required')">
+                                                City/Town is required
+                                            </mat-error>
+                                            <mat-error
+                                                *ngIf="headerForm.get('CompanyInfo.CompanyPostalCode')?.hasError('pattern')">
+                                                Only numbers are allowed
+                                            </mat-error>
+                                        </mat-form-field>
+                                    </div>
+                                    <div class="col-sm-3">
+                                        <mat-form-field appearance="outline" class="w-100">
+                                            <mat-label>GSTIN</mat-label>
+                                            <input matInput placeholder="GSTIN" formControlName="Gstin">
+                                            <mat-error
+                                                *ngIf="headerForm.get('CompanyInfo.Gstin')?.hasError('required')">
+                                                GSTIN is required
+                                            </mat-error>
+                                            <mat-error *ngIf="headerForm.get('CompanyInfo.Gstin')?.hasError('pattern')">
+                                                GSTIN number is not correct format !!
+                                            </mat-error>
+                                        </mat-form-field>
+                                    </div>
+                                    <div class="col-sm-3">
+
+                                        <mat-form-field appearance="outline" class="w-100">
+                                            <mat-label>State</mat-label>
+                                            <input type="text" matInput formControlName="State"
+                                                [matAutocomplete]="auto">
+                                            <mat-autocomplete #auto="matAutocomplete">
+                                                <mat-option *ngFor="let state of filteredStatesCompanyInfo | async"
+                                                    [value]="state.STATE_NAME">
+                                                    {{ state.STATE_NAME }}
+                                                </mat-option>
+                                            </mat-autocomplete>
+                                            <mat-error
+                                                *ngIf="headerForm.get('CompanyInfo.State')?.hasError('required')">
+                                                State is required
+                                            </mat-error>
+                                        </mat-form-field>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </mat-card>
+
+                    <mat-card class="p-3 mb-3">
+                        <h3 class="pb-2 mb-0">Invoice Information</h3>
+                        <div formArrayName="InvoiceDetails" class="row">
+                            <div class="col-sm-3">
+                                <mat-form-field appearance="outline" class="w-100">
+                                    <mat-label>Invoice Number</mat-label>
+                                    <input matInput placeholder="Invoice Number" formControlName="InvoiceNumber"
+                                        value="001">
+                                    <mat-error *ngIf="headerForm.get('InvoiceNumber')?.hasError('required')">
+                                        Invoice Number is required
+                                    </mat-error>
+                                </mat-form-field>
+                            </div>
+                            <div class="col-sm-3">
+                                <mat-form-field appearance="outline" class="w-100">
+                                    <mat-label>Invoice Date</mat-label>
+                                    <input matInput placeholder="Invoice Date" formControlName="InvoiceDate"
+                                        [matDatepicker]="picker" (click)="picker.open()">
+                                    <mat-datepicker-toggle matIconSuffix [for]="picker"></mat-datepicker-toggle>
+                                    <mat-datepicker #picker></mat-datepicker>
+                                    <mat-error *ngIf="headerForm.get('InvoiceDate')?.hasError('required')">
+                                        Invoice Date is required
+                                    </mat-error>
+                                </mat-form-field>
+                            </div>
+                            <div class="col-sm-3">
+                                <mat-form-field appearance="outline" class="w-100">
+                                    <mat-label> Eway Bill No </mat-label>
+                                    <input matInput placeholder="Eway Bill No" formControlName="EwayBillNo">
+                                    <mat-error *ngIf="headerForm.get('EwayBillNo')?.hasError('required')">
+                                        Eway Bill No is required
+                                    </mat-error>
+                                </mat-form-field>
+                            </div>
+                            <div class="col-sm-3">
+                                <mat-form-field appearance="outline" class="w-100">
+                                    <mat-label>Eway.Date </mat-label>
+                                    <input matInput placeholder="Eway.Date" formControlName="EwayDate"
+                                        [matDatepicker]="picker3" (click)="picker3.open()">
+                                    <mat-datepicker-toggle matIconSuffix [for]="picker3"></mat-datepicker-toggle>
+                                    <mat-datepicker #picker3></mat-datepicker>
+                                    <mat-error *ngIf="headerForm.get('EwayDate')?.hasError('required')">
+                                        Eway.Date is required
+                                    </mat-error>
+                                </mat-form-field>
+                            </div>
+                        </div>
+                        <!-- <div>
+                            <mat-form-field appearance="outline" class="w-100">
+                                <mat-label>Desp. Doc No.</mat-label>
+                                <input matInput placeholder="Desp. Doc No." formControlName="DespDocNo">
+                                <mat-error *ngIf="headerForm.get('DespDocNo')?.hasError('required')">
+                                    Desp. Doc No. is required
+                                </mat-error>
+                            </mat-form-field>
+                        </div> -->
+                        <div class="row">
+                            <div class="d-flex justify-content-end mb-2" *ngIf="this.Fileditems.length != 4">
+                                <button type="button" mat-raised-button color="primary" (click)="addRow()"> Add More
+                                    Fileds <mat-icon>add</mat-icon></button>
+                            </div>
+                            <div formArrayName="Fileditems">
+                                <div *ngFor="let item of Fileditems.controls; let i = index" [formGroupName]="i">
+                                    <div class="row">
+                                        <div class="col-sm-6">
+                                            <mat-form-field appearance="outline" class="w-100">
+                                                <mat-label>Field Name</mat-label>
+                                                <input matInput formControlName="FieldName">
+                                            </mat-form-field>
+                                        </div>
+                                        <div class="col-sm-6">
+                                            <mat-form-field appearance="outline" class="w-100">
+                                                <mat-label>Field Value</mat-label>
+                                                <input matInput formControlName="FieldValue">
+                                                <button type="button" mat-icon-button matSuffix (click)="removeRow(i)"
+                                                    color="accent">
+                                                    <mat-icon matSuffix>close</mat-icon>
+                                                </button>
+                                            </mat-form-field>
+                                        </div>
+                                        <!-- <div class="col-sm-12 d-flex justify-content-end">
+                                            <button type="button" class="mb-2" mat-raised-button color="warn"
+                                                (click)="removeRow(i)">
+                                                Remove <mat-icon>remove</mat-icon>
+                                            </button>
+                                        </div> -->
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- <div class="col-sm-6">
+                                <mat-form-field appearance="outline" class="w-100">
+                                    <mat-label>Order No </mat-label>
+                                    <input matInput placeholder="Order No" formControlName="OrderNo">
+                                    <mat-error *ngIf="headerForm.get('OrderNo')?.hasError('required')">
+                                        Order No is required
+                                    </mat-error>
+                                </mat-form-field>
+                            </div>
+                            <div class="col-sm-6">
+                                <mat-form-field appearance="outline" class="w-100">
+                                    <mat-label>Order Date </mat-label>
+                                    <input matInput placeholder="Order Date" formControlName="OrderDate"
+                                        [matDatepicker]="picker2" (click)="picker2.open()">
+                                    <mat-datepicker-toggle matIconSuffix [for]="picker2"></mat-datepicker-toggle>
+                                    <mat-datepicker #picker2></mat-datepicker>
+                                    <mat-error *ngIf="headerForm.get('OrderDate')?.hasError('required')">
+                                        Order Date is required
+                                    </mat-error>
+                                </mat-form-field>
+                            </div> -->
+                        </div>
+                    </mat-card>
+
+                    <div class="row">
+                        <div class="col-sm-6">
+                            <mat-card class="pb-2">
+                                <div class="row px-3 pb-2">
+                                    <div class="col-sm-12" formArrayName="BillingDetails">
+                                        <h3 class="py-2 mb-0">Bill To (Customer Info)</h3>
+                                        <div class="row">
+                                            <div class="col-sm-7">
+                                                <mat-form-field appearance="outline" class="w-100">
+                                                    <mat-label>Customer Name</mat-label>
+                                                    <input matInput placeholder="Customer Name"
+                                                        formControlName="BillCompName">
+                                                    <mat-error
+                                                        *ngIf="headerForm.get('BillingDetails.BillCompName')?.hasError('required')">
+                                                        Customer Name is required
+                                                    </mat-error>
+                                                </mat-form-field>
+                                            </div>
+
+
+                                            <div class="col-sm-5">
+                                                <mat-form-field appearance="outline" class="w-100">
+                                                    <mat-label>Phone</mat-label>
+                                                    <input type="tel" matInput placeholder="Phone Number"
+                                                        formControlName="BillPhoneNumber" maxlength="10">
+                                                    <mat-error
+                                                        *ngIf="headerForm.get('BillingDetails.BillPhoneNumber')?.hasError('required')">
+                                                        Phone Number is required
+                                                    </mat-error>
+                                                    <mat-error
+                                                        *ngIf="headerForm.get('BillingDetails.BillPhoneNumber')?.hasError('pattern')">
+                                                        10-digit number
+                                                    </mat-error>
+                                                </mat-form-field>
+                                            </div>
+                                            <div class="col-sm-12">
+                                                <mat-form-field appearance="outline" class="w-100">
+                                                    <mat-label>Address</mat-label>
+                                                    <input matInput placeholder="Address"
+                                                        formControlName="BillCompanyAddress">
+                                                    <mat-error
+                                                        *ngIf="headerForm.get('BillingDetails.BillCompanyAddress')?.hasError('required')">
+                                                        Address is required
+                                                    </mat-error>
+                                                </mat-form-field>
+                                            </div>
+
+                                            <div class="col-sm-6">
+                                                <mat-form-field appearance="outline" class="w-100">
+                                                    <mat-label>Place</mat-label>
+                                                    <input matInput placeholder="Place" formControlName="BillingPlace">
+                                                    <mat-error
+                                                        *ngIf="headerForm.get('BillingDetails.BillingPlace')?.hasError('required')">
+                                                        BillingPlace is required
+                                                    </mat-error>
+                                                </mat-form-field>
+                                            </div>
+
+                                            <div class="col-sm-6">
+                                                <mat-form-field appearance="outline" class="w-100">
+                                                    <mat-label>City/Town</mat-label>
+                                                    <input matInput placeholder="City/Town"
+                                                        formControlName="BillingCityTown">
+                                                    <mat-error
+                                                        *ngIf="headerForm.get('BillingDetails.BillingCityTown')?.hasError('required')">
+                                                        BillingCityTown is required
+                                                    </mat-error>
+                                                </mat-form-field>
+                                            </div>
+
+                                            <div class="col-sm-6">
+                                                <mat-form-field appearance="outline" class="w-100">
+                                                    <mat-label>Postal Code</mat-label>
+                                                    <input type="text" maxlength="6" matInput placeholder="PostalCode"
+                                                        formControlName="BillingPostalCode">
+                                                    <mat-error
+                                                        *ngIf="headerForm.get('BillingDetails.BillingPostalCode')?.hasError('required')">
+                                                        BillingPostalCode is required
+                                                    </mat-error>
+                                                    <mat-error
+                                                        *ngIf="headerForm.get('BillingDetails.BillingPostalCode')?.hasError('pattern')">
+                                                        Only numbers are allowed
+                                                    </mat-error>
+                                                </mat-form-field>
+                                            </div>
+
+
+
+                                            <div class="col-sm-6">
+
+                                                <mat-form-field appearance="outline" class="w-100">
+                                                    <mat-label>GSTIN</mat-label>
+                                                    <input matInput placeholder="GSTIN" formControlName="BillingGSTIN">
+                                                    <mat-error
+                                                        *ngIf="headerForm.get('BillingDetails.BillingGSTIN')?.hasError('required')">
+                                                        GSTIN is required
+                                                    </mat-error>
+                                                    <mat-error
+                                                        *ngIf="headerForm.get('BillingDetails.BillingGSTIN')?.hasError('pattern')">
+                                                        GSTIN number is not correct format !!
+                                                    </mat-error>
+                                                </mat-form-field>
+                                            </div>
+                                            <div class="col-sm-12">
+                                                <mat-form-field appearance="outline" class="w-100">
+                                                    <mat-label>Billing State</mat-label>
+                                                    <input type="text" matInput formControlName="BillingState"
+                                                        [matAutocomplete]="auto1">
+                                                    <mat-autocomplete #auto1="matAutocomplete">
+                                                        <mat-option
+                                                            *ngFor="let state of filteredStatesBillingDetails | async"
+                                                            [value]="state.STATE_NAME">
+                                                            {{ state.STATE_NAME }}
+                                                        </mat-option>
+                                                    </mat-autocomplete>
+                                                    <mat-error
+                                                        *ngIf="headerForm.get('BillingDetails.BillingState')?.hasError('required')">
+                                                        Billing State is required
+                                                    </mat-error>
+                                                </mat-form-field>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                </div>
+                            </mat-card>
+                        </div>
+                        <div class="col-sm-6">
+                            <mat-card class="pb-2">
+                                <div class="row px-3 pb-2">
+                                    <div class="col-sm-12" formArrayName="ConsigneeDetails">
+                                        <h3 class="py-2 mb-0">Ship To (Delivery Address)</h3>
+                                        <div class="row">
+                                            <div class="col-sm-7">
+                                                <mat-form-field appearance="outline" class="w-100">
+                                                    <mat-label>Consignee Name</mat-label>
+                                                    <input matInput placeholder="Consignee Name"
+                                                        formControlName="ConsigneeName">
+                                                    <mat-error
+                                                        *ngIf="headerForm.get('ConsigneeDetails.ConsigneeName')?.hasError('required')">
+                                                        Consignee Name is required
+                                                    </mat-error>
+                                                </mat-form-field>
+                                            </div>
+                                            <div class="col-sm-5">
+                                                <mat-form-field appearance="outline" class="w-100">
+                                                    <mat-label>Consignee Phone Number</mat-label>
+                                                    <input type="tel" matInput placeholder="Consignee Phone"
+                                                        formControlName="ConsigneePhone" maxlength="10">
+                                                    <mat-error
+                                                        *ngIf="headerForm.get('ConsigneeDetails.ConsigneePhone')?.hasError('required')">
+                                                        Consignee Phone.No is required
+                                                    </mat-error>
+                                                    <mat-error
+                                                        *ngIf="headerForm.get('ConsigneeDetails.ConsigneePhone')?.hasError('pattern')">
+                                                        10-digit number
+                                                    </mat-error>
+                                                </mat-form-field>
+                                            </div>
+                                            <div class="col-sm-12">
+                                                <mat-form-field appearance="outline" class="w-100">
+                                                    <mat-label>Consignee Address</mat-label>
+                                                    <input matInput placeholder="Consignee Address"
+                                                        formControlName="ConsigneeAddress">
+                                                    <mat-error
+                                                        *ngIf="headerForm.get('ConsigneeDetails.ConsigneeAddress')?.hasError('required')">
+                                                        ConsigneeAddress is required
+                                                    </mat-error>
+                                                </mat-form-field>
+                                            </div>
+
+                                            <div class="col-sm-6">
+                                                <mat-form-field appearance="outline" class="w-100">
+                                                    <mat-label>Place</mat-label>
+                                                    <input matInput placeholder="Place"
+                                                        formControlName="ConsigneePlace">
+                                                    <mat-error
+                                                        *ngIf="headerForm.get('ConsigneeDetails.ConsigneePlace')?.hasError('required')">
+                                                        Place is required
+                                                    </mat-error>
+                                                </mat-form-field>
+                                            </div>
+                                            <div class="col-sm-6">
+                                                <mat-form-field appearance="outline" class="w-100">
+                                                    <mat-label>City/Town</mat-label>
+                                                    <input matInput placeholder="City/Town"
+                                                        formControlName="ConsigneeCityTown">
+                                                    <mat-error
+                                                        *ngIf="headerForm.get('ConsigneeDetails.ConsigneeCityTown')?.hasError('required')">
+                                                        City/Town is required
+                                                    </mat-error>
+                                                </mat-form-field>
+                                            </div>
+
+                                            <div class="col-sm-6">
+                                                <mat-form-field appearance="outline" class="w-100">
+                                                    <mat-label>Postal Code</mat-label>
+                                                    <input type="text" maxlength="6" matInput placeholder="PostalCode"
+                                                        formControlName="ConsigneePostalCode">
+                                                    <mat-error
+                                                        *ngIf="headerForm.get('ConsigneeDetails.ConsigneePostalCode')?.hasError('required')">
+                                                        PostalCode is required
+                                                    </mat-error>
+                                                    <mat-error
+                                                        *ngIf="headerForm.get('ConsigneeDetails.ConsigneePostalCode')?.hasError('pattern')">
+                                                        Only numbers are allowed
+                                                    </mat-error>
+                                                </mat-form-field>
+                                            </div>
+
+
+
+                                            <div class="col-sm-6">
+                                                <mat-form-field appearance="outline" class="w-100">
+                                                    <mat-label>GSTIN</mat-label>
+                                                    <input matInput placeholder="GSTIN"
+                                                        formControlName="ConsigneeGSTIN">
+                                                    <mat-error
+                                                        *ngIf="headerForm.get('ConsigneeDetails.ConsigneeGSTIN')?.hasError('required')">
+                                                        GSTIN is required
+                                                    </mat-error>
+                                                    <mat-error
+                                                        *ngIf="headerForm.get('ConsigneeDetails.ConsigneeGSTIN')?.hasError('pattern')">
+                                                        GSTIN number is not correct format !!
+                                                    </mat-error>
+                                                </mat-form-field>
+                                            </div>
+                                            <div class="col-sm-12">
+                                                <mat-form-field appearance="outline" class="w-100">
+                                                    <mat-label>Consignee State</mat-label>
+                                                    <input type="text" matInput formControlName="ConsigneeState"
+                                                        [matAutocomplete]="auto3">
+                                                    <mat-autocomplete #auto3="matAutocomplete">
+                                                        <mat-option
+                                                            *ngFor="let state of filteredStatesConsigneeStateDetails | async"
+                                                            [value]="state.STATE_NAME">
+                                                            {{ state.STATE_NAME }}
+                                                        </mat-option>
+                                                    </mat-autocomplete>
+                                                    <mat-error
+                                                        *ngIf="headerForm.get('ConsigneeDetails.ConsigneeState')?.hasError('required')">
+                                                        ConsigneeState State is required
+                                                    </mat-error>
+                                                </mat-form-field>
+                                            </div>
+
+
+                                        </div>
+                                    </div>
+                                </div>
+                            </mat-card>
+                        </div>
+                    </div>
+
+                </div>
+
+            </div>
+
+
+
+        </form>
+    </header>
+</div>

@@ -1,0 +1,70 @@
+<div class="loading-screen" *ngIf="showLoading">
+  <div class="text-center">
+  <img src="assets/img/invoice.png" width="100" class="mb-3" />
+  <h2 class="text-secondary">Encryptz ERP Solutions </h2>
+</div>
+</div>
+<div *ngIf="!showLoading">
+<nav class="container navbar navbar-expand-lg navbar-light bg-white position-fixed w-100"  style="left: 0; right: 0;">
+  <div class="container-fluid p-0">
+    <a class="navbar-brand" href="#">
+      <img src="../../assets/img/invoice.png" width="100px">
+    </a>
+    <!-- <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <span class="navbar-toggler-icon"></span>
+    </button> -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+        <li class="nav-item">
+          <a class="nav-link active" aria-current="page" href="#">Home</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" href="#">About Us</a>
+        </li>
+
+        <li class="nav-item">
+          <a class="nav-link" href="#">Products</a>
+        </li>
+
+        <li class="nav-item">
+          <a class="nav-link" href="#">Pricing</a>
+        </li>
+
+        <li class="nav-item">
+          <a class="nav-link" href="#">Contact Us</a>
+        </li>
+      
+      </ul>
+    
+    </div>
+
+    <form class="d-flex">
+      <button class="btn btn-primary" type="submit">Register</button>
+      <button class="btn btn-danger mx-2" type="submit">Login</button>
+    </form>
+  </div>
+</nav>
+
+<section class="section-Details w-100">
+  <div class="row m-0 h-100">
+    <div class="col-md-6 p-5 d-flex align-items-center">
+      <div class="p-5">
+      <h1>Free Invoice Generator !!!</h1>
+      <h3 class="text-secondary">Experience seamless and accurate invoicing with our user-friendly tool. No hidden charges—just simple, 
+        transparent, and precise invoicing right at your fingertips.</h3>
+      <button class="btn btn-danger" type="submit" routerLink="/invoice">Create Invoice</button>
+      <button class="btn btn-primary mx-2" type="submit">Register</button>
+    </div>
+    </div>
+    <div class="col-md-6 p-5 d-flex align-items-center justify-content-center">
+      <img src="../../assets/img/Invoice-bro.svg" class="p-5">
+
+    </div>
+  </div>
+</section>
+
+<footer class="fixed fixed-bottom w-100 mx-auto text-center bg-white p-2">
+  <p class="m-0">© CopyRight Encryptz ERP Solutions Private Limited.</p>
+</footer>
+
+</div>

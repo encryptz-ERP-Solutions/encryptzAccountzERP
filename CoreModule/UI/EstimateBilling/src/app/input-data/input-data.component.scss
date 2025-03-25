@@ -1,0 +1,44 @@
+.Print-button{
+    position: fixed;
+    bottom: 2%;
+    right: 0%;
+    left: 0%;
+    max-width: 100px;
+    margin: 0 auto;
+    margin-top:50px !important;
+}
+
+.btn-add{
+    position: relative;
+    padding-right: 30px;
+    .mat-icon{
+        position: absolute;
+        right: 5px;
+        font-size: 19px;
+        top: 9px;
+    }
+}
+
+@media (max-width: 600px) {
+    .dis_none_sm {
+        display: none;
+    }
+    .d-sm-block{
+        display: block !important;
+    }
+}
+
+input[type=number]::-webkit-inner-spin-button,
+input[type=number]::-webkit-outer-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+.table-responsive{max-height: 370px;}
+
+.text-right{
+    text-align: right !important;
+}
+.text-center{
+    text-align: center !important;
+}

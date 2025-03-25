@@ -1,0 +1,196 @@
+<div class="container mt-3" id="itemsSummary">
+  <header class="print-header">
+    <h3 class="text-center mt-2 mb-2">TAX INVOICE</h3>  
+  </header>
+  <div class="print-body">
+    <table class="table table-bordered">
+      <thead>
+        <tr>
+          <th  [attr.colspan]="bankInfo?.totalGst != 0 ? 10 : 8" >
+            <div class="row-1">
+              <div class="col-sm-6-1">
+                <div class="pe-2">
+                  <img class="m-2" *ngIf="bankInfo?.Header?.image" [src]="bankInfo?.Header?.image" style="width: 100px;">
+                  <div *ngIf="bankInfo?.Header?.CompanyInfo">
+                    <h3 class="mb-1">{{ bankInfo?.Header?.CompanyInfo?.CompanyName }}</h3>
+                    <p class="mb-0">
+                      <span *ngIf="bankInfo?.Header?.CompanyInfo?.CompanyAddress">Address : </span> {{
+                      bankInfo?.Header?.CompanyInfo?.CompanyAddress }}
+                      <span *ngIf="bankInfo?.Header?.CompanyInfo?.PhoneNumber">| Ph: </span> {{
+                      bankInfo?.Header?.CompanyInfo?.PhoneNumber }}
+                      <span *ngIf="bankInfo?.Header?.CompanyInfo?.Email">| Email: </span>{{ bankInfo?.Header?.CompanyInfo?.Email
+                      }}
+                      <span *ngIf="bankInfo?.Header?.CompanyInfo?.Email">| Website: </span>{{
+                      bankInfo?.Header?.CompanyInfo?.WebSite }}
+                      <span>
+                        <span *ngIf="bankInfo?.Header?.CompanyInfo?.CompanyPlace">| Place : </span> {{
+                        bankInfo?.Header?.CompanyInfo?.CompanyPlace }}
+                        <span *ngIf="bankInfo?.Header?.CompanyInfo?.CompanyCityTown">| City/Town : </span> {{
+                        bankInfo?.Header?.CompanyInfo?.CompanyCityTown }}
+                        <span *ngIf="bankInfo?.Header?.CompanyInfo?.CompanyPostalCode"> | Pin : </span> {{
+                        bankInfo?.Header?.CompanyInfo?.CompanyPostalCode }}
+                      </span>
+                      <span *ngIf="bankInfo?.totalGst != 0">GSTIN: <b>{{ bankInfo?.Header?.CompanyInfo?.Gstin }}</b></span>
+                      <span>State: {{ bankInfo?.Header?.CompanyInfo?.State }}</span>
+                    </p>
+        
+                  </div>
+        
+                </div>
+              </div>
+              <div class="col-sm-6-1">
+                <table class="table table-bordered border-primary mb-3">
+                  <tbody>
+                    <tr *ngIf="bankInfo?.Header?.InvoiceDetails?.InvoiceNumber">
+                      <th class="bg-light" style="width: 200px;">Invoice Number</th>
+                      <td>{{ bankInfo?.Header?.InvoiceDetails?.InvoiceNumber }}</td>
+                    </tr>
+                    <tr *ngIf="bankInfo?.Header?.InvoiceDetails?.InvoiceDate">
+                      <th class="bg-light">Invoice Date</th>
+                      <td>{{ bankInfo?.Header?.InvoiceDetails?.InvoiceDate | date}}</td>
+                    </tr>
+                    <tr *ngIf="bankInfo?.Header?.InvoiceDetails?.EwayBillNo">
+                      <th class="bg-light">Eway BillNo & Eway Date</th>
+                      <td>{{ bankInfo?.Header?.InvoiceDetails?.EwayBillNo}} & {{ bankInfo?.Header?.InvoiceDetails?.EwayDate |
+                        date}}</td>
+                    </tr>
+                    <tr *ngFor="let item of bankInfo?.Header?.Fileditems">
+                      <th *ngIf="bankInfo?.Header?.Fileditems" class="bg-light">{{item.FieldName}}</th>
+                      <td *ngIf="bankInfo?.Header?.Fileditems">{{item.FieldValue}}</td>
+                    </tr>
+                    <tr>
+        
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </th>
+        </tr>
+        <tr>
+          <th  [attr.colspan]="bankInfo?.totalGst != 0 ? 10 : 8" >
+            <div class="row-1">
+              <div class="col-12-1">
+                <table class="table table-bordered border-primary my-3">
+                  <tbody>
+                    <tr>
+                      <th class="bg-light" *ngIf="bankInfo?.Header?.BillingDetails">Billed By</th>
+                      <th class="bg-light" *ngIf="bankInfo?.Header?.ConsigneeDetails">Billed To</th>
+                    </tr>
+                    <tr>
+                      <td *ngIf="bankInfo?.Header?.BillingDetails">
+                        <p class="mb-2"><b>{{bankInfo?.Header?.BillingDetails?.BillCompName}}</b></p>
+                        <p>{{bankInfo?.Header?.BillingDetails?.BillingState}},
+                          {{bankInfo?.Header?.BillingDetails?.BillPhoneNumber}},
+                          {{bankInfo?.Header?.BillingDetails?.BillingGSTIN}},
+                          {{bankInfo?.Header?.BillingDetails?.BillingCityTown}},
+                          {{bankInfo?.Header?.BillingDetails?.BillingPostalCode}}
+                        </p>
+                      </td>
+                      <td *ngIf="bankInfo?.Header?.ConsigneeDetails">
+                        <p class="mb-2"><b>{{bankInfo?.Header?.ConsigneeDetails?.ConsigneeName}}</b></p>
+                        <p>
+                          {{bankInfo?.Header?.ConsigneeDetails?.ConsigneePhone}},
+                          {{bankInfo?.Header?.ConsigneeDetails?.ConsigneeState}},
+                          {{bankInfo?.Header?.ConsigneeDetails?.ConsigneeGSTIN}},
+                          {{bankInfo?.Header?.ConsigneeDetails?.ConsigneeAddress}},
+                          {{bankInfo?.Header?.ConsigneeDetails?.ConsigneeCityTown}},
+                          {{bankInfo?.Header?.ConsigneeDetails?.ConsigneePostalCode}}
+                        </p>
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </th>
+        </tr>
+        <tr>
+          <th>Sl</th>
+          <th>Description</th>
+          <th *ngIf="bankInfo?.totalGst != 0">HSN / SAC</th>
+          <th>QTY</th>
+          <th>UQC</th>
+          <th>Rate</th>
+          <th *ngIf="bankInfo?.totalGst != 0">Tax%</th>
+          <th>Net Value</th>
+          <th *ngIf="bankInfo?.totalGst != 0">GST</th>
+          <th>Total Amount</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let item of items; let i = index">
+          <td>{{ i + 1 }}</td>
+          <td>{{ item.description }}</td>
+          <td *ngIf="bankInfo?.totalGst != 0">{{ item.hsnSac }}</td>
+          <td>{{ item.qty }}</td>
+          <td>{{ item.uqc }}</td>
+          <td>{{ item.rate | number:'1.2-2'}}</td>
+          <td *ngIf="bankInfo?.totalGst != 0">{{ item.taxPercentage | number:'1.2-2'}}</td>
+          <td>{{ item.netValue | number:'1.2-2'}}</td>
+          <td *ngIf="bankInfo?.totalGst != 0">{{ item.gst | number:'1.2-2'}}</td>
+          <td>{{ item.totalAmount | number:'1.2-2'}}</td>
+        </tr>
+        <tr class="bg-light">
+          <th  [attr.colspan]="bankInfo?.totalGst != 0 ? 6 : 5"  class="text-center">Total</th>
+          <th></th>
+          <th *ngIf="bankInfo?.totalGst != 0">{{ bankInfo?.taxableValue | number:'1.2-2'}}</th>
+          <th *ngIf="bankInfo?.totalGst != 0">{{ bankInfo?.totalGst | number:'1.2-2'}}</th>
+          <th>{{ bankInfo?.totalAmt | number:'1.2-2'}}</th>
+        </tr>
+      </tbody>
+      <tr>
+        <th colspan="5">
+          <h4>Bank Account Details</h4>
+
+          <p>
+
+            <span class="text-secondary" style="width: 150px; display: inline-block;">Account Name </span>: {{
+            bankInfo?.accountName }}<br>
+            <span class="text-secondary" style="width: 150px; display: inline-block;">AccountNo No </span>: {{
+            bankInfo?.accountNo }}<br>
+            <span class="text-secondary" style="width: 150px; display: inline-block;">IFSCode </span>: {{
+            bankInfo?.ifsCode }}<br>
+            <span class="text-secondary" style="width: 150px; display: inline-block;">Bank Name </span>: {{
+            bankInfo?.bankName }}
+          </p>
+
+        </th>
+
+        <th colspan="6" style="vertical-align: top;">
+          <table class="table w-100">
+            <tr class="border border-top" *ngIf="bankInfo?.totalGst != 0">
+              <th class="p-2">Taxable Value</th>
+              <td>{{ bankInfo?.taxableValue | number:'1.2-2'}}</td>
+            </tr>
+            <tr
+              *ngIf="bankInfo?.Header?.BillingState != this.bankInfo?.Header?.CompanyInfo?.State && bankInfo?.totalGst != 0">
+              <th class="p-2">IGST</th>
+              <td>{{ bankInfo?.igst | number:'1.2-2'}}</td>
+            </tr>
+            <tr
+              *ngIf="bankInfo?.Header?.BillingState == this.bankInfo?.Header?.CompanyInfo?.State && bankInfo?.totalGst != 0">
+              <th class="p-2">CGST</th>
+              <td>{{ bankInfo?.cgst | number:'1.2-2'}}</td>
+            </tr>
+            <tr
+              *ngIf="bankInfo?.Header?.BillingState == this.bankInfo?.Header?.CompanyInfo?.State && bankInfo?.totalGst != 0">
+              <th class="p-2">SGST</th>
+              <td>{{ bankInfo?.sgst | number:'1.2-2'}}</td>
+            </tr>
+            <tr class="border border-top bg-light">
+              <th class="p-2">TOTAL AMOUNT</th>
+              <td>{{ bankInfo?.totalAmt | number:'1.2-2'}}</td>
+            </tr>
+          </table>
+        </th>
+      </tr>
+      <tr>
+        <th colspan="8">
+          <h4 *ngIf="bankInfo?.declaration">Declaration</h4>
+          <p>{{ bankInfo?.declaration }}</p>
+        </th>
+      </tr>
+    </table>
+  </div>
+</div>
