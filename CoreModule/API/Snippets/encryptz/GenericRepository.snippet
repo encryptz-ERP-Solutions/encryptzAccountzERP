@@ -1,0 +1,143 @@
+<?xml version="1.0" encoding="utf-8"?>
+<CodeSnippet Format="1.0.0">
+  <Header>
+    <Title>GenericRepository</Title>
+    <Shortcut>repo</Shortcut>
+    <Description>Generic repository snippet for an entity</Description>
+    <Author>Abdulla E T</Author>
+    <SnippetTypes>
+      <SnippetType>Expansion</SnippetType>
+    </SnippetTypes>
+  </Header>
+  <Snippet>
+    <Declarations>
+      <Literal>
+        <ID>Entity</ID>
+        <ToolTip>Entity class name (PascalCase)</ToolTip>
+        <Default>EntityName</Default>
+      </Literal>
+      <Literal>
+        <ID>entity</ID>
+        <ToolTip>Entity variable name (camelCase)</ToolTip>
+        <Default>entity</Default>
+      </Literal>
+      <Literal>
+        <ID>TableName</ID>
+        <ToolTip>SQL Table name</ToolTip>
+        <Default>core.entityM</Default>
+      </Literal>
+      <Literal>
+        <ID>ParamId</ID>
+        <ToolTip>Primary key column name</ToolTip>
+        <Default>id</Default>
+      </Literal>
+    </Declarations>
+    <Code Language="csharp"><![CDATA[
+using System;
+using System.Collections.Generic;
+using System.Data;
+using System.Threading.Tasks;
+using Data.Core;
+using Entities.Admin;
+using Infrastructure.Extensions;
+using Microsoft.Data.SqlClient;
+using Repository.Admin.Interface;
+
+namespace Repository.Admin
+{
+    public class $Entity$Repository : I$Entity$Repository
+    {
+        private readonly CoreSQLDbHelper _sqlHelper;
+
+        public $Entity$Repository(CoreSQLDbHelper sqlHelper)
+        {
+            _sqlHelper = sqlHelper;
+        }
+
+        public async Task<$Entity$> AddAsync($Entity$ $entity$)
+        {
+            var query = @"INSERT INTO $TableName$ (userId, userName, userPassword, panNo, adharCardNo, phoneNo, address, stateId, nationId, isActive)
+                          VALUES (@userId, @userName, @userPassword, @panNo, @adharCardNo, @phoneNo, @address, @stateId, @nationId, @isActive);
+                          SELECT * FROM $TableName$ WHERE userId = @userId;";
+
+            var parameters = GetSqlParameters($entity$);
+            var data = await _sqlHelper.ExecuteQueryAsync(query, parameters);
+
+            if (data.Rows.Count == 0) return null;
+
+            return data.Rows[0].ToObjectFromDR<$Entity$>();
+        }
+
+        public async Task DeleteAsync(long id)
+        {
+            var query = "DELETE FROM $TableName$ WHERE $ParamId$ = @Id";
+            var parameters = new[] { new SqlParameter("@Id", id) };
+            _sqlHelper.ExecuteNonQuery(query, parameters);
+            await Task.CompletedTask;
+        }
+
+        public async Task<IEnumerable<$Entity$>> GetAllAsync()
+        {
+            var query = "SELECT * FROM $TableName$";
+            var dataTable = _sqlHelper.ExecuteQuery(query);
+            return await Task.FromResult(dataTable.ToList<$Entity$>());
+        }
+
+        public async Task<$Entity$> GetByIdAsync(long id)
+        {
+            var query = "SELECT * FROM $TableName$ WHERE $ParamId$ = @Id";
+            var parameters = new[] { new SqlParameter("@Id", id) };
+            var dataTable = _sqlHelper.ExecuteQuery(query, parameters);
+
+            if (dataTable.Rows.Count == 0) return null;
+
+            return await Task.FromResult(dataTable.Rows[0].ToObjectFromDR<$Entity$>());
+        }
+
+        public async Task<$Entity$> UpdateAsync($Entity$ $entity$)
+        {
+            var query = @"UPDATE $TableName$ SET 
+                              userId = @userId,
+                              userName = @userName,
+                              userPassword = @userPassword,
+                              panNo = @panNo,
+                              adharCardNo = @adharCardNo,
+                              phoneNo = @phoneNo,
+                              address = @address,
+                              stateId = @stateId,
+                              nationId = @nationId,
+                              isActive = @isActive
+                          WHERE $ParamId$ = @id;
+                          SELECT * FROM $TableName$ WHERE $ParamId$ = @id";
+
+            var parameters = GetSqlParameters($entity$);
+            var data = await _sqlHelper.ExecuteQueryAsync(query, parameters);
+
+            if (data.Rows.Count == 0) return null;
+
+            return data.Rows[0].ToObjectFromDR<$Entity$>();
+        }
+
+        private static SqlParameter[] GetSqlParameters($Entity$ $entity$)
+        {
+            return new[]
+            {
+                new SqlParameter("@id", $entity$.id),
+                new SqlParameter("@userId", $entity$.userId),
+                new SqlParameter("@userName", $entity$.userName),
+                new SqlParameter("@userPassword", $entity$.userPassword ?? (object)DBNull.Value),
+                new SqlParameter("@panNo", $entity$.panNo ?? (object)DBNull.Value),
+                new SqlParameter("@adharCardNo", $entity$.adharCardNo ?? (object)DBNull.Value),
+                new SqlParameter("@phoneNo", $entity$.phoneNo ?? (object)DBNull.Value),
+                new SqlParameter("@address", $entity$.address ?? (object)DBNull.Value),
+                new SqlParameter("@stateId", $entity$.stateId ?? (object)DBNull.Value),
+                new SqlParameter("@nationId", $entity$.nationId ?? (object)DBNull.Value),
+                new SqlParameter("@isActive", $entity$.isActive)
+            };
+        }
+    }
+}
+]]>
+    </Code>
+  </Snippet>
+</CodeSnippet>

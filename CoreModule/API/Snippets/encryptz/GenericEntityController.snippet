@@ -1,0 +1,142 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<CodeSnippets xmlns="http://schemas.microsoft.com/VisualStudio/2005/CodeSnippet">
+  <CodeSnippet Format="1.0.0">
+    <Header>
+      <Title>Generic Entity Controller</Title>
+      <Shortcut>entitycontroller</Shortcut>
+      <Description>Controller template for generic entity</Description>
+      <Author>Abdulla E T</Author>
+    </Header>
+    <Snippet>
+      <Declarations>
+        <Literal>
+          <ID>EntityName</ID>
+          <ToolTip>PascalCase name of the entity (e.g., User, Product)</ToolTip>
+          <Default>User</Default>
+        </Literal>
+        <Literal>
+          <ID>entityName</ID>
+          <ToolTip>camelCase name of the entity (e.g., user, product)</ToolTip>
+          <Default>user</Default>
+        </Literal>
+      </Declarations>
+      <Code Language="csharp"><![CDATA[
+using BusinessLogic.Admin.DTOs;
+using BusinessLogic.Admin.Interface;
+using Entities.Admin;
+using Entities.Core;
+using Infrastructure;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
+using Repository.Admin.Interface;
+using Repository.Core.Interface;
+
+namespace encryptzERP.Controllers.Admin
+{
+    [Route("api/[controller]")]
+    [ApiController]
+    [Authorize]
+    public class $EntityName$Controller : ControllerBase
+    {
+        private readonly I$EntityName$Service _$entityName$Service;
+        private readonly ExceptionHandler _exceptionHandler;
+
+        public $EntityName$Controller(I$EntityName$Service $entityName$Service, ExceptionHandler exceptionHandler)
+        {
+            _$entityName$Service = $entityName$Service;
+            _exceptionHandler = exceptionHandler;
+        }
+
+        [HttpGet]
+        public async Task<ActionResult<IEnumerable<$EntityName$Dto>>> GetAll()
+        {
+            try
+            {
+                var result = await _$entityName$Service.GetAll$EntityName$Async();
+                return Ok(result);
+            }
+            catch (Exception ex)
+            {
+                _exceptionHandler.LogError(ex);
+                throw;
+            }
+        }
+
+        [HttpGet("{id}")]
+        public async Task<ActionResult<$EntityName$Dto>> GetById(long id)
+        {
+            try
+            {
+                var result = await _$entityName$Service.Get$EntityName$ByIdAsync(id);
+                if (result == null)
+                    return NotFound();
+
+                return Ok(result);
+            }
+            catch (Exception ex)
+            {
+                _exceptionHandler.LogError(ex);
+                throw;
+            }
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> Create($EntityName$Dto $entityName$Dto)
+        {
+            try
+            {
+                var response = await _$entityName$Service.Add$EntityName$Async($entityName$Dto);
+                if (response == null)
+                    return BadRequest("Failed to add $entityName$.");
+
+                return Ok(new { message = "$EntityName$ added successfully." });
+            }
+            catch (Exception ex)
+            {
+                _exceptionHandler.LogError(ex);
+                throw;
+            }
+        }
+
+        [HttpPut("{id}")]
+        public async Task<IActionResult> Update(long id, $EntityName$Dto $entityName$Dto)
+        {
+            try
+            {
+                var success = await _$entityName$Service.Update$EntityName$Async(id, $entityName$Dto);
+                if (!success)
+                    return NotFound(new { message = "$EntityName$ not found or update failed." });
+
+                return Ok(new { message = "$EntityName$ updated successfully." });
+            }
+            catch (Exception ex)
+            {
+                _exceptionHandler.LogError(ex);
+                throw;
+            }
+        }
+
+        [HttpDelete("{id}")]
+        public async Task<IActionResult> Delete(long id)
+        {
+            try
+            {
+                var success = await _$entityName$Service.Delete$EntityName$Async(id);
+                if (!success)
+                    return NotFound(new { message = "$EntityName$ not found or could not be deleted." });
+
+                return Ok(new { message = "$EntityName$ deleted successfully." });
+            }
+            catch (Exception ex)
+            {
+                _exceptionHandler.LogError(ex);
+                throw;
+            }
+        }
+    }
+}
+]]>
+      </Code>
+    </Snippet>
+  </CodeSnippet>
+</CodeSnippets>

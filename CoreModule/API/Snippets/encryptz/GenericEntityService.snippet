@@ -1,0 +1,129 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<CodeSnippets xmlns="http://schemas.microsoft.com/VisualStudio/2005/CodeSnippet">
+  <CodeSnippet Format="1.0.0">
+    <Header>
+      <Title>Generic Entity Service</Title>
+      <Shortcut>entityservice</Shortcut>
+      <Description>Service class template for any entity</Description>
+      <Author>Abdulla E T</Author>
+    </Header>
+    <Snippet>
+      <Declarations>
+        <Literal>
+          <ID>EntityName</ID>
+          <ToolTip>PascalCase entity name (e.g., User, Module)</ToolTip>
+          <Default>User</Default>
+        </Literal>
+        <Literal>
+          <ID>entityName</ID>
+          <ToolTip>camelCase entity name (e.g., user, module)</ToolTip>
+          <Default>user</Default>
+        </Literal>
+      </Declarations>
+      <Code Language="csharp"><![CDATA[
+using System;
+using System.Collections.Generic;
+using System.Threading.Tasks;
+using BusinessLogic.Admin.DTOs;
+using BusinessLogic.Admin.Interface;
+using Entities.Admin;
+using Repository.Admin.Interface;
+using Infrastructure;
+using Infrastructure.Extensions;
+
+namespace BusinessLogic.Admin.Services
+{
+    public class $EntityName$Service : I$EntityName$Service
+    {
+        private readonly I$EntityName$Repository _$entityName$Repository;
+
+        public $EntityName$Service(I$EntityName$Repository $entityName$Repository)
+        {
+            _$entityName$Repository = $entityName$Repository;
+        }
+
+        public async Task<$EntityName$Dto> Add$EntityName$Async($EntityName$Dto $entityName$Dto)
+        {
+            try
+            {
+                // TODO: Add validations
+                var entity = $entityName$Dto.ConvertToClassObject<$EntityName$Dto, $EntityName$>();
+                entity = await _$entityName$Repository.AddAsync(entity);
+                if (entity == null)
+                    throw new Exception("Failed to add $entityName$.");
+                return entity.ConvertToClassObject<$EntityName$, $EntityName$Dto>();
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+        }
+
+        public async Task<bool> Delete$EntityName$Async(long id)
+        {
+            try
+            {
+                if (id <= 0)
+                    throw new ArgumentException("Invalid ID.");
+                await _$entityName$Repository.DeleteAsync(id);
+                return true;
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+        }
+
+        public async Task<IEnumerable<$EntityName$Dto>> GetAll$EntityName$Async()
+        {
+            try
+            {
+                var list = await _$entityName$Repository.GetAllAsync();
+                var dtoList = new List<$EntityName$Dto>();
+                foreach (var item in list)
+                {
+                    dtoList.Add(item.ConvertToClassObject<$EntityName$, $EntityName$Dto>());
+                }
+                return dtoList;
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+        }
+
+        public async Task<$EntityName$Dto?> Get$EntityName$ByIdAsync(long id)
+        {
+            try
+            {
+                var entity = await _$entityName$Repository.GetByIdAsync(id);
+                return entity?.ConvertToClassObject<$EntityName$, $EntityName$Dto>();
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+        }
+
+        public async Task<bool> Update$EntityName$Async(long id, $EntityName$Dto $entityName$Dto)
+        {
+            try
+            {
+                if (id <= 0)
+                    throw new ArgumentException("Invalid ID.");
+                var entity = $entityName$Dto.ConvertToClassObject<$EntityName$Dto, $EntityName$>();
+                await _$entityName$Repository.UpdateAsync(entity);
+                return true;
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+        }
+    }
+}
+]]>
+      </Code>
+    </Snippet>
+  </CodeSnippet>
+</CodeSnippets>
