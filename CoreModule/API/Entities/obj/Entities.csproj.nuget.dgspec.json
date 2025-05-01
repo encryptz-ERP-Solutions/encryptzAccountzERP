@@ -1,17 +1,17 @@
 {
   "format": 1,
   "restore": {
-    "C:\\encryptz\\SourceFiles\\encryptzERP\\CoreModule\\API\\Entities\\Entities.csproj": {}
+    "C:\\encryptz\\SourceFiles\\AccountzERP\\encryptzAccountzERP\\CoreModule\\API\\Entities\\Entities.csproj": {}
   },
   "projects": {
-    "C:\\encryptz\\SourceFiles\\encryptzERP\\CoreModule\\API\\Entities\\Entities.csproj": {
+    "C:\\encryptz\\SourceFiles\\AccountzERP\\encryptzAccountzERP\\CoreModule\\API\\Entities\\Entities.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "C:\\encryptz\\SourceFiles\\encryptzERP\\CoreModule\\API\\Entities\\Entities.csproj",
+        "projectUniqueName": "C:\\encryptz\\SourceFiles\\AccountzERP\\encryptzAccountzERP\\CoreModule\\API\\Entities\\Entities.csproj",
         "projectName": "Entities",
-        "projectPath": "C:\\encryptz\\SourceFiles\\encryptzERP\\CoreModule\\API\\Entities\\Entities.csproj",
+        "projectPath": "C:\\encryptz\\SourceFiles\\AccountzERP\\encryptzAccountzERP\\CoreModule\\API\\Entities\\Entities.csproj",
         "packagesPath": "C:\\Users\\Administrator\\.nuget\\packages\\",
-        "outputPath": "C:\\encryptz\\SourceFiles\\encryptzERP\\CoreModule\\API\\Entities\\obj\\",
+        "outputPath": "C:\\encryptz\\SourceFiles\\AccountzERP\\encryptzAccountzERP\\CoreModule\\API\\Entities\\obj\\",
         "projectStyle": "PackageReference",
         "fallbackFolders": [
           "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"

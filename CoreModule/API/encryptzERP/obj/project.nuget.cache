@@ -1,8 +1,8 @@
 {
   "version": 2,
-  "dgSpecHash": "V6H3XtLAJxQ=",
+  "dgSpecHash": "Xl7AG6glvPs=",
   "success": true,
-  "projectFilePath": "C:\\encryptz\\SourceFiles\\encryptzERP\\CoreModule\\API\\encryptzERP\\encryptzERP.csproj",
+  "projectFilePath": "C:\\encryptz\\SourceFiles\\AccountzERP\\encryptzAccountzERP\\CoreModule\\API\\encryptzERP\\encryptzERP.csproj",
   "expectedPackageFiles": [
     "C:\\Users\\Administrator\\.nuget\\packages\\azure.core\\1.38.0\\azure.core.1.38.0.nupkg.sha512",
     "C:\\Users\\Administrator\\.nuget\\packages\\azure.identity\\1.11.4\\azure.identity.1.11.4.nupkg.sha512",

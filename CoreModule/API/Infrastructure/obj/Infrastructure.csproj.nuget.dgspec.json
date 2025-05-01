@@ -1,17 +1,17 @@
 {
   "format": 1,
   "restore": {
-    "C:\\encryptz\\SourceFiles\\encryptzERP\\CoreModule\\API\\Infrastructure\\Infrastructure.csproj": {}
+    "C:\\encryptz\\SourceFiles\\AccountzERP\\encryptzAccountzERP\\CoreModule\\API\\Infrastructure\\Infrastructure.csproj": {}
   },
   "projects": {
-    "C:\\encryptz\\SourceFiles\\encryptzERP\\CoreModule\\API\\Data\\Data.csproj": {
+    "C:\\encryptz\\SourceFiles\\AccountzERP\\encryptzAccountzERP\\CoreModule\\API\\Data\\Data.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "C:\\encryptz\\SourceFiles\\encryptzERP\\CoreModule\\API\\Data\\Data.csproj",
+        "projectUniqueName": "C:\\encryptz\\SourceFiles\\AccountzERP\\encryptzAccountzERP\\CoreModule\\API\\Data\\Data.csproj",
         "projectName": "Data",
-        "projectPath": "C:\\encryptz\\SourceFiles\\encryptzERP\\CoreModule\\API\\Data\\Data.csproj",
+        "projectPath": "C:\\encryptz\\SourceFiles\\AccountzERP\\encryptzAccountzERP\\CoreModule\\API\\Data\\Data.csproj",
         "packagesPath": "C:\\Users\\Administrator\\.nuget\\packages\\",
-        "outputPath": "C:\\encryptz\\SourceFiles\\encryptzERP\\CoreModule\\API\\Data\\obj\\",
+        "outputPath": "C:\\encryptz\\SourceFiles\\AccountzERP\\encryptzAccountzERP\\CoreModule\\API\\Data\\obj\\",
         "projectStyle": "PackageReference",
         "fallbackFolders": [
           "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
@@ -79,14 +79,14 @@
         }
       }
     },
-    "C:\\encryptz\\SourceFiles\\encryptzERP\\CoreModule\\API\\Infrastructure\\Infrastructure.csproj": {
+    "C:\\encryptz\\SourceFiles\\AccountzERP\\encryptzAccountzERP\\CoreModule\\API\\Infrastructure\\Infrastructure.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "C:\\encryptz\\SourceFiles\\encryptzERP\\CoreModule\\API\\Infrastructure\\Infrastructure.csproj",
+        "projectUniqueName": "C:\\encryptz\\SourceFiles\\AccountzERP\\encryptzAccountzERP\\CoreModule\\API\\Infrastructure\\Infrastructure.csproj",
         "projectName": "Infrastructure",
-        "projectPath": "C:\\encryptz\\SourceFiles\\encryptzERP\\CoreModule\\API\\Infrastructure\\Infrastructure.csproj",
+        "projectPath": "C:\\encryptz\\SourceFiles\\AccountzERP\\encryptzAccountzERP\\CoreModule\\API\\Infrastructure\\Infrastructure.csproj",
         "packagesPath": "C:\\Users\\Administrator\\.nuget\\packages\\",
-        "outputPath": "C:\\encryptz\\SourceFiles\\encryptzERP\\CoreModule\\API\\Infrastructure\\obj\\",
+        "outputPath": "C:\\encryptz\\SourceFiles\\AccountzERP\\encryptzAccountzERP\\CoreModule\\API\\Infrastructure\\obj\\",
         "projectStyle": "PackageReference",
         "fallbackFolders": [
           "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
@@ -107,8 +107,8 @@
           "net8.0": {
             "targetAlias": "net8.0",
             "projectReferences": {
-              "C:\\encryptz\\SourceFiles\\encryptzERP\\CoreModule\\API\\Data\\Data.csproj": {
-                "projectPath": "C:\\encryptz\\SourceFiles\\encryptzERP\\CoreModule\\API\\Data\\Data.csproj"
+              "C:\\encryptz\\SourceFiles\\AccountzERP\\encryptzAccountzERP\\CoreModule\\API\\Data\\Data.csproj": {
+                "projectPath": "C:\\encryptz\\SourceFiles\\AccountzERP\\encryptzAccountzERP\\CoreModule\\API\\Data\\Data.csproj"
               }
             }
           }
