@@ -81,7 +81,7 @@
 
 mat-form-field.small {
     --mat-form-field-container-height: 32px;
-    --mat-form-field-container-vertical-padding: 4px;
+    --mat-form-field-container-vertical-padding: 2px;
 }
 
 
@@ -89,3 +89,13 @@ mat-form-field.small {
     height: 100vh;
     background-color: red;
 }
+
+.login-wrap{
+    padding-left: 100px !important;
+    padding-right: 100px !important;
+}
+
+// .btn-30{
+//     height: 32px !important;
+//     min-height: 32px !important;
+// }

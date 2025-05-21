@@ -37,13 +37,46 @@
             <div class="ads w-100"></div>
         </div>
 
-        <div class="col-md-5 p-5 d-flex align-items-center">
+        <div class="col-md-5 p-5 d-flex align-items-center login-wrap">
 
-            <div>
-                <div class="mont600 f-sz22">Login to encryptz world</div>
+            <div class="wd-100">
+                <div class="mont600 f-sz22 mb-1">Login to encryptz world</div>
                 <div class="mont400 f-sz10">See what is going on with your business</div>
+
+                <button mat-stroked-button color="primary" class="wd-100 mt-4 radius-4 mb-3">
+                    <div class="d-flex align-items-center">
+                        <mat-icon class="icon-14 material-symbols-outlined">mark_as_unread</mat-icon>
+                        <div class="mont500 f-sz10 ms-2">Login With Email</div>
+                    </div>
+                </button>
+
+
+                <div class="wd-100 mt-3">
+                    <mat-label class="f-sz10 mont400">User ID or PAN No</mat-label>
+                    <mat-form-field class="wd-100 custom-form-field small mt-1" appearance="outline">
+                        <input matInput class="mont400 f-sz10">
+                    </mat-form-field>
+                </div>
+
+                <div class="wd-100 mt-2">
+                    <mat-label class="f-sz10 mont400">Password</mat-label>
+                    <mat-form-field class="wd-100 custom-form-field small mt-1" appearance="outline">
+                        <input matInput class="mont400 f-sz10">
+                    </mat-form-field>
+                </div>
+
+                <div class="wd-100 mt-2">
+                    <mat-checkbox class="example-margin">Check me!</mat-checkbox>
+                </div>
+
+                <div class="wd-100 mt-2">
+                    <button mat-flat-button color="primary" class="wd-100 radius-4 mont600 f-sz10"> Login</button>
+                </div>
+
+                <!-- <mat-card appearance="outlined" class="p-2 mt-4 radius-4 d-flex align-items-center">
+                    <div class="mont400 f-sz11 text-center">Login With Email</div>
+                </mat-card> -->
             </div>
         </div>
-
     </div>
 </div>
