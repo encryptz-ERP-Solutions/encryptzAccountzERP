@@ -6,7 +6,7 @@
 //     height: 100vh;
 //     background: url('../../../../assets/bg-image.jpg') no-repeat center center/cover;
 //   }
-  
+
 //   /* Semi-transparent Overlay */
 //   .login-box {
 //     background: rgba(255, 255, 255, 0.85); /* Slight transparency */
@@ -18,26 +18,26 @@
 //     text-align: center;
 //     backdrop-filter: blur(10px); /* Optional: Blurred effect */
 //   }
-  
+
 //   /* Headings */
 //   h2 {
 //     margin-bottom: 1.5rem;
 //     color: #333;
 //   }
-  
+
 //   /* Input Fields */
 //   .input-group {
 //     margin-bottom: 1rem;
 //     text-align: left;
 //   }
-  
+
 // //   label {
 // //     display: block;
 // //     font-weight: 600;
 // //     margin-bottom: 5px;
 // //     color: #333;
 // //   }
-  
+
 // //   input {
 // //     width: 100%;
 // //     padding: 10px;
@@ -45,7 +45,7 @@
 // //     border-radius: 5px;
 // //     font-size: 1rem;
 // //   }
-  
+
 //   /* Login Button */
 //   .login-button {
 //     width: 100%;
@@ -58,44 +58,107 @@
 //     cursor: pointer;
 //     transition: background 0.3s;
 //   }
-  
+
 //   .login-button:hover {
 //     background: #0056b3;
 //   }
-  
+
 //   /* Register Link */
 //   .register-link {
 //     margin-top: 1rem;
 //     font-size: 0.9rem;
 //   }
-  
+
 //   .register-link a {
 //     color: #007bff;
 //     text-decoration: none;
 //   }
-  
+
 //   .register-link a:hover {
 //     text-decoration: underline;
 //   }
-  
+
 
 mat-form-field.small {
     --mat-form-field-container-height: 32px;
     --mat-form-field-container-vertical-padding: 2px;
 }
 
-
-.ads{
+.ads {
     height: 100vh;
     background-color: red;
 }
 
-.login-wrap{
+.login-wrap {
     padding-left: 100px !important;
     padding-right: 100px !important;
+    background-color: #f4faff;
+    overflow: hidden;
+
+    &::before {
+        content: "";
+        background-image: url(../../../../assets/images/dots-login.svg);
+        background-position: right;
+        background-size: cover;
+        background-repeat: no-repeat;
+        position: absolute;
+        width: 300px;
+        height: 300px;
+        top: -150px;
+        right: -150px;
+        opacity: .6;
+    }
 }
 
-// .btn-30{
-//     height: 32px !important;
-//     min-height: 32px !important;
-// }
+.existing-account {
+    &::before {
+        content: "--------------------";
+        position: absolute;
+        width: 30px;
+        left: -35px;
+        top: 1px;
+        overflow: hidden;
+        height: 12px;
+        opacity: .7;
+    }
+
+    &::after {
+        content: "--------------------";
+        position: absolute;
+        width: 30px;
+        right: -35px;
+        top: 1px;
+        overflow: hidden;
+        height: 12px;
+        opacity: .7;
+    }
+}
+
+.slide img {
+    width: 100%;
+    height: 100vh;
+    object-fit: cover;
+}
+
+.head-line-highlight {
+    position: absolute;
+    width: 40px;
+    height: 3px;
+    left: 0px;
+    bottom: -15px;
+}
+
+
+@media (max-width: 992px) {
+    .login-wrap {
+        padding-left: 70px !important;
+        padding-right: 70px !important;
+    }
+}
+
+@media (max-width: 576px) {
+    .login-wrap {
+        padding-left: 50px !important;
+        padding-right: 50px !important;
+    }
+}

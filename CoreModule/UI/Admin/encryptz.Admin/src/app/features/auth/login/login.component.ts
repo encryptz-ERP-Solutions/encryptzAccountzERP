@@ -7,6 +7,7 @@ import { MatCardModule } from '@angular/material/card';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatCheckboxModule } from '@angular/material/checkbox';
+import { SlickCarouselModule } from 'ngx-slick-carousel';
 
 
 
@@ -21,7 +22,8 @@ import { MatCheckboxModule } from '@angular/material/checkbox';
     MatCardModule,
     MatButtonModule,
     MatIconModule,
-    MatCheckboxModule
+    MatCheckboxModule,
+    SlickCarouselModule
   ],
   templateUrl: './login.component.html',
   styleUrls: ['./login.component.scss'],
@@ -29,6 +31,26 @@ import { MatCheckboxModule } from '@angular/material/checkbox';
 export class LoginComponent {
   email: string = '';
   password: string = '';
+
+  // slides = [
+  //   { img: "http://placehold.it/350x150/000000" },
+  //   { img: "http://placehold.it/350x150/111111" },
+  //   { img: "http://placehold.it/350x150/333333" },
+  //   { img: "http://placehold.it/350x150/666666" }
+  // ];
+  slideConfig = {
+    slidesToShow: 1,
+    slidesToScroll: 1,
+    autoplay: true,
+    autoplaySpeed: 3000,
+    arrows: false,     
+    dots: true,  
+    infinite: true,
+    pauseOnHover: false,
+    pauseOnFocus: false, 
+    pauseOnDotsHover: false
+  };
+
 
   constructor(private router: Router) { }
 
