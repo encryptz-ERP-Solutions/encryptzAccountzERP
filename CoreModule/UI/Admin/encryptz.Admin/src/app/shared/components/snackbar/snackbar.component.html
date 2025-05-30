@@ -1,0 +1,9 @@
+<div class="d-flex align-items-center justify-content-between custom {{getSnackStatus(data.status)}}">
+    <div class="f-sz11 mont500 fnt-clr ps-rl" matSnackBarLabel>
+        <mat-icon class="icon-16 material-symbols-outlined fxd-icon fnt-clr">{{getSnackStatusIcon(data.status)}}</mat-icon>
+        <span class="pdL-25">{{data.message}}</span></div>
+    <span matSnackBarActions>
+        <mat-icon class="icon-16 material-symbols-outlined mrR-15 mrL-15 pointer fnt-clr"
+            (click)="snackBarRef.dismissWithAction()">close</mat-icon>
+    </span>
+</div>

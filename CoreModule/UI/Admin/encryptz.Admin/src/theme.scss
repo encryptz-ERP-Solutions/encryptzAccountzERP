@@ -2,10 +2,10 @@
 @include mat.elevation-classes();
 @include mat.app-background();
 
+$my-primary-color: #1767aa;
+$my-secondary-color: #c21515;
 
-$my-primary-color: #02447b;
-
-$custom-primary-palette: (
+$primary-palette: (
   50:  $my-primary-color,
   100: $my-primary-color,
   200: $my-primary-color,
@@ -38,14 +38,47 @@ $custom-primary-palette: (
   )
 );
 
+$secondary-palette: (
+  50:  $my-secondary-color,
+  100: $my-secondary-color,
+  200: $my-secondary-color,
+  300: $my-secondary-color,
+  400: $my-secondary-color,
+  500: $my-secondary-color,
+  600: $my-secondary-color,
+  700: $my-secondary-color,
+  800: $my-secondary-color,
+  900: $my-secondary-color,
+  A100: $my-secondary-color,
+  A200: $my-secondary-color,
+  A400: $my-secondary-color,
+  A700: $my-secondary-color,
+  contrast: (
+    50: white,
+    100: white,
+    200: white,
+    300: white,
+    400: white,
+    500: white,
+    600: white,
+    700: white,
+    800: white,
+    900: white,
+    A100: white,
+    A200: white,
+    A400: white,
+    A700: white,
+  )
+);
+
 // 2. Define your theme palettes using the M2 API
-$my-primary: mat.m2-define-palette($custom-primary-palette, 500);
-$my-accent: mat.m2-define-palette(mat.$m2-pink-palette, A200, A100, A400);
+$my-primary: mat.m2-define-palette($primary-palette, 500);
+$my-accent: mat.m2-define-palette($secondary-palette, 500);
 $my-warn: mat.m2-define-palette(mat.$m2-red-palette);
 
 // Optional: Dark theme palettes
-$my-dark-primary: mat.m2-define-palette(mat.$m2-grey-palette, 50, A100, A400);
-$my-dark-accent: mat.m2-define-palette(mat.$m2-amber-palette, A200, A100, A400);
+$my-dark-primary: mat.m2-define-palette($primary-palette,);
+$my-dark-accent: mat.m2-define-palette($secondary-palette, 500);
 $my-dark-warn: mat.m2-define-palette(mat.$m2-red-palette);
 
 // 3. Define the themes
@@ -69,19 +102,29 @@ $dark-theme: mat.m2-define-dark-theme((
 
 // 4. Apply theme classes to root classes
 .light-theme {
+  color: #000;
   @include mat.all-component-colors($light-theme);
 }
 
 .dark-theme {
+  color: #FFF;
   @include mat.all-component-colors($dark-theme);
 }
 
 
 
 
-.theme-primary { color: #02447b; }
+.theme-primary { color: #1767aa; }
 .theme-secondary { color: #c21515; }
 .theme-error { color: #ff6f6f; }
-.theme-background-primary { background-color: #02447b; }
+.theme-background-primary { background-color: #1767aa; }
 .theme-background-secondary { background-color: #c21515; }
 .theme-background-error { background-color: #ff6f6f; }
+
+.light-theme {
+  .theme-body-bg{ background-color: #f4faff;}
+}
+
+.dark-theme {
+  .theme-body-bg{ background-color: #101111;}
+}

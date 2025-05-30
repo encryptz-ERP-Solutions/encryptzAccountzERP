@@ -1,0 +1,42 @@
+.custom {
+    margin-right: -8px;
+    border-radius: 4px;
+
+}
+.success {
+    background-color: #DFF2BF;
+
+    .fnt-clr {
+        color: #4F8A10;
+    }
+}
+.warn {
+    background-color: #FEEFB3;
+
+    .fnt-clr {
+        color: #9F6000;
+    }
+}
+.info {
+    background-color: #D9EDF7;
+
+    .fnt-clr {
+        color: #31708F;
+    }
+}
+.error {
+    background-color: #FFBABA;
+
+    .fnt-clr {
+        color: #D8000C;
+    }
+}
+.fxd-icon {
+    position: absolute;
+    left: 15px;
+    top: 13px;
+}
+
+.pointer {
+    cursor: pointer;
+}

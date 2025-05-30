@@ -33,11 +33,12 @@
 
 <div class="container-fluid p-0">
     <div class="row g-0">
-           <div class="col-md-5 p-5 d-flex align-items-center login-wrap order-1 order-md-2 position-relative">
+        <div class="col-md-5 p-5 d-flex align-items-center login-wrap theme-body-bg order-1 order-md-2 position-relative">
             <div class="wd-100">
                 <!-- <img src="../../../../assets/bg-image.jpg" alt=""> -->
                 <div class="wd-100 position-relative">
-                    <div class="mont400 f-sz22 mb-1 theme-primary">Login to <span class="theme-secondary mont600">encryptz</span> world</div>
+                    <div class="mont400 f-sz22 mb-1 theme-primary">Login to <span
+                            class="theme-secondary mont600">encryptz</span> world</div>
                     <div class="mont400 f-sz10">See what is going on with your business</div>
                     <div class="head-line-highlight theme-background-secondary"></div>
                 </div>
@@ -58,24 +59,25 @@
                 <div class="wd-100 mt-4">
                     <mat-label class="f-sz11 mont400">User ID or PAN No</mat-label>
                     <mat-form-field class="wd-100 custom-form-field small mt-1" appearance="outline">
-                        <input matInput class="mont400 f-sz11">
+                        <input matInput class="mont400 f-sz11" [formControl]="email">
                     </mat-form-field>
                 </div>
 
                 <div class="wd-100 mt-2">
                     <mat-label class="f-sz11 mont400">Password</mat-label>
                     <mat-form-field class="wd-100 custom-form-field small mt-1" appearance="outline">
-                        <input matInput class="mont400 f-sz11">
+                        <input matInput class="mont400 f-sz11"  [formControl]="password">
                     </mat-form-field>
                 </div>
 
                 <div class="wd-100 mt-2 z-1 position-relative d-flex justify-content-between align-items-center">
                     <mat-checkbox color="primary"><span class="mont400 f-sz11">Remember Me</span></mat-checkbox>
-                    <div class="mont500 f-sz11"><a href="" class="theme-error text-decoration-none cursor-pointer">Forgot Password?</a></div>
+                    <div class="mont500 f-sz11"><a href=""
+                            class="theme-error text-decoration-none cursor-pointer">Forgot Password?</a></div>
                 </div>
 
                 <div class="wd-100 mt-4">
-                    <button mat-flat-button color="primary" class="wd-100 radius-4 mont600 f-sz11"> Login</button>
+                    <button mat-flat-button color="primary" class="wd-100 radius-4 mont600 f-sz11" (click)="onLogin()"> Login</button>
                 </div>
 
                 <div class="wd-100 d-flex justify-content-center mt-4">
@@ -94,27 +96,53 @@
             <div class="ads w-100">
                 <ngx-slick-carousel class="carousel" #slickModal="slick-carousel" [config]="slideConfig">
                     <!-- @for (slide of slides; track slide.img) { -->
-                    <div ngxSlickItem class="slide">
+                    <div ngxSlickItem class="slide position-relative ht-100vh">
                         <!-- <img [src]="slide.img" alt="" width="100%"> -->
-                        <img src="assets/images/screen-add1.jpg" alt="">
+                        <div class="blur-slider">
+                            <img src="assets/images/screen-add1.jpg" alt="">
+                        </div>
+                        <div class="d-flex align-items-center justify-content-center wd-100 ht-100vh content-slider">
+                            <img src="assets/images/screen-add1.jpg" alt="" class="z-1">
+                        </div>
+
                     </div>
-                    <div ngxSlickItem class="slide">
-                        <img src="assets/images/screen-add2.jpg" alt="">
+                    <div ngxSlickItem class="slide position-relative">
+                        <div class="blur-slider">
+                            <img src="assets/images/screen-add2.jpg" alt="">
+                        </div>
+                        <div class="d-flex align-items-center justify-content-center wd-100 ht-100vh content-slider">
+                            <img src="assets/images/screen-add2.jpg" alt="" class="z-1">
+                        </div>
                     </div>
-                    <div ngxSlickItem class="slide">
-                        <img src="assets/images/screen-add3.jpg" alt="">
+                    <div ngxSlickItem class="slide position-relative">
+                        <div class="blur-slider">
+                            <img src="assets/images/screen-add3.jpg" alt="">
+                        </div>
+                        <div class="d-flex align-items-center justify-content-center wd-100 ht-100vh content-slider">
+                            <img src="assets/images/screen-add3.jpg" alt="" class="z-1">
+                        </div>
                     </div>
-                    <div ngxSlickItem class="slide">
-                        <img src="assets/images/screen-add4.jpg" alt="">
+                    <div ngxSlickItem class="slide position-relative">
+                        <div class="blur-slider">
+                            <img src="assets/images/screen-add4.jpg" alt="">
+                        </div>
+                        <div class="d-flex align-items-center justify-content-center wd-100 ht-100vh content-slider">
+                            <img src="assets/images/screen-add4.jpg" alt="" class="z-1">
+                        </div>
                     </div>
-                    <div ngxSlickItem class="slide">
-                        <img src="assets/images/screen-add5.jpg" alt="">
+                    <div ngxSlickItem class="slide position-relative">
+                        <div class="blur-slider">
+                            <img src="assets/images/screen-add5.jpg" alt="">
+                        </div>
+                        <div class="d-flex align-items-center justify-content-center wd-100 ht-100vh content-slider">
+                            <img src="assets/images/screen-add5.jpg" alt="" class="z-1">
+                        </div>
                     </div>
                     <!-- } -->
                 </ngx-slick-carousel>
             </div>
         </div>
 
-     
+
     </div>
 </div>
