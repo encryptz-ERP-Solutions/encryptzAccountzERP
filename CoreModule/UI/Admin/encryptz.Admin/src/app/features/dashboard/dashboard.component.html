@@ -1,143 +1,198 @@
 <div class="doted-theme z-1"></div>
-<div class="wd-100 container-fluid p-0 d-flex justify-content-center align-items-center theme-background-primary ht-100vh position-relative">
+<div
+    class="wd-100 container-fluid p-0 d-flex justify-content-center align-items-center theme-background-primary ht-45vh position-relative">
     <div class="pdT-100 pdB-100 px-2 z-1" style="color: #FFF;">
         <div class="mont300 f-sz36">Hi, Zayed Mohammed</div>
         <div class="mont300 f-sz18 pdB-50">Welcome to
-            <span class="mont600 f-sz22">encryptz</span> world</div>
+            <span class="mont600 f-sz22">encryptz</span> world
+        </div>
     </div>
 
-    <div class="moving-scroll d-flex flex-column align-items-center z-1">
+    <!-- <div class="moving-scroll d-flex flex-column align-items-center z-1">
         <div class="round-outline d-flex align-items-center justify-content-center position-relative cursor-pointer" (click)="scrollToModuleSection()">
             <mat-icon class="icon-14 material-symbols-outlined arrow-move">south</mat-icon>
         </div>
         <div class="text-center mont400 f-sz10 mt-2">Please click and explore your modules</div>
-    </div>
+    </div> -->
 
 </div>
 
-<mat-card class="wd-100 modules-data theme-background-primary py-5" id="modulesSection">
+<mat-card class="wd-100 modules-data py-5" id="modulesSection">
     <div class="container">
-        <div class="row g-3 justify-content-center">
-            <div class="col-md-12 mb-4">
-                <div class="wd-100 f-sz22 mont300 text-center">Explore Now</div>
-            </div>
-            <div class="col-6 col-sm-6 col-md-3 col-lg-2">
-                <mat-card appearance="outlined" class="p-3 radius-15 overflow-h position-relative">
-                    <div class="notification-outline theme-background-error">
-                        <mat-icon class="icon-14 material-symbols-outlined icon-notification">notifications</mat-icon>
+        <div class="row g-2">
+            <div class="col-md-12 mb-2">
+                <div class="wd-100 f-sz22 mont300 mb-1">Explore Now</div>
+
+
+                <div class="d-flex align-items-center">
+                    <div class="f-sz11 mont400 cursor-pointer" (click)="showModule = false">Company
                     </div>
-                     <div class="module-profile d-flex justify-content-center mb-3">
+                    @if(showModule){
+                    <div class="f-sz11 mont400 me-2 mx-2 opacity5">/</div>
+                    <div class="f-sz11 mont400 opacity5">Fingent Technologies</div>
+                    }
+
+                </div>
+
+            </div>
+
+            @if(!showModule){
+            <div class="col-6 col-sm-6 col-md-4 col-lg-3">
+                <mat-card appearance="outlined" (click)="showModule = true"
+                    class="p-2 radius-6 overflow-h position-relative d-flex align-items-center flex-row cursor-pointer comp-selection">
+                    <div class="company-logo-opt p-1 radius-4 d-flex align-items-center">
                         <img src="../../../assets/images/module4.jpg" alt="">
-                     </div>
-                     <div class="mont600 f-sz12 text-center">Accounts</div>
-                     <mat-divider class="mb-2 mt-2"></mat-divider>
-                    <div class="mont400 f-sz9 opacity5 text-center">Last Active : <span class="mont600">30-05-2025 12:30</span></div>
+                    </div>
+                    <div class="mx-2 flex-1">
+                        <div class="mont600 f-sz11">Zayeds Info</div>
+                        <div class="mont400 f-sz10">Assistant Manager</div>
+                    </div>
+                    <!-- <mat-checkbox color="primary"></mat-checkbox> -->
+                    <div class="moving-scroll d-flex flex-column align-items-center z-1">
+                        <div
+                            class="round-outline d-flex align-items-center justify-content-center position-relative cursor-pointer">
+                            <mat-icon class="icon-12 material-symbols-outlined arrow-move">east</mat-icon>
+                        </div>
+                    </div>
                 </mat-card>
             </div>
-            <div class="col-6 col-sm-6 col-md-3 col-lg-2">
-                <mat-card appearance="outlined" class="p-3 radius-15 overflow-h position-relative">
-                    <!-- <div class="notification-outline theme-background-error">
-                        <mat-icon class="icon-14 material-symbols-outlined icon-notification">notifications</mat-icon>
-                    </div> -->
-                     <div class="module-profile d-flex justify-content-center mb-3">
-                        <img src="../../../assets/images/module1.jpg" alt="">
-                     </div>
-                     <div class="mont600 f-sz12 text-center">Stock</div>
-                     <mat-divider class="mb-2 mt-2"></mat-divider>
-                    <div class="mont400 f-sz9 opacity5 text-center">Last Active : <span class="mont600">30-05-2025 12:30</span></div>
-                </mat-card>
-            </div>
-            <div class="col-6 col-sm-6 col-md-3 col-lg-2">
-                <mat-card appearance="outlined" class="p-3 radius-15 overflow-h position-relative">
-                    <!-- <div class="notification-outline theme-background-error">
-                        <mat-icon class="icon-14 material-symbols-outlined icon-notification">notifications</mat-icon>
-                    </div> -->
-                     <div class="module-profile d-flex justify-content-center mb-3">
+
+            <div class="col-6 col-sm-6 col-md-4 col-lg-3">
+                <mat-card appearance="outlined" (click)="showModule = true"
+                    class="p-2 radius-6 overflow-h position-relative d-flex align-items-center flex-row cursor-pointer comp-selection">
+                    <div class="company-logo-opt p-1 radius-4 d-flex align-items-center">
                         <img src="../../../assets/images/module2.jpg" alt="">
-                     </div>
-                     <div class="mont600 f-sz12 text-center">CRM</div>
-                     <mat-divider class="mb-2 mt-2"></mat-divider>
-                    <div class="mont400 f-sz9 opacity5 text-center">Last Active : <span class="mont600">30-05-2025 12:30</span></div>
-                </mat-card>
-            </div>
-            <div class="col-6 col-sm-6 col-md-3 col-lg-2">
-                <mat-card appearance="outlined" class="p-3 radius-15 overflow-h position-relative">
-                    <div class="notification-outline theme-background-error">
-                        <mat-icon class="icon-14 material-symbols-outlined icon-notification">notifications</mat-icon>
                     </div>
-                     <div class="module-profile d-flex justify-content-center mb-3">
-                        <img src="../../../assets/images/module3.jpg" alt="">
-                     </div>
-                     <div class="mont600 f-sz12 text-center">Inventory</div>
-                     <mat-divider class="mb-2 mt-2"></mat-divider>
-                    <div class="mont400 f-sz9 opacity5 text-center">Last Active : <span class="mont600">30-05-2025 12:30</span></div>
-                </mat-card>
-            </div>
-            <div class="col-6 col-sm-6 col-md-3 col-lg-2">
-                <mat-card appearance="outlined" class="p-3 radius-15 overflow-h position-relative">
-                    <!-- <div class="notification-outline theme-background-error">
-                        <mat-icon class="icon-14 material-symbols-outlined icon-notification">notifications</mat-icon>
-                    </div> -->
-                     <div class="module-profile d-flex justify-content-center mb-3">
-                        <img src="../../../assets/images/module4.jpg" alt="">
-                     </div>
-                     <div class="mont600 f-sz12 text-center">Products</div>
-                     <mat-divider class="mb-2 mt-2"></mat-divider>
-                    <div class="mont400 f-sz9 opacity5 text-center">Last Active : <span class="mont600">30-05-2025 12:30</span></div>
-                </mat-card>
-            </div>
-            <div class="col-6 col-sm-6 col-md-3 col-lg-2">
-                <mat-card appearance="outlined" class="p-3 radius-15 overflow-h position-relative">
-                    <div class="notification-outline theme-background-error">
-                        <mat-icon class="icon-14 material-symbols-outlined icon-notification">notifications</mat-icon>
+                    <div class="mx-2 flex-1">
+                        <div class="mont600 f-sz11">Mariapps Solutios</div>
+                        <div class="mont400 f-sz10">Senior Accountant</div>
                     </div>
-                     <div class="module-profile d-flex justify-content-center mb-3">
+                    <div class="moving-scroll d-flex flex-column align-items-center z-1">
+                        <div
+                            class="round-outline d-flex align-items-center justify-content-center position-relative cursor-pointer">
+                            <mat-icon class="icon-12 material-symbols-outlined arrow-move">east</mat-icon>
+                        </div>
+                    </div>
+                </mat-card>
+            </div>
+
+            <div class="col-6 col-sm-6 col-md-4 col-lg-3">
+                <mat-card appearance="outlined" (click)="showModule = true"
+                    class="p-2 radius-6 overflow-h position-relative d-flex align-items-center flex-row cursor-pointer comp-selection">
+                    <div class="company-logo-opt p-1 radius-4 d-flex align-items-center">
                         <img src="../../../assets/images/module6.png" alt="">
-                     </div>
-                     <div class="mont600 f-sz12 text-center">Plans</div>
-                     <mat-divider class="mb-2 mt-2"></mat-divider>
-                    <div class="mont400 f-sz9 opacity5 text-center">Last Active : <span class="mont600">30-05-2025 12:30</span></div>
+                    </div>
+                    <div class="mx-2 flex-1">
+                        <div class="mont600 f-sz11">Fingent Technologies</div>
+                        <div class="mont400 f-sz10">Senior Accountant</div>
+                    </div>
+                    <div class="moving-scroll d-flex flex-column align-items-center z-1">
+                        <div
+                            class="round-outline d-flex align-items-center justify-content-center position-relative cursor-pointer">
+                            <mat-icon class="icon-12 material-symbols-outlined arrow-move">east</mat-icon>
+                        </div>
+                    </div>
+                </mat-card>
+            </div>
+            <div class="col-6 col-sm-6 col-md-4 col-lg-3">
+                <mat-card appearance="outlined" (click)="showModule = true"
+                    class="p-2 radius-6 overflow-h position-relative d-flex align-items-center flex-row cursor-pointer comp-selection">
+                    <div class="company-logo-opt p-1 radius-4 d-flex align-items-center">
+                        <img src="../../../assets/images/module6.png" alt="">
+                    </div>
+                    <div class="mx-2 flex-1">
+                        <div class="mont600 f-sz11">Fingent Technologies</div>
+                        <div class="mont400 f-sz10">Senior Accountant</div>
+                    </div>
+                    <div class="moving-scroll d-flex flex-column align-items-center z-1">
+                        <div
+                            class="round-outline d-flex align-items-center justify-content-center position-relative cursor-pointer">
+                            <mat-icon class="icon-12 material-symbols-outlined arrow-move">east</mat-icon>
+                        </div>
+                    </div>
+                </mat-card>
+            </div>
+            }
+            @else{
+            <div class="col-6 col-sm-6 col-md-3 col-lg-2">
+                <mat-card appearance="outlined"  [routerLink]="['/dashboard/accounts']" class="p-3 radius-15 overflow-h position-relative">
+                    <div class="notification-outline theme-background-error">
+                        <mat-icon class="icon-12 material-symbols-outlined icon-notification">notifications</mat-icon>
+                    </div>
+                    <div class="module-profile d-flex justify-content-center mb-3">
+                        <img src="../../../assets/images/module4.jpg" alt="">
+                    </div>
+                    <div class="mont600 f-sz11 text-center">Accounts</div>
+                    <mat-divider class="mb-2 mt-2"></mat-divider>
+                    <div class="mont400 f-sz9 opacity5 text-center">Last Active : <span class="mont600">30-05-2025
+                            12:30</span></div>
                 </mat-card>
             </div>
             <div class="col-6 col-sm-6 col-md-3 col-lg-2">
-                <mat-card appearance="outlined" class="p-3 radius-15 overflow-h position-relative">
-                    <!-- <div class="notification-outline theme-background-error">
-                        <mat-icon class="icon-14 material-symbols-outlined icon-notification">notifications</mat-icon>
-                    </div> -->
-                     <div class="module-profile d-flex justify-content-center mb-3">
+                <mat-card appearance="outlined"  [routerLink]="['/dashboard/accounts']" class="p-3 radius-15 overflow-h position-relative">
+                    <div class="module-profile d-flex justify-content-center mb-3">
                         <img src="../../../assets/images/module1.jpg" alt="">
-                     </div>
-                     <div class="mont600 f-sz12 text-center">Subscription</div>
-                     <mat-divider class="mb-2 mt-2"></mat-divider>
-                    <div class="mont400 f-sz9 opacity5 text-center">Last Active : <span class="mont600">30-05-2025 12:30</span></div>
+                    </div>
+                    <div class="mont600 f-sz11 text-center">Stock</div>
+                    <mat-divider class="mb-2 mt-2"></mat-divider>
+                    <div class="mont400 f-sz9 opacity5 text-center">Last Active : <span class="mont600">30-05-2025
+                            12:30</span></div>
                 </mat-card>
             </div>
             <div class="col-6 col-sm-6 col-md-3 col-lg-2">
-                <mat-card appearance="outlined" class="p-3 radius-15 overflow-h position-relative">
-                    <div class="notification-outline theme-background-error">
-                        <mat-icon class="icon-14 material-symbols-outlined icon-notification">notifications</mat-icon>
-                    </div>
-                     <div class="module-profile d-flex justify-content-center mb-3">
+                <mat-card appearance="outlined"  [routerLink]="['/dashboard/accounts']" class="p-3 radius-15 overflow-h position-relative">
+                    <div class="module-profile d-flex justify-content-center mb-3">
                         <img src="../../../assets/images/module2.jpg" alt="">
-                     </div>
-                     <div class="mont600 f-sz12 text-center">Accounts</div>
-                     <mat-divider class="mb-2 mt-2"></mat-divider>
-                    <div class="mont400 f-sz9 opacity5 text-center">Last Active : <span class="mont600">30-05-2025 12:30</span></div>
+                    </div>
+                    <div class="mont600 f-sz11 text-center">CRM</div>
+                    <mat-divider class="mb-2 mt-2"></mat-divider>
+                    <div class="mont400 f-sz9 opacity5 text-center">Last Active : <span class="mont600">30-05-2025
+                            12:30</span></div>
                 </mat-card>
             </div>
             <div class="col-6 col-sm-6 col-md-3 col-lg-2">
-                <mat-card appearance="outlined" class="p-3 radius-15 overflow-h position-relative">
+                <mat-card appearance="outlined" [routerLink]="['/dashboard/accounts']" class="p-3 radius-15 overflow-h position-relative">
+                    <div class="notification-outline theme-background-error">
+                        <mat-icon class="icon-12 material-symbols-outlined icon-notification">notifications</mat-icon>
+                    </div>
+                    <div class="module-profile d-flex justify-content-center mb-3">
+                        <img src="../../../assets/images/module3.jpg" alt="">
+                    </div>
+                    <div class="mont600 f-sz11 text-center">Inventory</div>
+                    <mat-divider class="mb-2 mt-2"></mat-divider>
+                    <div class="mont400 f-sz9 opacity5 text-center">Last Active : <span class="mont600">30-05-2025
+                            12:30</span></div>
+                </mat-card>
+            </div>
+            <div class="col-6 col-sm-6 col-md-3 col-lg-2">
+                <mat-card appearance="outlined" [routerLink]="['/dashboard/accounts']" class="p-3 radius-15 overflow-h position-relative">
                     <div class="notification-outline theme-background-error">
                         <mat-icon class="icon-14 material-symbols-outlined icon-notification">notifications</mat-icon>
                     </div>
-                     <div class="module-profile d-flex justify-content-center mb-3">
-                        <img src="../../../assets/images/module3.jpg" alt="">
-                     </div>
-                     <div class="mont600 f-sz12 text-center">Managers</div>
-                     <mat-divider class="mb-2 mt-2"></mat-divider>
-                    <div class="mont400 f-sz9 opacity5 text-center">Last Active : <span class="mont600">30-05-2025 12:30</span></div>
+                    <div class="module-profile d-flex justify-content-center mb-3">
+                        <img src="../../../assets/images/module4.jpg" alt="">
+                    </div>
+                    <div class="mont600 f-sz11 text-center">Products</div>
+                    <mat-divider class="mb-2 mt-2"></mat-divider>
+                    <div class="mont400 f-sz9 opacity5 text-center">Last Active : <span class="mont600">30-05-2025
+                            12:30</span></div>
                 </mat-card>
             </div>
+            <div class="col-6 col-sm-6 col-md-3 col-lg-2">
+                <mat-card appearance="outlined" [routerLink]="['//dashboard/accounts']" class="p-3 radius-15 overflow-h position-relative">
+                    <div class="notification-outline theme-background-error">
+                        <mat-icon class="icon-12 material-symbols-outlined icon-notification">notifications</mat-icon>
+                    </div>
+                    <div class="module-profile d-flex justify-content-center mb-3">
+                        <img src="../../../assets/images/module6.png" alt="">
+                    </div>
+                    <div class="mont600 f-sz11 text-center">Plans</div>
+                    <mat-divider class="mb-2 mt-2"></mat-divider>
+                    <div class="mont400 f-sz9 opacity5 text-center">Last Active : <span class="mont600">30-05-2025
+                            12:30</span></div>
+                </mat-card>
+            </div>
+            }
         </div>
     </div>
 

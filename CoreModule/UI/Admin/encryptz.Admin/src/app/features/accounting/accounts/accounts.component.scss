@@ -1,0 +1,32 @@
+.drag-container {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  overflow: hidden;
+  z-index: 0; // set if needed to layer under the card
+}
+
+.draggable-box {
+    z-index: 1000;
+    cursor: move;
+}
+
+::ng-deep {
+    .btn-24 {
+        .mat-mdc-mini-fab {
+            width: 24px !important;
+            height: 24px !important;
+        }
+
+        .mat-mdc-button-touch-target {
+            width: 24px !important;
+            height: 24px !important;
+        }
+    }
+}
+
+.rotate-90{
+    transform: rotate(90deg);
+}

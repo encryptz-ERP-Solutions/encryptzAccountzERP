@@ -27,6 +27,13 @@ export const routes: Routes = [
                         (m) => m.DashboardComponent
                     )
             },
+            {
+                path: 'accounts',
+                loadChildren: () =>
+                    import('./features/accounting/accounting.module').then(
+                        (m) => m.AccountingModule
+                    )
+            },
             // {
             //     path: 'dashboard',
             //     loadComponent: () =>
