@@ -1,0 +1,46 @@
+<div class="side-navbar">
+    <div class="side-nav-head d-flex align-items-center justify-content-center flex-column">
+        @if(!isExpand){
+        <div class="btn-24" (click)="openSideNav()">
+            <button mat-mini-fab color="" class="shadow-n btn-24" style="background-color: transparent;">
+                <mat-icon color="primary" class="icon-12 material-symbols-outlined">apps</mat-icon>
+            </button>
+        </div>
+        <mat-divider></mat-divider>
+        }
+        @else {
+
+        }
+    </div>
+    <div class="side-nav-menu">
+        @for (item of menuItems; track $index) {
+        <div class="position-relative">
+            <a mat-button href="javascript:bj"
+                class="d-flex align-items-center justify-content-start pd-8 pdT-10 pdB-10 single-menu-wd cursor-pointer">
+                <mat-icon class="icon-12 material-symbols-outlined">{{ item.icon }}</mat-icon>
+                <span class="mont400 f-sz11 mrL-8">{{ item.label }}</span>
+            </a>
+            @if(item.items && isExpand){
+            <div class="view-child">
+                <mat-icon color="" class="icon-16 material-symbols-outlined">keyboard_arrow_down</mat-icon>
+            </div>
+            }
+
+            @if(item.items && isExpand){
+            <div>
+                @for (submenu of item.items; track $index) {
+                <div class="first-sec-menu pdL-20 position-relative">
+                    <a mat-button href="javascript:bj"
+                        class="d-flex align-items-center justify-content-start first-menu-btn pd-8 pdT-10 pdB-10 single-menu-wd cursor-pointer position-relative">
+                        <mat-icon class="icon-12 material-symbols-outlined">{{ submenu.icon }}</mat-icon>
+                        <span class="mont400 f-sz11 mrL-8">{{ submenu.label }}</span>
+                    </a>
+                </div>
+                }
+            </div>
+            }
+
+        </div>
+        }
+    </div>
+</div>

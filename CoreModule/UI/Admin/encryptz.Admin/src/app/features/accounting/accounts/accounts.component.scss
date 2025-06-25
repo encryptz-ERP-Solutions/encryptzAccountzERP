@@ -1,16 +1,21 @@
 .drag-container {
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  overflow: hidden;
-  z-index: 0; // set if needed to layer under the card
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    overflow: hidden;
+    z-index: auto; // set if needed to layer under the card
+    pointer-events: none;
+    /* Let all clicks pass through except on draggable-box */
+
 }
 
 .draggable-box {
+    position: fixed;
     z-index: 1000;
     cursor: move;
+    pointer-events: auto;
 }
 
 ::ng-deep {
@@ -27,6 +32,50 @@
     }
 }
 
-.rotate-90{
+.rotate-90 {
     transform: rotate(90deg);
+}
+
+
+
+
+// 
+.custom-sidebar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    bottom: 0;
+    // background: #eee;
+    color: #FFF;
+    background-color: #202073;
+    width: 200px;
+    transition: width 0.3s ease;
+    overflow: hidden;
+    height: 100vh;
+}
+
+.custom-sidebar.collapsed {
+    width: 28px;
+    border-radius: 0 0;
+}
+
+.custom-sidebar.hide-collapsed{
+    width: 0px;
+}
+
+
+
+.content-area {
+    margin-left: 200px;
+    transition: margin-left 0.3s ease;
+}
+
+.custom-sidebar.collapsed+.content-area {
+    margin-left: 28px;
+}
+
+@media (max-width: 991.99px) {
+    .content-area {
+        margin-left: 0;
+    }
 }

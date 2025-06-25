@@ -6,6 +6,11 @@ import { MatCardModule } from '@angular/material/card';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatDividerModule } from '@angular/material/divider';
+import { MatSidenavModule } from '@angular/material/sidenav';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatSelectModule } from '@angular/material/select';
+import { SideBarComponent } from "./side-bar/side-bar.component";
+import { BreakpointObserver } from '@angular/cdk/layout';
 
 
 @Component({
@@ -17,7 +22,11 @@ import { MatDividerModule } from '@angular/material/divider';
     MatCardModule,
     MatButtonModule,
     MatIconModule,
-    MatDividerModule
+    MatDividerModule,
+    MatSidenavModule,
+    MatFormFieldModule,
+    MatSelectModule,
+    SideBarComponent
   ],
   templateUrl: './accounts.component.html',
   styleUrl: './accounts.component.scss',
@@ -29,31 +38,33 @@ export class AccountsComponent {
   left = 0;
   isDropped = false;
 
+  isSmallDevice: boolean = false
+  isSidebarExpanded: boolean = true;
+
+  constructor(private breakpointObserver: BreakpointObserver
+  ) {
+    this.breakpointObserver.observe(['(max-width: 767.99px)']).subscribe(result => {
+      if (result.matches) {
+        this.isSmallDevice = true
+      }
+      else {
+        this.isSmallDevice = false
+      }
+    })
+  }
+
+  toggleSidebar() {
+    this.isSidebarExpanded = !this.isSidebarExpanded;
+  }
+
   onDragEnd(event: CdkDragEnd): void {
     const rect = (event.source.getRootElement() as HTMLElement).getBoundingClientRect();
-
     this.top = rect.top;
     this.left = rect.left;
     this.isDropped = true;
-
-    // Optionally disable future drags
-    // event.source.disabled = true;
   }
 
-  //   onDragEnd(event: CdkDragEnd) {
-  //   const element = event.source.element.nativeElement as HTMLElement;
-
-  //   // Get current transform
-  //   const transform = event.source.getFreeDragPosition();
-
-  //   // Clear the transform style set by cdkDrag
-  //   element.style.transform = 'none';
-
-  //   // Apply the drag position as margin (or padding, or any other way to shift layout)
-  //   element.style.marginLeft = `${transform.x}px`;
-  //   element.style.marginTop = `${transform.y}px`;
-
-  //   // Disable further dragging if needed:
-  //   // event.source.disabled = true;
-  // }
+  checkExpandNav(event : any){
+    this.isSidebarExpanded = event
+  }
 }

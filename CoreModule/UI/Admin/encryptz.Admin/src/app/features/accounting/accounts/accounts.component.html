@@ -1,79 +1,94 @@
-<router-outlet />
-<!-- <div class="" cdkDrag (cdkDragEnded)="onDragEnd($event)">
-  Drag me around
-</div> -->
-
-<h1 class="m-0">hjkl</h1>
-
 <div class="drag-container" #screenBoundary>
-<mat-card appearance="outlined" class="draggable-box p-1" cdkDrag 
-(cdkDragEnded)="onDragEnd($event)" [cdkDragBoundary]="screenBoundary" [ngStyle]="{
-    position: isDropped ? 'fixed' : 'fixed' }">
+    <mat-card appearance="outlined" class="draggable-box p-1" cdkDrag (cdkDragEnded)="onDragEnd($event)"
+        [cdkDragBoundary]="screenBoundary">
 
-    <div class="btn-24">
-        <button mat-mini-fab class="shadow-n cursor-move rotate-90" color="" cdkDragHandle>
-            <mat-icon class="material-symbols-outlined icon-12">drag_indicator</mat-icon>
-        </button>
-    </div>
+        <div class="btn-24">
+            <button mat-mini-fab class="shadow-n cursor-move rotate-90" color="" cdkDragHandle>
+                <mat-icon class="material-symbols-outlined icon-12">drag_indicator</mat-icon>
+            </button>
+        </div>
 
-    <mat-divider></mat-divider>
+        <mat-divider class="mrT-5 mrB-5"></mat-divider>
 
-    <div class="btn-24">
-        <button mat-mini-fab class="shadow-n" color="">
-            <mat-icon class="material-symbols-outlined icon-12">person</mat-icon>
-        </button>
-    </div>
+        <div class="btn-24 mrT-3 mrB-3">
+            <button mat-mini-fab class="shadow-n" color="">
+                <mat-icon class="material-symbols-outlined icon-12">person</mat-icon>
+            </button>
+        </div>
 
-    <div class="btn-24">
-        <button mat-mini-fab class="shadow-n" color="">
-            <mat-icon class="material-symbols-outlined icon-12">paid</mat-icon>
-        </button>
-    </div>
+        <div class="btn-24 mrT-3 mrB-3">
+            <button mat-mini-fab class="shadow-n" color="">
+                <mat-icon class="material-symbols-outlined icon-12">paid</mat-icon>
+            </button>
+        </div>
 
-    <div class="btn-24">
-        <button mat-mini-fab class="shadow-n" color="">
-            <mat-icon class="material-symbols-outlined icon-12">corporate_fare</mat-icon>
-        </button>
-    </div>
+        <div class="btn-24 mrT-3 mrB-3">
+            <button mat-mini-fab class="shadow-n" color="">
+                <mat-icon class="material-symbols-outlined icon-12">corporate_fare</mat-icon>
+            </button>
+        </div>
 
-    <div class="btn-24">
-        <button mat-mini-fab class="shadow-n" color="">
-            <mat-icon class="material-symbols-outlined icon-12">euro</mat-icon>
-        </button>
-    </div>
+        <div class="btn-24 mrT-3 mrB-3">
+            <button mat-mini-fab class="shadow-n" color="">
+                <mat-icon class="material-symbols-outlined icon-12">euro</mat-icon>
+            </button>
+        </div>
 
-    <div class="btn-24">
-        <button mat-mini-fab class="shadow-n" color="">
-            <mat-icon class="material-symbols-outlined icon-12">person</mat-icon>
-        </button>
-    </div>
+        <div class="btn-24 mrT-3 mrB-3">
+            <button mat-mini-fab class="shadow-n" color="">
+                <mat-icon class="material-symbols-outlined icon-12">person</mat-icon>
+            </button>
+        </div>
 
-    <div class="btn-24">
-        <button mat-mini-fab class="shadow-n" color="">
-            <mat-icon class="material-symbols-outlined icon-12">paid</mat-icon>
-        </button>
-    </div>
+        <div class="btn-24 mrT-3 mrB-3">
+            <button mat-mini-fab class="shadow-n" color="">
+                <mat-icon class="material-symbols-outlined icon-12">paid</mat-icon>
+            </button>
+        </div>
 
-    <div class="btn-24">
-        <button mat-mini-fab class="shadow-n" color="">
-            <mat-icon class="material-symbols-outlined icon-12">corporate_fare</mat-icon>
-        </button>
-    </div>
+        <div class="btn-24 mrT-3 mrB-3">
+            <button mat-mini-fab class="shadow-n" color="">
+                <mat-icon class="material-symbols-outlined icon-12">corporate_fare</mat-icon>
+            </button>
+        </div>
 
-    <div class="btn-24">
-        <button mat-mini-fab class="shadow-n" color="">
-            <mat-icon class="material-symbols-outlined icon-12">euro</mat-icon>
-        </button>
-    </div>
+        <div class="btn-24 mrT-3 mrB-3">
+            <button mat-mini-fab class="shadow-n" color="">
+                <mat-icon class="material-symbols-outlined icon-12">euro</mat-icon>
+            </button>
+        </div>
 
-    <mat-divider></mat-divider>
+        <mat-divider class="mrT-5 mrB-5"></mat-divider>
 
 
-    <div class="btn-24">
-        <button mat-mini-fab class="shadow-n" color="">
-            <mat-icon class="material-symbols-outlined icon-12">keyboard_arrow_up</mat-icon>
-        </button>
-    </div>
+        <div class="btn-24">
+            <button mat-mini-fab class="shadow-n" color="">
+                <mat-icon class="material-symbols-outlined icon-12">keyboard_arrow_up</mat-icon>
+            </button>
+        </div>
 
-</mat-card>
+    </mat-card>
+</div>
+<!-- <mat-drawer-container class="ht-100vh" [hasBackdrop]="false">
+    <mat-drawer #drawer [mode]="'side'">
+        <app-side-bar />
+    </mat-drawer>
+    <mat-drawer-content>
+        <button mat-button (click)="drawer.toggle()">Toggle drawer</button>
+        <router-outlet />
+
+    </mat-drawer-content>
+</mat-drawer-container> -->
+
+
+<div class="custom-sidebar"
+    [ngClass]="!isSidebarExpanded && isSmallDevice ? 'hide-collapsed' :  !isSidebarExpanded && !isSmallDevice ? 'collapsed' : ''">
+    <app-side-bar [isExpand]="isSidebarExpanded" (isOpenSideNav)="checkExpandNav($event)" />
+</div>
+
+<div class="content-area">
+    <button mat-raised-button (click)="toggleSidebar()">
+        {{ isSidebarExpanded ? 'Collapse' : 'Expand' }} Sidebar
+    </button>
+    <router-outlet></router-outlet>
 </div>
