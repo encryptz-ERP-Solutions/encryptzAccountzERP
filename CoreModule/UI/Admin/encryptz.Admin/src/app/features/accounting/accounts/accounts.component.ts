@@ -34,9 +34,9 @@ import { BreakpointObserver } from '@angular/cdk/layout';
 })
 export class AccountsComponent {
 
-  top = 0;
-  left = 0;
-  isDropped = false;
+  // top = 0;
+  // left = 20;
+  // isDropped = false;
 
   isSmallDevice: boolean = false
   isSidebarExpanded: boolean = true;
@@ -57,12 +57,12 @@ export class AccountsComponent {
     this.isSidebarExpanded = !this.isSidebarExpanded;
   }
 
-  onDragEnd(event: CdkDragEnd): void {
-    const rect = (event.source.getRootElement() as HTMLElement).getBoundingClientRect();
-    this.top = rect.top;
-    this.left = rect.left;
-    this.isDropped = true;
-  }
+  // onDragEnd(event: CdkDragEnd): void {
+  //   // const rect = (event.source.getRootElement() as HTMLElement).getBoundingClientRect();
+  //   // this.top = rect.top;
+  //   // this.left = rect.left;
+  //   // this.isDropped = true;
+  // }
 
   checkExpandNav(event : any){
     this.isSidebarExpanded = event

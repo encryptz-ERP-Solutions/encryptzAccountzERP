@@ -1,5 +1,5 @@
 <div class="drag-container" #screenBoundary>
-    <mat-card appearance="outlined" class="draggable-box p-1" cdkDrag (cdkDragEnded)="onDragEnd($event)"
+    <mat-card appearance="outlined" class="draggable-box p-1" cdkDrag
         [cdkDragBoundary]="screenBoundary">
 
         <div class="btn-24">
@@ -87,8 +87,8 @@
 </div>
 
 <div class="content-area">
-    <button mat-raised-button (click)="toggleSidebar()">
+    <!-- <button mat-raised-button (click)="toggleSidebar()">
         {{ isSidebarExpanded ? 'Collapse' : 'Expand' }} Sidebar
-    </button>
+    </button> -->
     <router-outlet></router-outlet>
 </div>

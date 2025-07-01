@@ -1,24 +1,71 @@
 <div class="side-navbar">
     <div class="side-nav-head d-flex align-items-center justify-content-center flex-column">
         @if(!isExpand){
-        <div class="btn-24" (click)="openSideNav()">
-            <button mat-mini-fab color="" class="shadow-n btn-24" style="background-color: transparent;">
+        <div class="btn-24">
+            <button mat-mini-fab color="" class="shadow-n btn-24 border-btn" (click)="openSideNav()">
                 <mat-icon color="primary" class="icon-12 material-symbols-outlined">apps</mat-icon>
             </button>
         </div>
         <mat-divider></mat-divider>
         }
         @else {
-
+        <div class="d-flex align-items-center justify-content-between wd-100 pdL-8 pdR-8">
+            <div class="mont600 f-sz16">Encryptz</div>
+            <div class="btn-24">
+                <button mat-mini-fab color="primary" class="shadow-n btn-24 border-btn" (click)="closeSideNav()">
+                    <mat-icon color="" class="icon-12 material-symbols-outlined">chevron_left</mat-icon>
+                </button>
+            </div>
+        </div>
         }
     </div>
     <div class="side-nav-menu">
         @for (item of menuItems; track $index) {
-        <div class="position-relative">
+
+        @if(item.items.length == 0){
+        <div class="position-relative" [matTooltip]="!isExpand ? item.label : ''" matTooltipPosition="right">
+            <a href="#" mat-button (click)="navigateMenu(item.label)"
+                [ngClass]="{'active-menu': selectedMenu === item.label}"
+                class="d-flex align-items-center justify-content-start pd-8 pdT-10 pdB-10 single-menu-wd cursor-pointer">
+                <mat-icon class="icon-12 material-symbols-outlined">{{ item.icon }}</mat-icon>
+                <span class="mont400 f-sz11">{{ item.label }}</span>
+            </a>
+        </div>
+        }
+        @else {
+        <div class="position-relative menu-expansion">
+            <mat-accordion>
+                <mat-expansion-panel class="menu-item-first">
+                    <mat-expansion-panel-header class="inner-expansel" [matTooltip]="!isExpand ? item.label : ''"
+                        matTooltipPosition="right">
+                        <mat-panel-title class="mont400 f-sz11 letter-sp-n">
+                            <mat-icon class="icon-14 mrR-10 material-symbols-outlined">{{ item.icon }}</mat-icon>
+                            <div class="text-left no-wrap wd-170p">{{ item.label }}</div>
+                        </mat-panel-title>
+                    </mat-expansion-panel-header>
+
+                    @for (submenu of item.items; track $index) {
+                    <div class="position-relative" [ngClass]="{'first-sec-menu pdL-20': isExpand}"
+                        [matTooltip]="!isExpand ? submenu.label : ''" matTooltipPosition="right">
+                        <a href="#" mat-button (click)="navigateMenu(submenu.label)"
+                            [ngClass]="{'active-menu': selectedMenu === submenu.label}"
+                            class="d-flex align-items-center justify-content-start pd-8 pdT-10 pdB-10 single-menu-wd cursor-pointer"
+                            [ngClass]="{'first-menu-btn position-relative': isExpand}">
+                            <mat-icon class="icon-12 material-symbols-outlined">{{ submenu.icon }}</mat-icon>
+                            <span class="mont400 f-sz11">{{ submenu.label }}</span>
+                        </a>
+                    </div>
+                    }
+                </mat-expansion-panel>
+            </mat-accordion>
+        </div>
+        }
+
+        <div class="position-relative d-none">
             <a mat-button href="javascript:bj"
                 class="d-flex align-items-center justify-content-start pd-8 pdT-10 pdB-10 single-menu-wd cursor-pointer">
                 <mat-icon class="icon-12 material-symbols-outlined">{{ item.icon }}</mat-icon>
-                <span class="mont400 f-sz11 mrL-8">{{ item.label }}</span>
+                <span class="mont400 f-sz11">{{ item.label }}</span>
             </a>
             @if(item.items && isExpand){
             <div class="view-child">
@@ -33,7 +80,7 @@
                     <a mat-button href="javascript:bj"
                         class="d-flex align-items-center justify-content-start first-menu-btn pd-8 pdT-10 pdB-10 single-menu-wd cursor-pointer position-relative">
                         <mat-icon class="icon-12 material-symbols-outlined">{{ submenu.icon }}</mat-icon>
-                        <span class="mont400 f-sz11 mrL-8">{{ submenu.label }}</span>
+                        <span class="mont400 f-sz11">{{ submenu.label }}</span>
                     </a>
                 </div>
                 }
