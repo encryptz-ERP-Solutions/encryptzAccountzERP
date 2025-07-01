@@ -45,12 +45,11 @@
                     </mat-expansion-panel-header>
 
                     @for (submenu of item.items; track $index) {
-                    <div class="position-relative" [ngClass]="{'first-sec-menu pdL-20': isExpand}"
+                    <div class="position-relative" [ngClass]="{'first-sec-menu pdL-12': isExpand}"
                         [matTooltip]="!isExpand ? submenu.label : ''" matTooltipPosition="right">
                         <a href="#" mat-button (click)="navigateMenu(submenu.label)"
                             [ngClass]="{'active-menu': selectedMenu === submenu.label}"
-                            class="d-flex align-items-center justify-content-start pd-8 pdT-10 pdB-10 single-menu-wd cursor-pointer"
-                            [ngClass]="{'first-menu-btn position-relative': isExpand}">
+                            class="d-flex align-items-center justify-content-start pd-8 pdT-10 pdB-10 single-menu-wd-sec-1 cursor-pointer position-relative">
                             <mat-icon class="icon-12 material-symbols-outlined">{{ submenu.icon }}</mat-icon>
                             <span class="mont400 f-sz11">{{ submenu.label }}</span>
                         </a>
@@ -61,7 +60,9 @@
         </div>
         }
 
-        <div class="position-relative d-none">
+        <!-- [ngClass]="{'first-menu-btn': isExpand}" -->
+
+        <!-- <div class="position-relative d-none">
             <a mat-button href="javascript:bj"
                 class="d-flex align-items-center justify-content-start pd-8 pdT-10 pdB-10 single-menu-wd cursor-pointer">
                 <mat-icon class="icon-12 material-symbols-outlined">{{ item.icon }}</mat-icon>
@@ -87,7 +88,7 @@
             </div>
             }
 
-        </div>
+        </div> -->
         }
     </div>
 </div>

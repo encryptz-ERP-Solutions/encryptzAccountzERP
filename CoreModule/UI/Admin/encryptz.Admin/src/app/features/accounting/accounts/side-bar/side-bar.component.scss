@@ -27,49 +27,50 @@
     width: 200px;
 }
 
-.first-sec-menu {
-    &::before {
-        content: '';
-        position: absolute;
-        left: 13px;
-        top: 0;
-        height: 100%;
-        width: .5px;
-        background-color: #FFF;
-    }
-
-    // &:first-child::before {
-    //     height: 50%;
-    //     bottom: 0px;
-    //     top: 50%;
-    // }
-
-    &:last-child::before {
-        height: 50%;
-        top: 0px;
-        bottom: 50%;
-    }
-
-    .single-menu-wd {
-        width: 180px;
-    }
-
+.single-menu-wd-sec-1 {
+    width: 188px;
 }
 
-.first-menu-btn {
-    &::before {
-        content: "";
-        position: absolute;
-        left: -7px;
-        top: 5px;
-        width: 6px;
-        height: 12px;
-        border: 1px solid #FFF;
-        border-radius: 0px;
-        border-top: 0px;
-        border-right: 0px;
-    }
-}
+
+
+// .first-sec-menu {
+//     &::before {
+//         content: '';
+//         position: absolute;
+//         left: 13px;
+//         top: 0;
+//         height: 100%;
+//         width: .5px;
+//         background-color: #FFF;
+//     }
+
+//     &:last-child::before {
+//         height: 50%;
+//         top: 0px;
+//         bottom: 50%;
+//     }
+
+//     .single-menu-wd {
+//         width: 180px;
+//     }
+
+// }
+
+// .first-menu-btn {
+//     &::before {
+//         content: "";
+//         position: absolute;
+//         left: -7px;
+//         top: 5px;
+//         width: 6px;
+//         height: 12px;
+//         border: 1px solid #FFF;
+//         border-radius: 0px;
+//         border-top: 0px;
+//         border-right: 0px;
+//         border-left: 0px;
+//     }
+// }
 
 ::ng-deep {
     .btn-24 {
