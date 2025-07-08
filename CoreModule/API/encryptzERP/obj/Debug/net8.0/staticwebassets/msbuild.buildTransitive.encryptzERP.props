@@ -1,3 +1,3 @@
 ﻿<Project>
-  <Import Project="..\buildMultiTargeting\encryptzERP.props" />
+  <Import Project="../buildMultiTargeting/encryptzERP.props" />
 </Project>

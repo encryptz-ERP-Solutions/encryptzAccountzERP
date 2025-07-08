@@ -45,7 +45,13 @@ public class EmailService
 
 
         using var smtp = new SmtpClient();
-        await smtp.ConnectAsync(smtpSettings["SmtpServer"], int.Parse(smtpSettings["Port"]??"465"), bool.Parse(smtpSettings["EnableSSL"] ??"true"));
+        smtp.ServerCertificateValidationCallback = (s, c, h, e) => true;
+
+        // 👇 Use the appropriate SecureSocketOptions based on your port
+        var port = int.Parse(smtpSettings["Port"] ?? "465");
+        var options = port == 465 ? SecureSocketOptions.SslOnConnect : SecureSocketOptions.StartTls;
+
+        await smtp.ConnectAsync(smtpSettings["SmtpServer"], port, options);
         await smtp.AuthenticateAsync(smtpSettings["SenderEmail"], smtpSettings["SenderPassword"]);
         await smtp.SendAsync(email);
         await smtp.DisconnectAsync(true);

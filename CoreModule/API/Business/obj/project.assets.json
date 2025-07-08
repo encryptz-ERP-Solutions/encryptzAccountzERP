@@ -2073,45 +2073,38 @@
     ]
   },
   "packageFolders": {
-    "C:\\Users\\Administrator\\.nuget\\packages\\": {},
-    "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages": {}
+    "/Users/abdullaet/.nuget/packages/": {}
   },
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "C:\\encryptz\\SourceFiles\\AccountzERP\\encryptzAccountzERP\\CoreModule\\API\\Business\\BusinessLogic.csproj",
+      "projectUniqueName": "/Applications/Work/Encryptz/Github/encryptzAccountzERP/CoreModule/API/Business/BusinessLogic.csproj",
       "projectName": "BusinessLogic",
-      "projectPath": "C:\\encryptz\\SourceFiles\\AccountzERP\\encryptzAccountzERP\\CoreModule\\API\\Business\\BusinessLogic.csproj",
-      "packagesPath": "C:\\Users\\Administrator\\.nuget\\packages\\",
-      "outputPath": "C:\\encryptz\\SourceFiles\\AccountzERP\\encryptzAccountzERP\\CoreModule\\API\\Business\\obj\\",
+      "projectPath": "/Applications/Work/Encryptz/Github/encryptzAccountzERP/CoreModule/API/Business/BusinessLogic.csproj",
+      "packagesPath": "/Users/abdullaet/.nuget/packages/",
+      "outputPath": "/Applications/Work/Encryptz/Github/encryptzAccountzERP/CoreModule/API/Business/obj/",
       "projectStyle": "PackageReference",
-      "fallbackFolders": [
-        "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
-      ],
       "configFilePaths": [
-        "C:\\Users\\Administrator\\AppData\\Roaming\\NuGet\\NuGet.Config",
-        "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.FallbackLocation.config",
-        "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
+        "/Users/abdullaet/.nuget/NuGet/NuGet.Config"
       ],
       "originalTargetFrameworks": [
         "net8.0"
       ],
       "sources": {
-        "C:\\Program Files (x86)\\Microsoft SDKs\\NuGetPackages\\": {},
         "https://api.nuget.org/v3/index.json": {}
       },
       "frameworks": {
         "net8.0": {
           "targetAlias": "net8.0",
           "projectReferences": {
-            "C:\\encryptz\\SourceFiles\\AccountzERP\\encryptzAccountzERP\\CoreModule\\API\\Infrastructure\\Infrastructure.csproj": {
-              "projectPath": "C:\\encryptz\\SourceFiles\\AccountzERP\\encryptzAccountzERP\\CoreModule\\API\\Infrastructure\\Infrastructure.csproj"
+            "/Applications/Work/Encryptz/Github/encryptzAccountzERP/CoreModule/API/Infrastructure/Infrastructure.csproj": {
+              "projectPath": "/Applications/Work/Encryptz/Github/encryptzAccountzERP/CoreModule/API/Infrastructure/Infrastructure.csproj"
             },
-            "C:\\encryptz\\SourceFiles\\AccountzERP\\encryptzAccountzERP\\CoreModule\\API\\Repository\\Repository.csproj": {
-              "projectPath": "C:\\encryptz\\SourceFiles\\AccountzERP\\encryptzAccountzERP\\CoreModule\\API\\Repository\\Repository.csproj"
+            "/Applications/Work/Encryptz/Github/encryptzAccountzERP/CoreModule/API/Repository/Repository.csproj": {
+              "projectPath": "/Applications/Work/Encryptz/Github/encryptzAccountzERP/CoreModule/API/Repository/Repository.csproj"
             },
-            "C:\\encryptz\\SourceFiles\\AccountzERP\\encryptzAccountzERP\\CoreModule\\API\\Shared\\Shared.csproj": {
-              "projectPath": "C:\\encryptz\\SourceFiles\\AccountzERP\\encryptzAccountzERP\\CoreModule\\API\\Shared\\Shared.csproj"
+            "/Applications/Work/Encryptz/Github/encryptzAccountzERP/CoreModule/API/Shared/Shared.csproj": {
+              "projectPath": "/Applications/Work/Encryptz/Github/encryptzAccountzERP/CoreModule/API/Shared/Shared.csproj"
             }
           }
         }
@@ -2125,8 +2118,7 @@
         "enableAudit": "true",
         "auditLevel": "low",
         "auditMode": "direct"
-      },
-      "SdkAnalysisLevel": "9.0.200"
+      }
     },
     "frameworks": {
       "net8.0": {
@@ -2147,7 +2139,7 @@
             "privateAssets": "all"
           }
         },
-        "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\9.0.201/PortableRuntimeIdentifierGraph.json"
+        "runtimeIdentifierGraphPath": "/usr/local/share/dotnet/sdk/8.0.408/PortableRuntimeIdentifierGraph.json"
       }
     }
   }
