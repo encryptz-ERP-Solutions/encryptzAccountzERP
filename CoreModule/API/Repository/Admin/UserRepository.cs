@@ -14,7 +14,7 @@ using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace Repository.Admin
 {
-    public class UserRepository:IUserRepository
+    public class UserRepository : IUserRepository
     {
         private readonly CoreSQLDbHelper _sqlHelper;
 
@@ -25,8 +25,8 @@ namespace Repository.Admin
         public async Task<User> AddAsync(User user)
         {
             DataTable data = new DataTable();
-            var query = @"Insert Into core.userM( userId, userName, userPassword, panNo, adharCardNo, phoneNo, address, stateId, nationId, isActive )
-                            Values(  @userId, @userName, @userPassword, @panNo, @adharCardNo, @phoneNo, @address, @stateId, @nationId, @isActive );
+            var query = @"Insert Into core.userM( userId, userName, userPassword, Email, panNo, adharCardNo, phoneNo, address, stateId, nationId, isActive )
+                            Values(  @userId, @userName, @userPassword, @Email, @panNo, @adharCardNo, @phoneNo, @address, @stateId, @nationId, @isActive );
                              select * from core.userM where userId=@userId;";
 
             var parameters = GetSqlParameters(user);
@@ -86,13 +86,13 @@ namespace Repository.Admin
                         select * from core.UserM where id=@id";
 
             var parameters = GetSqlParameters(user);
-             data= await _sqlHelper.ExecuteQueryAsync(query, parameters);
+            data = await _sqlHelper.ExecuteQueryAsync(query, parameters);
             if (data.Rows.Count == 0) return null;
             user = data.Rows[0].ToObjectFromDR<User>();
             return user;
         }
 
-        
+
 
 
         private static User MapDataRowToUser(DataRow row)
@@ -122,12 +122,13 @@ namespace Repository.Admin
                 new SqlParameter("@userId",User.userId),
                 new SqlParameter("@userName",User.userName),
                 new SqlParameter("@userPassword",User.userPassword ?? (object)DBNull.Value),
+                new SqlParameter("@Email",User.Email ?? (object)DBNull.Value),
                 new SqlParameter("@panNo",User.panNo ?? (object)DBNull.Value),
                 new SqlParameter("@adharCardNo",User.adharCardNo ?? (object)DBNull.Value),
                 new SqlParameter("@phoneNo",User.phoneNo ?? (object)DBNull.Value),
                 new SqlParameter("@address",User.address ?? (object)DBNull.Value),
-                new SqlParameter("@stateId",User.stateId ?? (object)DBNull.Value),
-                new SqlParameter("@nationId",User.nationId ?? (object)DBNull.Value),
+                new SqlParameter("@stateId",User.stateId ?? 0),
+                new SqlParameter("@nationId",User.nationId ?? 0),
                 new SqlParameter("@isActive",User.isActive)
                 };
         }

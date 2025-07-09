@@ -14,17 +14,17 @@
 /.vs
 /.vs/
 /.vs/encryptzERP
-/CoreModule/API/Business/bin/
-/CoreModule/API/Business/obj/
+/CoreModule/API/Business/bin/*
+/CoreModule/API/Business/obj/*
 
-/CoreModule/API/Data/bin/
-/CoreModule/API/Data/obj/
+/CoreModule/API/Data/bin/*
+/CoreModule/API/Data/obj/*
 
-/CoreModule/API/encryptzERP/bin/
-/CoreModule/API/encryptzERP/obj/
+/CoreModule/API/encryptzERP/bin/*
+/CoreModule/API/encryptzERP/obj/*
 
-/CoreModule/API/Repository/bin/
-/CoreModule/API/Repository/obj/
+/CoreModule/API/Repository/bin/*
+/CoreModule/API/Repository/obj/*
 
 
 

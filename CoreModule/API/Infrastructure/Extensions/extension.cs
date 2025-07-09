@@ -124,19 +124,19 @@ namespace Infrastructure.Extensions
                 {
                     try
                     {
-                        prop.SetValue(obj, Convert.ChangeType(row[prop.Name], prop.PropertyType));
+                        var targetType = Nullable.GetUnderlyingType(prop.PropertyType) ?? prop.PropertyType;
+                        object safeValue = Convert.ChangeType(row[prop.Name], targetType);
+                        prop.SetValue(obj, safeValue);
                     }
-                    catch
+                    catch (Exception ex)
                     {
-                        throw;
-                        // Handle type conversion errors if needed
+                        throw new InvalidCastException($"Property: {prop.Name}, Value: {row[prop.Name]}, ExpectedType: {prop.PropertyType}", ex);
                     }
                 }
             }
 
             return obj;
         }
-
         /// Converts a DataTable to a list of objects of a specified class.
         public static List<T> ToList<T>(this DataTable table) where T : new()
         {

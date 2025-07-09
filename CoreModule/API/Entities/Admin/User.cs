@@ -13,6 +13,7 @@ namespace Entities.Admin
         public string userId { get; set; } = string.Empty;
         public string userName { get; set; } = string.Empty;
         public string? userPassword { get; set; } = string.Empty;
+        public string? Email { get; set; } = string.Empty;
         public string? panNo { get; set; } = string.Empty;
         public string? adharCardNo { get; set; } = string.Empty;
         public string? phoneNo { get; set; } = string.Empty;

@@ -104,9 +104,9 @@ namespace encryptzERP.Controllers.Core
                 var response = await _loginService.VerifyOTP(request);
                 if (response == null)
                 {
-                    return BadRequest(new { status = false, Message = "OTP sent successfully" });
+                    return BadRequest(new { status = false, Message = "OTP verification failed" });
                 }
-                return Ok(new { status = true, response = response, Message = "OTP sent successfully" });
+                return Ok(new { status = true, response = response, Message = "OTP verified successfully" });
             }
             catch (Exception ex)
             {
