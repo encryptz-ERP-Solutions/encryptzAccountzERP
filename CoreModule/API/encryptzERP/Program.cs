@@ -37,6 +37,18 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     });
 // Add services to the container.
 builder.Services.AddAuthorization();
+
+// Enable CORS
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("AllowEncryptzCorsPolicy",
+        builder => builder
+            .AllowAnyOrigin()  // You can replace with .WithOrigins("http://localhost:4200") for more control
+            .AllowAnyMethod()
+            .AllowAnyHeader());
+});
+
+
 builder.Services.AddScoped<TokenService>();
 builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
@@ -104,6 +116,9 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
+
+// Add CORS before authorization
+app.UseCors("AllowEncryptzCorsPolicy");
 
 app.UseAuthentication();
 app.UseAuthorization();
