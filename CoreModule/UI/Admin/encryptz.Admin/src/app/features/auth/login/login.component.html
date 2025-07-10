@@ -33,7 +33,8 @@
 
 <div class="container-fluid p-0">
     <div class="row g-0">
-        <div class="col-md-5 p-5 d-flex align-items-center login-wrap theme-body-bg order-1 order-md-2 position-relative">
+        <div
+            class="col-md-5 p-5 d-flex align-items-center login-wrap theme-body-bg order-1 order-md-2 position-relative">
             <div class="wd-100">
                 <!-- <img src="../../../../assets/bg-image.jpg" alt=""> -->
                 <div class="wd-100 position-relative">
@@ -43,13 +44,16 @@
                     <div class="head-line-highlight theme-background-secondary"></div>
                 </div>
 
-                <button mat-stroked-button color="primary" class="wd-100 mt-5 radius-4 mb-4">
+                <button mat-stroked-button color="primary" class="wd-100 mt-5 radius-4 mb-4"
+                    (click)="enableEmailLogin = !enableEmailLogin ; isOTPValidation = false">
                     <div class="d-flex align-items-center">
                         <mat-icon class="icon-14 material-symbols-outlined">mark_as_unread</mat-icon>
-                        <div class="mont500 f-sz10 ms-2">Login With Email</div>
+                        <div class="mont500 f-sz10 ms-2">{{!enableEmailLogin ? 'Login With Email' :
+                            'Login with Username & Password'}}</div>
                     </div>
                 </button>
 
+                @if(!enableEmailLogin){
                 <div class="wd-100 d-flex justify-content-center opacity7">
                     <div class="existing-account f-sz10 mont400 position-relative">
                         or Sign in with existing account
@@ -66,19 +70,73 @@
                 <div class="wd-100 mt-2">
                     <mat-label class="f-sz11 mont400">Password</mat-label>
                     <mat-form-field class="wd-100 custom-form-field small mt-1" appearance="outline">
-                        <input matInput class="mont400 f-sz11"  [formControl]="password">
+                        <input matInput class="mont400 f-sz11" [formControl]="password">
                     </mat-form-field>
                 </div>
+
 
                 <div class="wd-100 mt-2 z-1 position-relative d-flex justify-content-between align-items-center">
                     <mat-checkbox color="primary"><span class="mont400 f-sz11">Remember Me</span></mat-checkbox>
                     <div class="mont500 f-sz11"><a href=""
                             class="theme-error text-decoration-none cursor-pointer">Forgot Password?</a></div>
                 </div>
+                }
+
+                @if(!isOTPValidation && enableEmailLogin){
+                <div class="wd-100 mt-2">
+                    <mat-label class="f-sz11 mont400">Email Id <span class="mandatory">*</span></mat-label>
+                    <mat-form-field class="wd-100 custom-form-field small mt-1" appearance="outline">
+                        <input matInput class="mont400 f-sz11" [formControl]="emailOTP">
+                    </mat-form-field>
+                </div>
+
+                <div class="wd-100 mt-2">
+                    <mat-label class="f-sz11 mont400">Full Name</mat-label>
+                    <mat-form-field class="wd-100 custom-form-field small mt-1" appearance="outline">
+                        <input matInput class="mont400 f-sz11" [formControl]="fullNameOTP">
+                    </mat-form-field>
+                </div>
+
+                <div class="wd-100 mt-2">
+                    <mat-label class="f-sz11 mont400">PAN Number</mat-label>
+                    <mat-form-field class="wd-100 custom-form-field small mt-1" appearance="outline">
+                        <input matInput class="mont400 f-sz11" [formControl]="panOTP">
+                    </mat-form-field>
+                </div>
+                }
+
+                @if (isOTPValidation && enableEmailLogin) {
+                <div class="wd-100 d-flex align-items-center justify-content-center" [formGroup]="otpLoginForm">
+                    @for(field of otpFields; track $index){
+                    <mat-form-field class="custom-form-field small otp-field" appearance="outline">
+                        <input matInput #otpInput class="mont400 f-sz11 text-center" maxlength="1"
+                            [formControlName]="field" 
+                            (input)="onOtpInput($event, $index)" 
+                            (paste)="onOtpPaste($event)"
+                            (keydown)="onOtpKeyDown($event,  $index);">
+                    </mat-form-field>
+                    }
+                </div>
+                }
 
                 <div class="wd-100 mt-4">
-                    <button mat-flat-button color="primary" class="wd-100 radius-4 mont600 f-sz11" (click)="onLogin()"> Login</button>
+                    @if(!enableEmailLogin){
+                    <button mat-flat-button color="primary" class="wd-100 radius-4 mont600 f-sz11" (click)="onLogin()">
+                        Login</button>
+                    }
+                    @else{
+                    <button mat-flat-button color="primary" [disabled]="isOTPValidation && !isVerifyOTP"
+                        class="wd-100 radius-4 mont600 f-sz11" (click)="isVerifyOTP ? verifyOTP() :getOTP()">
+                        {{isVerifyOTP ? 'Verify OTP' : 'Get OTP'}}</button>
+                    }
                 </div>
+
+                <div class="wd-100 d-flex justify-content-end mt-2">
+                    <div class="f-sz11 mont400 position-relative">
+                        <span><a class="mont600 text-right" href="#">Resend OTP</a></span>
+                    </div>
+                </div>
+
 
                 <div class="wd-100 d-flex justify-content-center mt-4">
                     <div class="f-sz11 mont400 position-relative">
