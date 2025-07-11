@@ -77,7 +77,7 @@ export class LoginComponent {
   getOTP() {
     if (this.emailOTP.valid) {
       let payload = {
-        "loginType": "email",
+        "loginType": "Email",
         "loginId": this.emailOTP.value,
         "fullName": this.fullNameOTP.value,
         "panNo": this.panOTP.value
@@ -97,8 +97,6 @@ export class LoginComponent {
 
         }
       })
-
-
     }
     else {
       this.emailOTP.markAsTouched()
@@ -109,7 +107,7 @@ export class LoginComponent {
     if (this.otpLoginForm.valid) {
       const otp = Object.values(this.otpLoginForm.value).join('');
       let payload = {
-        "loginType": "email",
+        "loginType": "Email",
         "loginId": this.emailOTP.value,
         "fullName": this.fullNameOTP.value,
         "panNo": this.panOTP.value,
@@ -184,5 +182,7 @@ export class LoginComponent {
     });
     const nextEmptyIndex = digits.length < 6 ? digits.length : 5;
     this.otpInputs.get(nextEmptyIndex)?.nativeElement.focus();
+    if (this.otpLoginForm.valid) this.isVerifyOTP = true
+    else this.isVerifyOTP = false
   }
 }
