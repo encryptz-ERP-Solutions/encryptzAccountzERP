@@ -132,7 +132,7 @@ namespace BusinessLogic.Core.Services
                 {
                     return (false, $"Something went wrong. Couldn't save otp.");
                 }
-                if (sendOtpRequest.loginType == "Email")
+                if (sendOtpRequest.loginType.ToUpper() == "EMAIL")
                 {
                     _emailService = new EmailService(_configuration);
                     await _emailService.SendEmail(sendOtpRequest.loginId, otp,sendOtpRequest.fullName);
@@ -172,8 +172,8 @@ namespace BusinessLogic.Core.Services
                 UserDto user = new UserDto();
                 user.userName = name;
                 user.userId = (name.Length > 3 ? name.Trim().Substring(0, 4) : name) + DateTime.Now.Year.ToString().Substring(2, 2) + LastUserId.ToString("0000");
-                user.Email = verifyOtpRequest.loginType == "Email" ? verifyOtpRequest.loginId : "";
-                user.phoneNo = verifyOtpRequest.loginType == "Phone" ? verifyOtpRequest.loginId : "";
+                user.Email = verifyOtpRequest.loginType.ToUpper() == "EMAIL" ? verifyOtpRequest.loginId : "";
+                user.phoneNo = verifyOtpRequest.loginType.ToUpper() == "PHONE" ? verifyOtpRequest.loginId : "";
                 user.panNo = verifyOtpRequest.panNo;
                 user.isActive = true;
                 user = await _userService.AddUserAsync(user);

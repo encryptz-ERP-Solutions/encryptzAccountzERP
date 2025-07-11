@@ -1,0 +1,22 @@
+# Ignore build output folders
+**/bin/
+**/obj/
+
+# Ignore Visual Studio files
+.vs/
+*.user
+*.suo
+
+# Ignore package folders
+**/node_modules/
+**/packages/
+package-lock.json
+
+# Specific to your project structure (optional, but safe to leave)
+CoreModule/API/.vs/
+CoreModule/API/packages/
+CoreModule/UI/package-lock.json
+
+# Optional: Ignore system files
+.DS_Store
+Thumbs.db
