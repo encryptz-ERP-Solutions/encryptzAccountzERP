@@ -1,4 +1,5 @@
 # Ignore build output folders
+
 **/bin/
 **/obj/
 
