@@ -166,6 +166,19 @@ namespace BusinessLogic.Core.Services
                     return loginResponse;
                 }
 
+                UserDto? existingUser = await _userService.GetUserByLoginAsync(verifyOtpRequest.loginId, verifyOtpRequest.loginType);
+                if (existingUser != null)
+                {
+                    if (existingUser.userId != null && existingUser.userId != "")
+                    {
+                        loginResponse.Token = _tokenService.GenerateAccessToken(existingUser.userId, "User");
+                        loginResponse.RefreshToken = _tokenService.GenerateRefreshToken();
+                        _refreshTokens[existingUser.userId] = loginResponse.RefreshToken;
+
+                        return loginResponse;
+                    }
+                }
+
                 int LastUserId = await _loginRepository.GetMaxofUserId() ?? 0;
                 string name = verifyOtpRequest.fullName;
 

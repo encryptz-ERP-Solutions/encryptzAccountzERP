@@ -14,5 +14,6 @@ namespace BusinessLogic.Admin.Interface
         Task<UserDto> AddUserAsync(UserDto user);
         Task<bool> UpdateUserAsync(long id, UserDto user);
         Task<bool> DeleteUserAsync(long id);
+        Task<UserDto?> GetUserByLoginAsync(string loginValue, string loginType);
     }
 }

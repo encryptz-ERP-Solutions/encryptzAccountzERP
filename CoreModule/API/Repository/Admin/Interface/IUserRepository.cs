@@ -15,6 +15,7 @@ namespace Repository.Admin.Interface
         Task<User> AddAsync(User user);
         Task<User> UpdateAsync(User user);
         Task DeleteAsync(long id);
+        Task<User> GetByLoginAsync(string loginValue, string loginType);
       
     }
 }

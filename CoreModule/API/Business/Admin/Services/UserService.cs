@@ -46,6 +46,22 @@ namespace BusinessLogic.Admin.Services
            
         }
 
+        public async Task<UserDto?> GetUserByLoginAsync(string loginValue, string loginType)
+        {
+            try
+            {
+                if (string.IsNullOrEmpty(loginValue) || string.IsNullOrEmpty(loginType))
+                    throw new ArgumentException("Login value and type are required.");
+
+                var user = await _userRepository.GetByLoginAsync(loginValue, loginType);
+                return user?.ConvertToClassObject<User, UserDto>();
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+        }
+
         public async Task<bool> DeleteUserAsync(long id)
         {
             try

@@ -25,8 +25,15 @@ namespace Repository.Admin
         public async Task<User> AddAsync(User user)
         {
             DataTable data = new DataTable();
-            var query = @"Insert Into core.userM( userId, userName, userPassword, Email, panNo, adharCardNo, phoneNo, address, stateId, nationId, isActive )
+            var query = @"IF not exists(SELECT Id FROM core.userM WHERE Email = @Email)
+                            BEGIN 
+                            Insert Into core.userM( userId, userName, userPassword, Email, panNo, adharCardNo, phoneNo, address, stateId, nationId, isActive )
                             Values(  @userId, @userName, @userPassword, @Email, @panNo, @adharCardNo, @phoneNo, @address, @stateId, @nationId, @isActive );
+                            END
+                            ELSE
+                            BEGIN
+                                set @userId=(SELECT top 1 userId FROM core.userM WHERE Email = @Email)
+                            END
                              select * from core.userM where userId=@userId;";
 
             var parameters = GetSqlParameters(user);
@@ -90,6 +97,32 @@ namespace Repository.Admin
             if (data.Rows.Count == 0) return null;
             user = data.Rows[0].ToObjectFromDR<User>();
             return user;
+        }
+        public async Task<User> GetByLoginAsync(string loginValue, string loginType)
+        {
+            string query;
+            SqlParameter[] parameters;
+
+            if (loginType.Equals("Email", StringComparison.OrdinalIgnoreCase))
+            {
+                query = "SELECT * FROM core.userM WHERE Email = @LoginValue";
+                parameters = new[] { new SqlParameter("@LoginValue", loginValue) };
+            }
+            else if (loginType.Equals("Phone", StringComparison.OrdinalIgnoreCase))
+            {
+                query = "SELECT * FROM core.userM WHERE phoneNo = @LoginValue";
+                parameters = new[] { new SqlParameter("@LoginValue", loginValue) };
+            }
+            else
+            {
+                return null;
+            }
+
+            var dataTable = await _sqlHelper.ExecuteQueryAsync(query, parameters);
+
+            if (dataTable.Rows.Count == 0) return null;
+
+            return dataTable.Rows[0].ToObjectFromDR<User>();
         }
 
 
