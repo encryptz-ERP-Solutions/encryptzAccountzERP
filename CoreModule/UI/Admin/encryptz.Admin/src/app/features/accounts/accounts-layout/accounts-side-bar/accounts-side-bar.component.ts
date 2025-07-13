@@ -2,13 +2,13 @@ import { CommonModule } from '@angular/common';
 import { Component, EventEmitter, Input, Output } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatDividerModule } from '@angular/material/divider';
-import { MatIconModule } from '@angular/material/icon';
 import { MatExpansionModule } from '@angular/material/expansion';
-import { NavigationEnd, Router } from '@angular/router';
+import { MatIconModule } from '@angular/material/icon';
 import { MatTooltipModule } from '@angular/material/tooltip';
+import { NavigationEnd, Router } from '@angular/router';
 
 @Component({
-  selector: 'app-side-bar',
+  selector: 'app-accounts-side-bar',
   imports: [
     MatIconModule,
     MatButtonModule,
@@ -17,12 +17,10 @@ import { MatTooltipModule } from '@angular/material/tooltip';
     MatExpansionModule,
     MatTooltipModule
   ],
-  templateUrl: './side-bar.component.html',
-  styleUrl: './side-bar.component.scss',
-  standalone: true
+  templateUrl: './accounts-side-bar.component.html',
+  styleUrl: './accounts-side-bar.component.scss'
 })
-export class SideBarComponent {
-
+export class AccountsSideBarComponent {
   @Input() isExpand: boolean = false;
   @Output() isOpenSideNav = new EventEmitter<boolean>();
   selectedMenu: any
@@ -69,7 +67,7 @@ export class SideBarComponent {
     private router: Router
   ) { }
   ngOnInit() {
-    this.selectedMenu = localStorage.getItem('currentMenu');
+    this.selectedMenu = localStorage.getItem('currentAccountsMenu');
     this.router.events.subscribe(event => {
       if (event instanceof NavigationEnd) {
         this.selectedMenu = this.router.url.slice(1);
@@ -88,7 +86,7 @@ export class SideBarComponent {
   navigateMenu(url: string) {
     // this.router.navigateByUrl(url);
     this.selectedMenu = url;
-    localStorage.setItem('currentMenu', this.selectedMenu)
+    localStorage.setItem('currentAccountsMenu', this.selectedMenu)
     return false
   }
 }

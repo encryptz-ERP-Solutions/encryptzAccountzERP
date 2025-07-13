@@ -1,0 +1,11 @@
+<div class="custom-sidebar"
+    [ngClass]="!isSidebarExpanded && isSmallDevice ? 'hide-collapsed' :  !isSidebarExpanded && !isSmallDevice ? 'collapsed' : ''">
+    <app-side-bar [isExpand]="isSidebarExpanded" (isOpenSideNav)="checkExpandNav($event)" />
+</div>
+
+<div class="content-area">
+    <!-- <button mat-raised-button (click)="toggleSidebar()">
+        {{ isSidebarExpanded ? 'Collapse' : 'Expand' }} Sidebar
+    </button> -->
+    <router-outlet></router-outlet>
+</div>

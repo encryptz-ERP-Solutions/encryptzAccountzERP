@@ -27,21 +27,21 @@ export const routes: Routes = [
                         (m) => m.DashboardComponent
                     )
             },
-            {
-                path: 'accounts',
-                loadChildren: () =>
-                    import('./features/accounting/accounting.module').then(
-                        (m) => m.AccountingModule
-                    )
-            },
-            // {
-            //     path: 'dashboard',
-            //     loadComponent: () =>
-            //         import("./features/dashboard/dashboard.component").then(
-            //             (m) => m.DashboardComponent
-            //         )
-            // }
         ]
+    },
+    {
+        path: 'accounts',
+        loadChildren: () =>
+            import('./features/accounts/accounts.module').then(
+                (m) => m.AccountsModule
+            )
+    },
+    {
+        path: 'admin',
+        loadChildren: () =>
+            import("./features/admin/admin.module").then(
+                (m) => m.AdminModule
+            )
     }
 
 ];

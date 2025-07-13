@@ -1,42 +1,32 @@
-import { Component } from '@angular/core';
-import { RouterOutlet } from '@angular/router';
-import { CdkDrag, CdkDragEnd } from '@angular/cdk/drag-drop';
-import { CommonModule } from '@angular/common';
-import { MatCardModule } from '@angular/material/card';
-import { MatButtonModule } from '@angular/material/button';
-import { MatIconModule } from '@angular/material/icon';
-import { MatDividerModule } from '@angular/material/divider';
-import { MatSidenavModule } from '@angular/material/sidenav';
-import { MatFormFieldModule } from '@angular/material/form-field';
-import { MatSelectModule } from '@angular/material/select';
-import { SideBarComponent } from "./side-bar/side-bar.component";
 import { BreakpointObserver } from '@angular/cdk/layout';
-
+import { CommonModule } from '@angular/common';
+import { Component } from '@angular/core';
+import { MatButtonModule } from '@angular/material/button';
+import { MatCardModule } from '@angular/material/card';
+import { MatDividerModule } from '@angular/material/divider';
+import { MatIconModule } from '@angular/material/icon';
+import { MatSidenavModule } from '@angular/material/sidenav';
+import { RouterOutlet } from '@angular/router';
+import { SideBarComponent } from "./side-bar/side-bar.component";
 
 @Component({
-  selector: 'app-accounts',
+  selector: 'app-admin-layout',
   imports: [
     RouterOutlet,
-    CdkDrag,
     CommonModule,
     MatCardModule,
     MatButtonModule,
     MatIconModule,
     MatDividerModule,
     MatSidenavModule,
-    MatFormFieldModule,
-    MatSelectModule,
     SideBarComponent
-  ],
-  templateUrl: './accounts.component.html',
-  styleUrl: './accounts.component.scss',
+],
+  templateUrl: './admin-layout.component.html',
+  styleUrl: './admin-layout.component.scss',
   standalone: true
 })
-export class AccountsComponent {
+export class AdminLayoutComponent {
 
-  // top = 0;
-  // left = 20;
-  // isDropped = false;
 
   isSmallDevice: boolean = false
   isSidebarExpanded: boolean = true;
@@ -56,15 +46,8 @@ export class AccountsComponent {
   toggleSidebar() {
     this.isSidebarExpanded = !this.isSidebarExpanded;
   }
-
-  // onDragEnd(event: CdkDragEnd): void {
-  //   // const rect = (event.source.getRootElement() as HTMLElement).getBoundingClientRect();
-  //   // this.top = rect.top;
-  //   // this.left = rect.left;
-  //   // this.isDropped = true;
-  // }
-
-  checkExpandNav(event : any){
+  checkExpandNav(event: any) {
     this.isSidebarExpanded = event
   }
+
 }
