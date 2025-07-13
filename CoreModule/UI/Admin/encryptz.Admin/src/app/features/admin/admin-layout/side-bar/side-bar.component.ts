@@ -25,43 +25,19 @@ export class SideBarComponent {
   @Input() isExpand: boolean = false;
   @Output() isOpenSideNav = new EventEmitter<boolean>();
   selectedMenu: any
-  menuItems = [
+  menuItems : any = [
     { icon: 'dashboard', label: 'Dashboard', items: [] },
-    {
-      icon: 'person',
-      label: 'Profile',
-      items: [
-        { icon: 'person', label: 'Personal Info', },
-        { icon: 'manage_accounts', label: 'Account Settings' },
-        { icon: 'photo_camera', label: 'Profile Picture' },
-        { icon: 'work', label: 'Work Information' },
-      ]
-    },
-    { icon: 'account_box', label: 'Account Overview', items: [] },
-    { icon: 'account_balance_wallet', label: 'Income Summary', items: [] },
-    { icon: 'money_off', label: 'Expenses Summary', items: [] },
-    { icon: 'calculate', label: 'Tax Computation', items: [] },
-    { icon: 'receipt_long', label: 'GST Filing', items: [] },
-    { icon: 'summarize', label: 'TDS Filing', items: [] },
-    { icon: 'fact_check', label: 'Income Tax Filing	', items: [] },
-    { icon: 'payments', label: 'Advance Tax', items: [] },
-    { icon: 'history', label: 'Tax Payment History	', items: [] },
-    { icon: 'article', label: 'Challan Generation', items: [] },
-    { icon: 'description', label: 'Form 16 Management', items: [] },
-    { icon: 'insert_drive_file', label: 'Form 26AS', items: [] },
-    { icon: 'rule', label: 'Audit Reports', items: [] },
-    { icon: 'assessment', label: 'Balance Sheet', items: [] },
-    { icon: 'bar_chart', label: 'Profit & Loss Statement', items: [] },
-    { icon: 'library_books', label: 'Ledger Entries', items: [] },
-    { icon: 'account_balance', label: 'Bank Reconciliation', items: [] },
-    { icon: 'receipt', label: 'Invoice Management', items: [] },
-    { icon: 'note_add', label: 'Credit Notes', items: [] },
-    { icon: 'note', label: 'Debit Notes', items: [] },
-    { icon: 'group', label: 'Vendor Management', items: [] },
-    { icon: 'person_search', label: 'Client Management', items: [] },
-    { icon: 'inventory_2', label: 'Asset Register', items: [] },
-    { icon: 'functions', label: 'Depreciation Calculator', items: [] },
-    { icon: 'event', label: 'Compliance Calendar', items: [] }
+    // {
+    //   icon: 'person',
+    //   label: 'Profile',
+    //   items: [
+    //     { icon: 'person', label: 'Personal Info', },
+    //     { icon: 'manage_accounts', label: 'Account Settings' },
+    //     { icon: 'photo_camera', label: 'Profile Picture' },
+    //     { icon: 'work', label: 'Work Information' },
+    //   ]
+    // },
+    { icon: 'account_box', label: 'User Management', items: [] },
   ];
 
   constructor(
