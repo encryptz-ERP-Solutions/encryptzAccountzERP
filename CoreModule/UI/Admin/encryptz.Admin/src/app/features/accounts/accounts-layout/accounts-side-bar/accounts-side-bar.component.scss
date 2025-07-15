@@ -146,11 +146,11 @@
 
 ::ng-deep {
     .mat-mdc-tooltip {
-        --mdc-plain-tooltip-container-color: #202073;
-        --mdc-plain-tooltip-supporting-text-font: "Montserrat-400";
-        --mdc-plain-tooltip-supporting-text-size: 9px;
-        --mdc-plain-tooltip-supporting-text-weight: 400;
-        --mdc-plain-tooltip-supporting-text-color: #FFF;
+        --mat-tooltip-container-color: #202073;
+        --mat-tooltip-supporting-text-font: "Montserrat-400";
+        --mat-tooltip-supporting-text-size: 9px;
+        --mat-tooltip-supporting-text-weight: 400;
+        --mat-tooltip-supporting-text-color: #FFF;
     }
 
     .mdc-tooltip__surface {
