@@ -21,7 +21,16 @@ const routes: Routes = [
         loadComponent: () =>
           import('./components/admin-dashboard/admin-dashboard.component').then(
             (m) => m.AdminDashboardComponent
-          )
+          ),
+        data: { title: 'Dashboard' }
+      },
+      {
+        path: 'user-management',
+        loadComponent: () =>
+          import('./components/user-management/user-management.component').then(
+            (m) => m.UserManagementComponent
+          ),
+        data: { title: 'user-management' }
       },
     ]
   },

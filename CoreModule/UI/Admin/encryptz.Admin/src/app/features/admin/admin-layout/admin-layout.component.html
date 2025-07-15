@@ -7,6 +7,12 @@
     <!-- <button mat-raised-button (click)="toggleSidebar()">
         {{ isSidebarExpanded ? 'Collapse' : 'Expand' }} Sidebar
     </button> -->
-    <div class="tool-bar-head"></div>
-    <router-outlet></router-outlet>
+    <div class="tool-bar-head d-flex align-items-center py-2 px-2">
+        <div class="mont700 f-sz12 screen-title-name">{{ screenTitle | uppercase }}</div>
+        <span class="menu-spacer"></span>
+    </div>
+
+    <div class="p-2">
+        <router-outlet></router-outlet>
+    </div>
 </div>

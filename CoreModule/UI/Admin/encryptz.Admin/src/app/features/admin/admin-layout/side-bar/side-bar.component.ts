@@ -25,19 +25,9 @@ export class SideBarComponent {
   @Input() isExpand: boolean = false;
   @Output() isOpenSideNav = new EventEmitter<boolean>();
   selectedMenu: any
-  menuItems : any = [
-    { icon: 'dashboard', label: 'Dashboard', items: [] },
-    // {
-    //   icon: 'person',
-    //   label: 'Profile',
-    //   items: [
-    //     { icon: 'person', label: 'Personal Info', },
-    //     { icon: 'manage_accounts', label: 'Account Settings' },
-    //     { icon: 'photo_camera', label: 'Profile Picture' },
-    //     { icon: 'work', label: 'Work Information' },
-    //   ]
-    // },
-    { icon: 'account_box', label: 'User Management', items: [] },
+  menuItems: any = [
+    { icon: 'dashboard', label: 'Dashboard', items: [], link: '/admin/dashboard' },
+    { icon: 'person', label: 'User Management', items: [], link: '/admin/user-management' }
   ];
 
   constructor(
@@ -61,9 +51,10 @@ export class SideBarComponent {
   }
 
   navigateMenu(url: string) {
-    // this.router.navigateByUrl(url);
     this.selectedMenu = url;
     localStorage.setItem('currentAdminMenu', this.selectedMenu)
+    debugger
+    this.router.navigateByUrl(url);
     return false
   }
 }

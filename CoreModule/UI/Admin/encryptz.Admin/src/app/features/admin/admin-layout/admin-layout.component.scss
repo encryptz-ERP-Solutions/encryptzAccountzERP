@@ -22,7 +22,9 @@
     width: 0px;
 }
 
-
+.menu-spacer {
+    flex: 1 1 auto;
+}
 
 .content-area {
     margin-left: 200px;
@@ -37,6 +39,14 @@
     height: 40px;
     border-left: 1px solid #4c4ca1;
     background-color: #202073;
+}
+
+.screen-title-name {
+    width: calc(100% - 180px);
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    overflow: hidden;
+    color: #e7e7f9;
 }
 
 @media (max-width: 991.99px) {

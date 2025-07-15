@@ -24,8 +24,8 @@
 
         @if(item.items.length == 0){
         <div class="position-relative" [matTooltip]="!isExpand ? item.label : ''" matTooltipPosition="right">
-            <a href="#" mat-button (click)="navigateMenu(item.label)"
-                [ngClass]="{'active-menu': selectedMenu === item.label}"
+            <a href="#" mat-button (click)="navigateMenu(item.link)"
+                [ngClass]="{'active-menu': selectedMenu === item.link}"
                 class="d-flex align-items-center justify-content-start pd-8 pdT-10 pdB-10 single-menu-wd cursor-pointer">
                 <mat-icon class="icon-12 material-symbols-outlined">{{ item.icon }}</mat-icon>
                 <span class="mont400 f-sz11">{{ item.label }}</span>
