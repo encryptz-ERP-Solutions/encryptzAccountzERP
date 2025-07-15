@@ -12,5 +12,13 @@ import { MatIconModule } from '@angular/material/icon';
   styleUrl: './user-management.component.scss'
 })
 export class UserManagementComponent {
+  constructor(
+    // private dialog : MatDiaog
+  ) {
 
+  }
+
+  addEditUser(type: number = 1, info: any = []) {
+
+  }
 }

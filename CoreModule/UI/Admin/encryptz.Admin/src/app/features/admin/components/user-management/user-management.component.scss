@@ -1,0 +1,13 @@
+::ng-deep {
+    .btn-20 {
+        .mat-mdc-mini-fab {
+            width: 20px !important;
+            height: 20px !important;
+        }
+
+        .mat-mdc-mini-fab .mat-mdc-button-touch-target {
+            width: 20px !important;
+            height: 20px !important;
+        }
+    }
+}
