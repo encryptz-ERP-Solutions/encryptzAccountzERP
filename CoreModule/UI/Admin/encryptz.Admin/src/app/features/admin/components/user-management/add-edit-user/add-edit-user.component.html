@@ -1,1 +1,62 @@
-<p>add-edit-user works!</p>
+<div mat-dialog-title class="mont600 f-sz13 pdL-20 pdR-20 pdT-0 pdB-10">{{data.title}}</div>
+<mat-dialog-content class="pdL-20 pdR-20 pdT-0 pdB-20">
+
+    <div class="row g-2" [formGroup]="userInfoForm">
+        <div class="col-md-6">
+            <mat-form-field class="wd-100 custom-form-field small mt-1" appearance="outline">
+                <mat-label class="f-sz11 mont400">User Name</mat-label>
+                <input matInput class="mont400 f-sz11" formControlName="userName">
+            </mat-form-field>
+        </div>
+        <div class="col-md-6">
+            <mat-form-field class="wd-100 custom-form-field small mt-1" appearance="outline">
+                <mat-label class="f-sz11 mont400">Password</mat-label>
+                <input matInput class="mont400 f-sz11" formControlName="password">
+            </mat-form-field>
+        </div>
+        <div class="col-md-6">
+            <mat-form-field class="wd-100 custom-form-field small mt-1" appearance="outline">
+                <mat-label class="f-sz11 mont400">PAN Number</mat-label>
+                <input matInput class="mont400 f-sz11" formControlName="PANnumber">
+            </mat-form-field>
+        </div>
+        <div class="col-md-6">
+            <mat-form-field class="wd-100 custom-form-field small mt-1" appearance="outline">
+                <mat-label class="f-sz11 mont400">Aadhar Number</mat-label>
+                <input matInput class="mont400 f-sz11" formControlName="aadharNumber">
+            </mat-form-field>
+        </div>
+        <div class="col-md-6">
+            <mat-form-field class="wd-100 custom-form-field small mt-1" appearance="outline">
+                <mat-label class="f-sz11 mont400">Phone Number</mat-label>
+                <input matInput class="mont400 f-sz11" formControlName="phoneNumber">
+            </mat-form-field>
+        </div>
+        <div class="col-md-6">
+            <mat-form-field class="wd-100 custom-form-field small mt-1" appearance="outline">
+                <mat-label class="f-sz11 mont400">Email</mat-label>
+                <input matInput class="mont400 f-sz11" formControlName="email">
+            </mat-form-field>
+        </div>
+        <div class="col-md-6">
+            <mat-form-field class="wd-100 custom-form-field small mt-1" appearance="outline">
+                <mat-label class="f-sz11 mont400">State</mat-label>
+                <mat-select class="mont400 f-sz11" formControlName="state">
+                    <mat-option class="mat-option mont400 f-sz11" [value]="1">Kerala</mat-option>
+                </mat-select>
+            </mat-form-field>
+        </div>
+        <div class="col-md-6">
+            <mat-form-field class="wd-100 custom-form-field small mt-1" appearance="outline">
+                <mat-label class="f-sz11 mont400">Nation</mat-label>
+                <mat-select class="mont400 f-sz11" formControlName="nation">
+                    <mat-option class="mat-option mont400 f-sz11" [value]="1">India</mat-option>
+                </mat-select>
+            </mat-form-field>
+        </div>
+    </div>
+</mat-dialog-content>
+<mat-dialog-actions align="end" class="pd-15 pdL-20 pdR-20s pdT-0 mat-btn-30">
+    <button mat-stroked-button mat-dialog-close color="warn" class="mont400 f-sz11">Cancel</button>
+    <button mat-flat-button (click)="saveUser()" class="mont600 f-sz11" cdkFocusInitial color="primary">Save User</button>
+</mat-dialog-actions>
