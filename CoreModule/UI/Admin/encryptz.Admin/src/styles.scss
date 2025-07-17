@@ -277,19 +277,33 @@ body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; }
 
 .table-default{
     overflow: auto;
+    background-color: #FFF !important;
+    box-shadow: rgba(17, 17, 26, 0.05) 0px 1px 0px, rgba(17, 17, 26, 0.1) 0px 0px 8px !important;
     table{
         width: 100%;
         border-collapse: collapse;
         th{
-            border: 1px solid #bfbfbf;
-            color: #FFF;
             white-space: nowrap;
-            // background-color: blue;
+            padding: 0px;
+
+            .default-th-bg{
+                background-color: #f4f4f4;
+            }
+            &:first-child{
+                .default-th-bg{
+                    border-radius: 6px 0 0 6px;
+                }
+            }
+            &:last-child{
+                .default-th-bg{
+                    border-radius: 0 6px 6px 0;
+                }
+            } 
         }
+
         td{
-            border: 1px solid #bfbfbf;
-            // background-color: transparent;
             white-space: nowrap;
+            border-bottom: 1px solid #ececec;
         }
     }
 }

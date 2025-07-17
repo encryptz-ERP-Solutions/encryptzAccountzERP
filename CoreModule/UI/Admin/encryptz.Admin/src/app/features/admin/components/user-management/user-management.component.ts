@@ -4,12 +4,17 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatDialog } from '@angular/material/dialog';
 import { AddEditUserComponent } from './add-edit-user/add-edit-user.component';
 import { UserManagementService } from './user-management.service';
+import { MatCardModule } from "@angular/material/card";
+import {MatPaginatorModule} from '@angular/material/paginator';
+
 @Component({
   selector: 'app-user-management',
   imports: [
     MatButtonModule,
-    MatIconModule
-  ],
+    MatIconModule,
+    MatCardModule,
+    MatPaginatorModule
+],
   templateUrl: './user-management.component.html',
   styleUrl: './user-management.component.scss'
 })
