@@ -6,6 +6,7 @@ import { MatExpansionModule } from '@angular/material/expansion';
 import { MatIconModule } from '@angular/material/icon';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { NavigationEnd, Router } from '@angular/router';
+import { filter } from 'rxjs';
 
 @Component({
   selector: 'app-side-bar',
@@ -31,17 +32,21 @@ export class SideBarComponent {
   ];
 
   constructor(
-    private router: Router
-  ) { }
-  ngOnInit() {
-    this.selectedMenu = localStorage.getItem('currentAdminMenu');
-    this.router.events.subscribe(event => {
-      if (event instanceof NavigationEnd) {
-        this.selectedMenu = this.router.url.slice(1);
-        localStorage.setItem('currentMenu', this.selectedMenu);
-      }
-    });
+    private router: Router) { }
+
+  ngOnInit(): void {
+    this.selectedMenu = this.router.url;
+    localStorage.setItem('currentAdminMenu', this.selectedMenu);
+
+    // Update selected menu on navigation
+    this.router.events
+      .pipe(filter(event => event instanceof NavigationEnd))
+      .subscribe((event: NavigationEnd) => {
+        this.selectedMenu = event.urlAfterRedirects;
+        localStorage.setItem('currentAdminMenu', this.selectedMenu);
+      });
   }
+
   openSideNav() {
     this.isOpenSideNav.emit(true);
   }
@@ -51,10 +56,7 @@ export class SideBarComponent {
   }
 
   navigateMenu(url: string) {
-    this.selectedMenu = url;
-    localStorage.setItem('currentAdminMenu', this.selectedMenu)
-    debugger
     this.router.navigateByUrl(url);
-    return false
+    return false;
   }
 }
