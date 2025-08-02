@@ -117,11 +117,12 @@ export class LoginComponent {
       this.authService.verifyOTP(payload).subscribe({
         next: (res: any) => {
           if (res.status) {
-            debugger
+            this.router.navigate(['/dashboard'])
+            this.common.showSnackbar('Logged In Successfully', 'SUCCESS', 3000);
           }
         },
         error: (err: any) => {
-
+          this.common.showSnackbar('OTP verification failed', 'ERROR', 3000);
         }
       })
     }

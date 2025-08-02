@@ -16,8 +16,8 @@ export class UserManagementService {
     return this.http.post(environment.apiUrl +  'api/User', body)
   }
 
-  getAllUser(body : any){
-    return this.http.get(environment.apiUrl +  'api/User', body)
+  getAllUser(){
+    return this.http.get(environment.apiUrl +  'api/User')
   }
   
 }
