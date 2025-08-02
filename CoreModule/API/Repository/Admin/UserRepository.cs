@@ -56,12 +56,10 @@ namespace Repository.Admin
             var dataTable = _sqlHelper.ExecuteQuery(query);
             var users = new List<User>();
 
-            //foreach (DataRow row in dataTable.Rows)
-            //{
-            //    users.Add(MapDataRowToUser(row));
-            //}
-
-            users = dataTable.ToList<User>();
+            foreach (DataRow row in dataTable.Rows)
+            {
+                users.Add(MapDataRowToUser(row));
+            }
 
             return await Task.FromResult(users);
         }
@@ -140,8 +138,8 @@ namespace Repository.Admin
                 adharCardNo = row["adharCardNo"].ToString(),
                 phoneNo = row["phoneNo"].ToString(),
                 address = row["address"].ToString(),
-                stateId = row["stateId"] as int?,
-                nationId = row["nationId"] as int?,
+                stateId = row["stateId"] == DBNull.Value ? (int?)null : Convert.ToInt32(row["stateId"]),
+                nationId = row["nationId"] == DBNull.Value ? (int?)null : Convert.ToInt32(row["nationId"]),
                 isActive = Convert.ToBoolean(row["isActive"])
             };
         }
