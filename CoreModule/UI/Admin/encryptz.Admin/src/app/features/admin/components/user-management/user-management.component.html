@@ -1,6 +1,6 @@
 <div class="wd-100">
-    <div class="d-flex justify-content-end mat-btn-30 mb-2">
-        <button mat-flat-button class="mont500 f-sz11" color="primary" (click)="addEditUser(1)">Create New User</button>
+    <div class="d-flex justify-content-end mb-2">
+        <button mat-flat-button class="mont500 mat-btn-30 f-sz11" color="primary" (click)="addEditUser(1)">Create New User</button>
     </div>
 
     <mat-card class="table-default p-2">
@@ -13,17 +13,23 @@
                     <th class="mont600 f-sz10 text-left">
                         <div class="default-th-bg pd-5">User Name</div>
                     </th>
-                    <th class="mont600 f-sz10 text-left wd-70px">
+                    <!-- <th class="mont600 f-sz10 text-left wd-70px">
                         <div class="default-th-bg pd-5">Gender</div>
-                    </th>
+                    </th> -->
                     <th class="mont600 f-sz10 text-left">
                         <div class="default-th-bg pd-5">Address</div>
                     </th>
                     <th class="mont600 f-sz10 text-left">
-                        <div class="default-th-bg pd-5">Email</div>
+                        <div class="default-th-bg pd-5">PAN No</div>
+                    </th>
+                    <th class="mont600 f-sz10 text-left">
+                        <div class="default-th-bg pd-5">Aadhar No</div>
                     </th>
                     <th class="mont600 f-sz10 text-left wd-140px">
                         <div class="default-th-bg pd-5">Phone Number</div>
+                    </th>
+                    <th class="mont600 f-sz10 text-left">
+                        <div class="default-th-bg pd-5">Email</div>
                     </th>
                     <th class="mont600 f-sz10 text-left wd-70px">
                         <div class="default-th-bg pd-5">Action</div>
@@ -31,16 +37,18 @@
                 </tr>
             </thead>
             <tbody>
+                @for(user of userList; track $index){
                 <tr>
-                    <td class="mont400 f-sz11 text-left pd-5 wd-60px">0001</td>
-                    <td class="mont400 f-sz11 text-left pd-5">Zayed Mohammed </td>
-                    <td class="mont400 f-sz11 text-left pd-5 wd-70px">Male</td>
-                    <td class="mont400 f-sz11 text-left pd-5">Pisharath Parambil</td>
-                    <td class="mont400 f-sz11 text-left pd-5">zeydmohammed1999gmail.com</td>
-                    <td class="mont400 f-sz11 text-left pd-5 wd-140px">+91 8789565467</td>
+                    <td class="mont400 f-sz11 text-left pd-5 wd-60px">{{user.userId}}</td>
+                    <td class="mont400 f-sz11 text-left pd-5">{{user.userName}} </td>
+                    <td class="mont400 f-sz11 text-left pd-5">{{user.address}}</td>
+                    <td class="mont400 f-sz11 text-left pd-5">{{user.panNo}}</td>
+                    <td class="mont400 f-sz11 text-left pd-5">{{user.adharCardNo}}</td>
+                    <td class="mont400 f-sz11 text-left pd-5 wd-140px">{{user.phoneNo}}</td>
+                    <td class="mont400 f-sz11 text-left pd-5 wd-140px">{{user.email}}</td>
                     <td class="mont400 f-sz11 text-left pd-5 wd-70px">
                         <div class="d-flex">
-                            <button matMiniFab class="shadow-n mini-fab-btn-18 mrR-2" color="primary">
+                            <button matMiniFab class="shadow-n mini-fab-btn-18 mrR-2" color="primary" (click)="addEditUser(2, user)">
                                 <mat-icon class="icon-10 material-symbols-outlined">edit</mat-icon>
                             </button>
                             <button matMiniFab class="shadow-n mini-fab-btn-18 mini-fab-btn-delete" color="">
@@ -49,7 +57,8 @@
                         </div>
                     </td>
                 </tr>
-                <tr>
+                }
+                <!-- <tr>
                     <td class="mont400 f-sz11 text-left pd-5 pdT-8 pdB-8 wd-60px">0001</td>
                     <td class="mont400 f-sz11 text-left pd-5 pdT-8 pdB-8">Zayed Mohammed </td>
                     <td class="mont400 f-sz11 text-left pd-5 pdT-8 pdB-8 wd-70px">Male</td>
@@ -66,7 +75,7 @@
                             </button>
                         </div>
                     </td>
-                </tr>
+                </tr> -->
             </tbody>
         </table>
 

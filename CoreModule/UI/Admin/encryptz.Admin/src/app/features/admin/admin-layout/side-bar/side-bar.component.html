@@ -1,21 +1,17 @@
 <div class="side-navbar">
     <div class="side-nav-head d-flex align-items-center justify-content-center flex-column">
         @if(!isExpand){
-        <div class="btn-24">
-            <button mat-mini-fab color="" class="shadow-n btn-24 border-btn" (click)="openSideNav()">
-                <mat-icon color="primary" class="icon-12 material-symbols-outlined">apps</mat-icon>
-            </button>
-        </div>
+        <button mat-mini-fab color="" class="shadow-n mini-fab-btn-24 border-btn" (click)="openSideNav()">
+            <mat-icon color="primary" class="icon-12 material-symbols-outlined">apps</mat-icon>
+        </button>
         <mat-divider></mat-divider>
         }
         @else {
         <div class="d-flex align-items-center justify-content-between wd-100 pdL-8 pdR-8">
             <div class="mont600 f-sz16">Encryptz</div>
-            <div class="btn-24">
-                <button mat-mini-fab color="primary" class="shadow-n btn-24 border-btn" (click)="closeSideNav()">
-                    <mat-icon color="" class="icon-12 material-symbols-outlined">chevron_left</mat-icon>
-                </button>
-            </div>
+            <button mat-mini-fab color="primary" class="shadow-n mini-fab-btn-24 border-btn" (click)="closeSideNav()">
+                <mat-icon color="" class="icon-12 material-symbols-outlined">chevron_left</mat-icon>
+            </button>
         </div>
         }
     </div>
@@ -27,7 +23,7 @@
             <a href="#" mat-button (click)="navigateMenu(item.link)"
                 [ngClass]="{'active-menu': selectedMenu === item.link}"
                 class="d-flex align-items-center justify-content-start pd-8 pdT-10 pdB-10 single-menu-wd cursor-pointer">
-                <mat-icon class="icon-12 material-symbols-outlined">{{ item.icon }}</mat-icon>
+                <mat-icon class="icon-12 material-symbols-outlined mrL-0">{{ item.icon }}</mat-icon>
                 <span class="mont400 f-sz11">{{ item.label }}</span>
             </a>
         </div>
@@ -50,7 +46,7 @@
                         <a href="#" mat-button (click)="navigateMenu(submenu.label)"
                             [ngClass]="{'active-menu': selectedMenu === submenu.label}"
                             class="d-flex align-items-center justify-content-start pd-8 pdT-10 pdB-10 single-menu-wd-sec-1 cursor-pointer position-relative">
-                            <mat-icon class="icon-12 material-symbols-outlined">{{ submenu.icon }}</mat-icon>
+                            <mat-icon class="icon-12 material-symbols-outlined mrL-0">{{ submenu.icon }}</mat-icon>
                             <span class="mont400 f-sz11">{{ submenu.label }}</span>
                         </a>
                     </div>

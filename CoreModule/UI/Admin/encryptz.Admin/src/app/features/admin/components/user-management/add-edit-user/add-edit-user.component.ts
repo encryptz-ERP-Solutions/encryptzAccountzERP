@@ -6,6 +6,7 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
 import { UserManagementService } from '../user-management.service';
+import { CommonService } from '../../../../../shared/services/common.service';
 
 @Component({
   selector: 'app-add-edit-user',
@@ -25,51 +26,102 @@ export class AddEditUserComponent {
   constructor(
     private dialogRef: MatDialogRef<AddEditUserComponent>,
     @Inject(MAT_DIALOG_DATA) public data: any,
-    private service: UserManagementService
+    private service: UserManagementService,
+    private commonService: CommonService,
   ) {
     this.dialogRef.disableClose = true
   }
 
 
   ngOnInit() {
+    this.initForm()
+    if (this.data.type == 2) {
+      debugger
+      this.userInfoForm.patchValue(this.data.info)
+    }
+  }
+
+  initForm() {
     this.userInfoForm = new FormGroup({
+      userId: new FormControl('', Validators.required),
       userName: new FormControl('', Validators.required),
-      password: new FormControl('', Validators.required),
-      PANnumber: new FormControl('', Validators.required),
-      aadharNumber: new FormControl('', Validators.required),
-      phoneNumber: new FormControl('', Validators.required),
+      userPassword: new FormControl('', Validators.required),
+      panNo: new FormControl('', Validators.required),
+      adharCardNo: new FormControl('', Validators.required),
+      phoneNo: new FormControl('', Validators.required),
       email: new FormControl('', Validators.required),
-      state: new FormControl('', Validators.required),
-      nation: new FormControl('', Validators.required)
+      address: new FormControl('', Validators.required),
+      stateId: new FormControl('', Validators.required),
+      nationId: new FormControl('', Validators.required)
     })
   }
 
 
-
   saveUser() {
-    // if (this.userInfoForm.valid) {
-    let payload = {
-      "userId": 0,
-      "userName": "Said Mohammed",
-      "userPassword": "123",
-      "email": "seyd@gmal.com",
-      "panNo": "12345HGT",
-      "adharCardNo": "123456787896",
-      "phoneNo": "9878976545",
-      "address": "Pisharath House, Malappuram, Moorkkanad",
-      "stateId": 12,
-      "nationId": 23,
-      "isActive": true
-    }
-    this.service.createNewUser(payload).subscribe({
-      next: (res: any) => {
-        if (res.success) {
-          this.dialogRef.close(true)
-        }
-      },
-      error: (res: any) => {
-        debugger
+    if (this.userInfoForm.valid) {
+      let payload = {
+        "userId": this.userInfoForm.get('userId')?.value ?? 0,
+        "userName": this.userInfoForm.get('userName')?.value,
+        "userPassword": this.userInfoForm.get('userPassword')?.value,
+        "email": this.userInfoForm.get('email')?.value,
+        "panNo": this.userInfoForm.get('panNo')?.value,
+        "adharCardNo": this.userInfoForm.get('adharCardNo')?.value,
+        "phoneNo": this.userInfoForm.get('phoneNo')?.value,
+        "address": this.userInfoForm.get('address')?.value,
+        "stateId": this.userInfoForm.get('stateId')?.value,
+        "nationId": this.userInfoForm.get('nationId')?.value,
+        "isActive": true
       }
-    })
+      this.service.createNewUser(payload).subscribe({
+        next: (res: any) => {
+          debugger
+          if (res) {
+            this.commonService.showSnackbar(res.message, 'SUCCESS', 3000)
+            this.dialogRef.close(true)
+          }
+        },
+        error: (err: any) => {
+          this.commonService.showSnackbar(err.message, 'ERROR', 3000)
+        }
+      })
+    }
+    else {
+      const message = "Fill the mandatory fields"
+      this.commonService.showSnackbar(message, 'ERROR', 3000)
+    }
+  }
+
+  updateUser() {
+    if (this.userInfoForm.valid) {
+      let payload = {
+        "userId": this.userInfoForm.get('userId')?.value ? + this.userInfoForm.get('userId')?.value :  0,
+        "userName": this.userInfoForm.get('userName')?.value,
+        "userPassword": this.userInfoForm.get('userPassword')?.value,
+        "email": this.userInfoForm.get('email')?.value,
+        "panNo": this.userInfoForm.get('panNo')?.value,
+        "adharCardNo": this.userInfoForm.get('adharCardNo')?.value,
+        "phoneNo": this.userInfoForm.get('phoneNo')?.value,
+        "address": this.userInfoForm.get('address')?.value,
+        "stateId": this.userInfoForm.get('stateId')?.value,
+        "nationId": this.userInfoForm.get('nationId')?.value,
+        "isActive": true
+      }
+      this.service.updateUser(this.userInfoForm.get('userId')?.value, payload).subscribe({
+        next: (res: any) => {
+          debugger
+          if (res) {
+            this.commonService.showSnackbar(res.message, 'SUCCESS', 3000)
+            this.dialogRef.close(true)
+          }
+        },
+        error: (err: any) => {
+          this.commonService.showSnackbar(err.message, 'ERROR', 3000)
+        }
+      })
+    }
+    else {
+      const message = "Fill the mandatory fields"
+      this.commonService.showSnackbar(message, 'ERROR', 3000)
+    }
   }
 }

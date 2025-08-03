@@ -19,12 +19,13 @@ import { MatPaginatorModule } from '@angular/material/paginator';
   styleUrl: './user-management.component.scss'
 })
 export class UserManagementComponent {
+
+  userList : any
+
   constructor(
     private dialog: MatDialog,
     private service: UserManagementService
-  ) {
-
-  }
+  ) { }
 
   ngOnInit() {
     this.getAllUsers()
@@ -35,7 +36,7 @@ export class UserManagementComponent {
       width: '900px',
       data: {
         type: type,
-        title: 'Create New User',
+        title: type == 1 ? 'Create New User' : 'Update ' + info.userName,
         info: info
       }
     });
@@ -52,6 +53,7 @@ export class UserManagementComponent {
     this.service.getAllUser().subscribe({
       next: (res: any) => {
         debugger
+        this.userList = res
       }
     })
   }

@@ -16,6 +16,13 @@ export class UserManagementService {
     return this.http.post(environment.apiUrl +  'api/User', body)
   }
 
+  // updateUser(body : any){
+  //   return this.http.put(environment.apiUrl +  'api/User', body)
+  // }
+  updateUser(id: number, body: any) {
+    return this.http.put(`${environment.apiUrl}api/User/${id}`, body);
+  }
+
   getAllUser(){
     return this.http.get(environment.apiUrl +  'api/User')
   }
