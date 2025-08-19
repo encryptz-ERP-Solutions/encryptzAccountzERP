@@ -81,6 +81,7 @@ namespace Repository.Admin
                             , userName = @userName
                             , userPassword = @userPassword
                             , panNo = @panNo
+                            , Email = @Email
                             , adharCardNo = @adharCardNo
                             , phoneNo = @phoneNo
                             , address = @address
