@@ -8,7 +8,8 @@ namespace BusinessLogic.Admin.DTOs
 {
     public class UserDto
     {
-        public string userId { get; set; }=string.Empty;
+        public long id { get; set; }
+        public string userId { get; set; } = string.Empty;
         public string userName { get; set; } = string.Empty;
         public string? userPassword { get; set; } = string.Empty;
         public string? Email { get; set; } = string.Empty;
