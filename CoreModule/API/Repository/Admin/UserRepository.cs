@@ -153,7 +153,7 @@ namespace Repository.Admin
                 new SqlParameter("@userId",User.userId),
                 new SqlParameter("@userName",User.userName),
                 new SqlParameter("@userPassword",User.userPassword ?? (object)DBNull.Value),
-                new SqlParameter("@Email",User.Email ?? (object)DBNull.Value),
+                new SqlParameter("@Email",User.email ?? (object)DBNull.Value),
                 new SqlParameter("@panNo",User.panNo ?? (object)DBNull.Value),
                 new SqlParameter("@adharCardNo",User.adharCardNo ?? (object)DBNull.Value),
                 new SqlParameter("@phoneNo",User.phoneNo ?? (object)DBNull.Value),
