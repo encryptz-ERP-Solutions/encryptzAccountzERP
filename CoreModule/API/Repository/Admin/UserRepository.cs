@@ -135,6 +135,7 @@ namespace Repository.Admin
                 userId = Convert.ToString(row["userId"]),
                 userName = Convert.ToString(row["userName"]),
                 userPassword = row["userPassword"].ToString(),
+                email = row["Email"].ToString(),
                 panNo = row["panNo"].ToString(),
                 adharCardNo = row["adharCardNo"].ToString(),
                 phoneNo = row["phoneNo"].ToString(),
