@@ -229,6 +229,11 @@ body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; }
     background-color: #ff000017 !important;
 }
 
+.border-btn {
+    background-color: transparent !important;
+    border: 1px solid #ffffff23 !important;
+}
+
 // mat-checkbox
 
 .mdc-checkbox {

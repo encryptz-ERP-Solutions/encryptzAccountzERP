@@ -43,6 +43,7 @@ export class AddEditUserComponent {
 
   initForm() {
     this.userInfoForm = new FormGroup({
+      id: new FormControl(''),      
       userId: new FormControl('', Validators.required),
       userName: new FormControl('', Validators.required),
       userPassword: new FormControl('', Validators.required),
@@ -94,7 +95,8 @@ export class AddEditUserComponent {
   updateUser() {
     if (this.userInfoForm.valid) {
       let payload = {
-        "userId": this.userInfoForm.get('userId')?.value ? + this.userInfoForm.get('userId')?.value :  0,
+        "id": this.userInfoForm.get('id')?.value ?? 0,
+        "userId": this.userInfoForm.get('userId')?.value ??  0,
         "userName": this.userInfoForm.get('userName')?.value,
         "userPassword": this.userInfoForm.get('userPassword')?.value,
         "email": this.userInfoForm.get('email')?.value,
@@ -106,7 +108,7 @@ export class AddEditUserComponent {
         "nationId": this.userInfoForm.get('nationId')?.value,
         "isActive": true
       }
-      this.service.updateUser(this.userInfoForm.get('userId')?.value, payload).subscribe({
+      this.service.updateUser(this.userInfoForm.get('id')?.value, payload).subscribe({
         next: (res: any) => {
           debugger
           if (res) {
@@ -121,7 +123,8 @@ export class AddEditUserComponent {
     }
     else {
       const message = "Fill the mandatory fields"
-      this.commonService.showSnackbar(message, 'ERROR', 3000)
+      this.commonService.showSnackbar(message, 'ERROR', 3000),
+      this.userInfoForm.markAllAsTouched()
     }
   }
 }

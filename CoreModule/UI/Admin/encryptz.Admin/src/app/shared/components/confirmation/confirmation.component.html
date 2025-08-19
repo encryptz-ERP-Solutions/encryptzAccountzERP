@@ -1,0 +1,9 @@
+<div mat-dialog-title class="mont600 f-sz13 pdL-15 pdR-15 pdT-0 pdB-10">{{data.title}}</div>
+<mat-dialog-content class="mat-typography pdL-15 pdR-15 pdT-0 pdB-0">
+    <div class="mont400 f-sz11 line-ht-n">{{data.description}}</div>
+</mat-dialog-content>
+<mat-dialog-actions align="end" class="pd-15">
+    <button mat-stroked-button mat-dialog-close color="warn" class="mont400 f-sz11 mat-btn-30">Cancel</button>
+    <button mat-flat-button (click)="okConfirm()" class="mont600 f-sz11 mat-btn-30" cdkFocusInitial color="primary">Ok,
+        Confirm</button>
+</mat-dialog-actions>

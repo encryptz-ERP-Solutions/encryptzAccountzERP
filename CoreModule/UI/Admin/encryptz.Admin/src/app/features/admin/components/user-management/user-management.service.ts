@@ -8,23 +8,26 @@ import { environment } from '../../../../../environments/environment';
 export class UserManagementService {
 
   constructor(
-    private http : HttpClient
-  ){}
+    private http: HttpClient
+  ) { }
 
 
-  createNewUser(body : any){
-    return this.http.post(environment.apiUrl +  'api/User', body)
+  getAllUser() {
+    return this.http.get(environment.apiUrl + 'api/User')
   }
 
-  // updateUser(body : any){
-  //   return this.http.put(environment.apiUrl +  'api/User', body)
-  // }
+  createNewUser(body: any) {
+    return this.http.post(environment.apiUrl + 'api/User', body)
+  }
+
   updateUser(id: number, body: any) {
     return this.http.put(`${environment.apiUrl}api/User/${id}`, body);
   }
 
-  getAllUser(){
-    return this.http.get(environment.apiUrl +  'api/User')
+  deleteUser(id: number, body: any) {
+    return this.http.delete(`${environment.apiUrl}api/User/${id}`, body);
   }
-  
+
+
+
 }

@@ -8,7 +8,10 @@
         {{ isSidebarExpanded ? 'Collapse' : 'Expand' }} Sidebar
     </button> -->
     <div class="tool-bar-head d-flex align-items-center py-2 px-2">
-        <button mat-mini-fab class="mat-btn-30 shadow-n border-btn"><mat-icon class="icon-10">arrow_back</mat-icon></button>
+        <button mat-mini-fab class="mini-fab-btn-24 shadow-n border-btn me-2" color="primary"
+        (click)="location.back()">
+            <mat-icon color="" class="icon-10 material-symbols-outlined">arrow_back</mat-icon>
+        </button>
         <div class="mont600 f-sz11 screen-title-name">{{ screenTitle | uppercase }}</div>
         <span class="menu-spacer"></span>
     </div>
