@@ -15,93 +15,46 @@ namespace encryptzERP.Controllers.Core
     public class CompanyController : ControllerBase
     {
         private readonly ICompanyService _companyService;
-        private readonly ExceptionHandler _exceptionHandler;
 
-        public CompanyController(ICompanyService companyService, ExceptionHandler exceptionHandler)
+        public CompanyController(ICompanyService companyService)
         {
             _companyService = companyService;
-            _exceptionHandler = exceptionHandler;
         }
 
         [HttpGet]
         public async Task<ActionResult<IEnumerable<Company>>> GetAll()
         {
-            try
-            {
-                return Ok(await _companyService.GetAllCompanyAsync());
-            }
-            catch (Exception ex)
-            {
-                _exceptionHandler.LogError(ex);
-                throw;
-            }
-            
+            return Ok(await _companyService.GetAllCompanyAsync());
         }
 
         [HttpGet("{id}")]
         public async Task<ActionResult<Company>> GetById(long id)
         {
-            try
-            {
-                var Company = await _companyService.GetCompanyByIdAsync(id);
-                if (Company == null) return NotFound();
-                return Ok(Company);
-            }
-            catch (Exception ex)
-            {
-                _exceptionHandler.LogError(ex);
-                throw;
-            }
-            
+            var Company = await _companyService.GetCompanyByIdAsync(id);
+            if (Company == null) return NotFound();
+            return Ok(Company);
         }
 
         [HttpPost]
         public async Task<IActionResult> Create(CompanyDto Company)
         {
-            try
-            {
-                await _companyService.AddCompanyAsync(Company);
-                return CreatedAtAction(nameof(GetById), new { id = 0 }, Company);
-            }
-            catch (Exception ex)
-            {
-                _exceptionHandler.LogError(ex);
-                throw;
-            }
-            
+            await _companyService.AddCompanyAsync(Company);
+            return CreatedAtAction(nameof(GetById), new { id = 0 }, Company);
         }
 
         [HttpPut("{id}")]
         public async Task<IActionResult> Update(long id, CompanyDto Company)
         {
-            try
-            {
-                if (id <= 0) return BadRequest();
-                await _companyService.UpdateCompanyAsync(Company);
-                return NoContent();
-            }
-            catch (Exception ex)
-            {
-                _exceptionHandler.LogError(ex);
-                throw;
-            }
-            
+            if (id <= 0) return BadRequest();
+            await _companyService.UpdateCompanyAsync(Company);
+            return NoContent();
         }
 
         [HttpDelete("{id}")]
         public async Task<IActionResult> Delete(long id)
         {
-            try
-            {
-                await _companyService.DeleteCompanyAsync(id);
-                return NoContent();
-            }
-            catch (Exception ex)
-            {
-                _exceptionHandler.LogError(ex);
-                throw;
-            }
-            
+            await _companyService.DeleteCompanyAsync(id);
+            return NoContent();
         }
     }
 }

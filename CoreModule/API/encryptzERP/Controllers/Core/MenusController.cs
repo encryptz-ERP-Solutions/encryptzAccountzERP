@@ -14,94 +14,47 @@ namespace encryptzERP.Controllers.Core
     [Authorize]
     public class MenusController : ControllerBase
     {
-        private readonly IMenusService _MenusService;
-        private readonly ExceptionHandler _exceptionHandler;
+        private readonly IMenusService _menusService;
 
-        public MenusController(IMenusService MenusService, ExceptionHandler exceptionHandler)
+        public MenusController(IMenusService menusService)
         {
-            _MenusService = MenusService;
-            _exceptionHandler = exceptionHandler;
+            _menusService = menusService;
         }
 
         [HttpGet]
         public async Task<ActionResult<IEnumerable<Menus>>> GetAll()
         {
-            try
-            {
-                return Ok(await _MenusService.GetAllMenusAsync());
-            }
-            catch (Exception ex)
-            {
-                _exceptionHandler.LogError(ex);
-                throw;
-            }
-            
+            return Ok(await _menusService.GetAllMenusAsync());
         }
 
         [HttpGet("{id}")]
         public async Task<ActionResult<Menus>> GetById(int id)
         {
-            try
-            {
-                var Menus = await _MenusService.GetMenusByIdAsync(id);
-                if (Menus == null) return NotFound();
-                return Ok(Menus);
-            }
-            catch (Exception ex)
-            {
-                _exceptionHandler.LogError(ex);
-                throw;
-            }
-            
+            var menus = await _menusService.GetMenusByIdAsync(id);
+            if (menus == null) return NotFound();
+            return Ok(menus);
         }
 
         [HttpPost]
-        public async Task<IActionResult> Create(MenusDto Menus)
+        public async Task<IActionResult> Create(MenusDto menus)
         {
-            try
-            {
-                await _MenusService.AddMenusAsync(Menus);
-                return CreatedAtAction(nameof(GetById), new { id = 0 }, Menus);
-            }
-            catch (Exception ex)
-            {
-                _exceptionHandler.LogError(ex);
-                throw;
-            }
-            
+            await _menusService.AddMenusAsync(menus);
+            return CreatedAtAction(nameof(GetById), new { id = 0 }, menus);
         }
 
         [HttpPut("{id}")]
-        public async Task<IActionResult> Update(int id, MenusDto Menus)
+        public async Task<IActionResult> Update(int id, MenusDto menus)
         {
-            try
-            {
-                if (id <= 0) return BadRequest();
-                await _MenusService.UpdateMenusAsync(id, Menus);
-                return NoContent();
-            }
-            catch (Exception ex)
-            {
-                _exceptionHandler.LogError(ex);
-                throw;
-            }
-            
+            if (id <= 0) return BadRequest();
+            await _menusService.UpdateMenusAsync(id, menus);
+            return NoContent();
         }
 
         [HttpDelete("{id}")]
         public async Task<IActionResult> Delete(int id)
         {
-            try
-            {
-                await _MenusService.DeleteMenusAsync(id);
-                return NoContent();
-            }
-            catch (Exception ex)
-            {
-                _exceptionHandler.LogError(ex);
-                throw;
-            }
-            
+            await _menusService.DeleteMenusAsync(id);
+            return NoContent();
         }
     }
 }

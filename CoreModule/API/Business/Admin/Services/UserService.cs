@@ -9,146 +9,68 @@ using BusinessLogic.Admin.Interface;
 using Entities.Admin;
 using Repository.Admin;
 using Repository.Admin.Interface;
-using Infrastructure;
-using Infrastructure.Extensions;
+using AutoMapper;
 
 namespace BusinessLogic.Admin.Services
 {
     public class UserService : IUserService
     {
         private readonly IUserRepository _userRepository;
+        private readonly IMapper _mapper;
 
-        public UserService(IUserRepository userRepository) {
-        _userRepository = userRepository;
+        public UserService(IUserRepository userRepository, IMapper mapper)
+        {
+            _userRepository = userRepository;
+            _mapper = mapper;
         }
 
         public async Task<UserDto> AddUserAsync(UserDto userDto)
         {
-            try
-            {
-                if (string.IsNullOrEmpty(userDto.userId))
-                    throw new ArgumentException("userID is required.");
+            var user = _mapper.Map<User>(userDto);
 
-                if (userDto.userId.Length > 50)
-                    throw new ArgumentException("userId cannot exceed 50 characters.");
-
-                var user = userDto.ConvertToClassObject<UserDto,User>(); 
-
-               user= await _userRepository.AddAsync(user);
-                if (user == null)
-                    throw new Exception("Failed to add user.");
-                return user.ConvertToClassObject<User,UserDto>();
-            }
-            catch (Exception)
-            {
-                throw;
-            }
-           
+            user = await _userRepository.AddAsync(user);
+            if (user == null)
+                throw new Exception("Failed to add user.");
+            return _mapper.Map<UserDto>(user);
         }
 
         public async Task<UserDto?> GetUserByLoginAsync(string loginValue, string loginType)
         {
-            try
-            {
-                if (string.IsNullOrEmpty(loginValue) || string.IsNullOrEmpty(loginType))
-                    throw new ArgumentException("Login value and type are required.");
+            if (string.IsNullOrEmpty(loginValue) || string.IsNullOrEmpty(loginType))
+                throw new ArgumentException("Login value and type are required.");
 
-                var user = await _userRepository.GetByLoginAsync(loginValue, loginType);
-                return user?.ConvertToClassObject<User, UserDto>();
-            }
-            catch (Exception)
-            {
-                throw;
-            }
+            var user = await _userRepository.GetByLoginAsync(loginValue, loginType);
+            return _mapper.Map<UserDto>(user);
         }
 
         public async Task<bool> DeleteUserAsync(long id)
         {
-            try
-            {
-                if (id <= 0)
-                    throw new ArgumentException("Invalid User ID.");
+            if (id <= 0)
+                throw new ArgumentException("Invalid User ID.");
 
-                await _userRepository.DeleteAsync(id);
-                return true;
-            }
-            catch (Exception)
-            {
-                throw;
-            }
+            await _userRepository.DeleteAsync(id);
+            return true;
         }
 
         public async Task<IEnumerable<UserDto>> GetAllUserAsync()
         {
-            try
-            {
-                var users = await _userRepository.GetAllAsync();
-                var userDtos = new List<UserDto>();
-
-                foreach (var user in users)
-                {
-                    userDtos.Add(user.ConvertToClassObject<User,UserDto>());
-                }
-
-                return userDtos;
-            }
-            catch (Exception)
-            {
-
-                throw;
-            }
-            
+            var users = await _userRepository.GetAllAsync();
+            return _mapper.Map<IEnumerable<UserDto>>(users);
         }
 
         public async Task<UserDto?> GetUserByIdAsync(long id)
         {
-            try
-            {
-                var user = await _userRepository.GetByIdAsync(id);
-                return user?.ConvertToClassObject<User, UserDto>();
-            }
-            catch (Exception)
-            {
-
-                throw;
-            }
-           
+            var user = await _userRepository.GetByIdAsync(id);
+            return _mapper.Map<UserDto>(user);
         }
 
-        public async Task<bool> UpdateUserAsync(long id, UserDto user)
+        public async Task<bool> UpdateUserAsync(long id, UserDto userDto)
         {
-            try
-            {
-                if (id <=0)
-                    throw new ArgumentException("Invalid User ID.");
-                var userObj=user.ConvertToClassObject<UserDto,User>();
-                await _userRepository.UpdateAsync(userObj);
-                return true;
-            }
-            catch (Exception)
-            {
-
-                throw;
-            }
-            
-        }
-
-        private UserDto MapToDto(User entity)
-        {
-            return new UserDto
-            {
-                userId = entity.userId,
-                 userName = entity.userName,
-                 userPassword = entity.userPassword,
-                 panNo = entity.panNo,
-                 adharCardNo = entity.adharCardNo,
-                 phoneNo = entity.phoneNo,
-                 address = entity.address,
-                 stateId = entity.stateId,
-                 nationId = entity.nationId,
-                 isActive = entity.isActive
-
-            };
+            if (id <= 0)
+                throw new ArgumentException("Invalid User ID.");
+            var userObj = _mapper.Map<User>(userDto);
+            await _userRepository.UpdateAsync(userObj);
+            return true;
         }
     }
 }

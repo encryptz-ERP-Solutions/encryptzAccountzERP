@@ -8,7 +8,6 @@ using System.Threading.Tasks;
 using Azure.Core;
 using Data.Core;
 using Entities.Admin;
-using Infrastructure.Extensions;
 using Microsoft.Data.SqlClient;
 using Repository.Core.Interface;
 
@@ -36,7 +35,7 @@ namespace Repository.Core
 
                 if (dataTable.Rows.Count == 0) return Task.FromResult(user);
 
-                user = dataTable.Rows[0].ToObjectFromDR<User>();
+                user = MapDataRowToUser(dataTable.Rows[0]);
                 return Task.FromResult(user);
 
             }

@@ -4,103 +4,54 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using BusinessLogic.Core.DTOs;
+using AutoMapper;
 using BusinessLogic.Core.Interface;
 using Entities.Core;
-using Infrastructure.Extensions;
-using Repository.Admin.Interface;
 using Repository.Core.Interface;
 
 namespace BusinessLogic.Core.Services
 {
-    public class CompanyService:ICompanyService
+    public class CompanyService : ICompanyService
     {
         private readonly ICompanyRepository _companyRepository;
-        public CompanyService(ICompanyRepository companyRepository) 
+        private readonly IMapper _mapper;
+
+        public CompanyService(ICompanyRepository companyRepository, IMapper mapper)
         {
             _companyRepository = companyRepository;
+            _mapper = mapper;
         }
 
-        public async Task<bool> AddCompanyAsync(CompanyDto Company)
+        public async Task<bool> AddCompanyAsync(CompanyDto companyDto)
         {
-            try
-            {
-                await _companyRepository.AddAsync(Company.ConvertToClassObject<CompanyDto, Company>());
-                return true;
-            }
-            catch (Exception)
-            {
-
-                throw;
-            }
+            var company = _mapper.Map<Company>(companyDto);
+            await _companyRepository.AddAsync(company);
+            return true;
         }
 
         public async Task<bool> DeleteCompanyAsync(long id)
         {
-            try
-            {
-                await _companyRepository.DeleteAsync(id);
-                return true;
-            }
-            catch (Exception)
-            {
-
-                throw;
-            }
+            await _companyRepository.DeleteAsync(id);
+            return true;
         }
 
         public async Task<IEnumerable<CompanyDto?>> GetAllCompanyAsync()
         {
-            try
-            {
-                var companies = await _companyRepository.GetAllAsync();
-                var companyDtoList = new List<CompanyDto>();
-                foreach (var company in companies)
-                {
-                    var companyDto = new CompanyDto();
-                    companyDto = company.ConvertToClassObject<Company, CompanyDto>();
-                    companyDtoList.Add(companyDto);
-                }
-                return companyDtoList;
-            }
-            catch (Exception)
-            {
-
-                throw;
-            }
+            var companies = await _companyRepository.GetAllAsync();
+            return _mapper.Map<IEnumerable<CompanyDto>>(companies);
         }
 
         public async Task<CompanyDto?> GetCompanyByIdAsync(long id)
         {
-            try
-            {
-
-                var company = await _companyRepository.GetByIdAsync(id);
-
-                var companyDto = new CompanyDto();
-                companyDto=company.ConvertToClassObject<Company, CompanyDto>();
-
-                return companyDto;
-            }
-            catch (Exception)
-            {
-
-                throw;
-            }
+            var company = await _companyRepository.GetByIdAsync(id);
+            return _mapper.Map<CompanyDto>(company);
         }
 
-        public async Task<bool> UpdateCompanyAsync(CompanyDto Company)
+        public async Task<bool> UpdateCompanyAsync(CompanyDto companyDto)
         {
-            try
-            {
-                await _companyRepository.UpdateAsync(Company.ConvertToClassObject<CompanyDto, Company>());
-
-                return true;
-            }
-            catch (Exception)
-            {
-
-                throw;
-            }
+            var company = _mapper.Map<Company>(companyDto);
+            await _companyRepository.UpdateAsync(company);
+            return true;
         }
     }
 }
