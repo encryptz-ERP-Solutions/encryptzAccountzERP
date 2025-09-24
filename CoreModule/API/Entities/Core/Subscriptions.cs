@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 namespace Entities.Core
 {
     
-    internal class Subcriptions
+    public class Subscriptions
     {
     }
 }

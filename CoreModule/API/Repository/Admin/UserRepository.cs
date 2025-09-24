@@ -7,7 +7,6 @@ using System.Threading.Tasks;
 using Data.Core;
 using Entities.Admin;
 using Entities.Core;
-using Infrastructure.Extensions;
 using Microsoft.Data.SqlClient;
 using Repository.Admin.Interface;
 using static System.Runtime.InteropServices.JavaScript.JSType;
@@ -39,7 +38,7 @@ namespace Repository.Admin
             var parameters = GetSqlParameters(user);
             data = await _sqlHelper.ExecuteQueryAsync(query, parameters);
             if (data.Rows.Count == 0) return null;
-            user = data.Rows[0].ToObjectFromDR<User>();
+            user = MapDataRowToUser(data.Rows[0]);
             return user;
 
         }
@@ -71,7 +70,7 @@ namespace Repository.Admin
 
             if (dataTable.Rows.Count == 0) return null;
 
-            return await Task.FromResult(dataTable.Rows[0].ToObjectFromDR<User>());
+            return await Task.FromResult(MapDataRowToUser(dataTable.Rows[0]));
         }
         public async Task<User> UpdateAsync(User user)
         {
@@ -94,7 +93,7 @@ namespace Repository.Admin
             var parameters = GetSqlParameters(user);
             data = await _sqlHelper.ExecuteQueryAsync(query, parameters);
             if (data.Rows.Count == 0) return null;
-            user = data.Rows[0].ToObjectFromDR<User>();
+            user = MapDataRowToUser(data.Rows[0]);
             return user;
         }
         public async Task<User> GetByLoginAsync(string loginValue, string loginType)
@@ -121,7 +120,7 @@ namespace Repository.Admin
 
             if (dataTable.Rows.Count == 0) return null;
 
-            return dataTable.Rows[0].ToObjectFromDR<User>();
+            return MapDataRowToUser(dataTable.Rows[0]);
         }
 
 

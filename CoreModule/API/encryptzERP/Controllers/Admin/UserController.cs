@@ -16,106 +16,58 @@ namespace encryptzERP.Controllers.Admin
     [Authorize]
     public class UserController : ControllerBase
     {
-        private readonly IUserService _UserService;
-        private readonly ExceptionHandler _exceptionHandler;
+        private readonly IUserService _userService;
 
-        public UserController(IUserService UserService, ExceptionHandler exceptionHandler)
+        public UserController(IUserService userService)
         {
-            _UserService = UserService;
-            _exceptionHandler = exceptionHandler;
+            _userService = userService;
         }
 
         [HttpGet]
         public async Task<ActionResult<IEnumerable<UserDto>>> GetAll()
         {
-            try
-            {
-                var result = await _UserService.GetAllUserAsync();
-                return Ok(result);
-            }
-            catch (Exception ex)
-            {
-                 
-                _exceptionHandler.LogError(ex);
-                throw;
-            }
-
+            var result = await _userService.GetAllUserAsync();
+            return Ok(result);
         }
 
         [HttpGet("{id}")]
         public async Task<ActionResult<UserDto>> GetById(long id)
         {
-            try
-            {
-                var result = await _UserService.GetUserByIdAsync(id);
-                if (result == null)
-                    return NotFound();
+            var result = await _userService.GetUserByIdAsync(id);
+            if (result == null)
+                return NotFound();
 
-                return Ok(result);
-            }
-            catch (Exception ex)
-            {
-                _exceptionHandler.LogError(ex);
-                throw;
-            }
-
+            return Ok(result);
         }
 
         [HttpPost]
-        public async Task<IActionResult> Create(UserDto UserDto)
+        public async Task<IActionResult> Create(UserDto userDto)
         {
-            try
-            {
-                var response = await _UserService.AddUserAsync(UserDto);
-                if (response == null)
-                    return BadRequest("Failed to add business.");
+            var response = await _userService.AddUserAsync(userDto);
+            if (response == null)
+                return BadRequest("Failed to add user.");
 
-                return Ok(new { message = "Business added successfully." });
-            }
-            catch (Exception ex)
-            {
-                _exceptionHandler.LogError(ex);
-                throw;
-            }
-
+            return Ok(new { message = "User added successfully." });
         }
 
         [HttpPut("{id}")]
-        public async Task<IActionResult> Update(long id, UserDto UserDto)
+        public async Task<IActionResult> Update(long id, UserDto userDto)
         {
-            try
-            {
-                var success = await _UserService.UpdateUserAsync(id, UserDto);
-                if (!success)
-                    return NotFound(new { message = "User not found or update failed." });
+            var success = await _userService.UpdateUserAsync(id, userDto);
+            if (!success)
+                return NotFound(new { message = "User not found or update failed." });
 
-                return Ok(new { message = "User updated successfully." });
-            }
-            catch (Exception ex)
-            {
-                _exceptionHandler.LogError(ex);
-                throw;
-            }
-
+            return Ok(new { message = "User updated successfully." });
         }
 
         [HttpDelete("{id}")]
         public async Task<IActionResult> Delete(long id)
         {
-            try
-            {
-                var success = await _UserService.DeleteUserAsync(id);
-                if (!success)
-                    return NotFound(new { message = "User not found or could not be deleted." });
+            var success = await _userService.DeleteUserAsync(id);
+            if (!success)
+                return NotFound(new { message = "User not found or could not be deleted." });
 
-                return Ok(new { message = "User deleted successfully." });
-            }
-            catch (Exception ex)
-            {
-                _exceptionHandler.LogError(ex);
-                throw;
-            }
-
+            return Ok(new { message = "User deleted successfully." });
         }
     }
 }

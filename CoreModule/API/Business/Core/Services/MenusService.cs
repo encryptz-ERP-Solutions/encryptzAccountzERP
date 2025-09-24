@@ -3,99 +3,60 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using BusinessLogic.Core.DTOs;
 using BusinessLogic.Core.Interface;
+using AutoMapper;
 using Entities.Core;
 using Repository.Core.Interface;
-using Infrastructure;
-using Infrastructure.Extensions;
 
 namespace BusinessLogic.Core.Services
 {
     public class MenusService : IMenusService
     {
-        private readonly IMenusRepository _MenusRepository;
+        private readonly IMenusRepository _menusRepository;
+        private readonly IMapper _mapper;
 
-        public MenusService(IMenusRepository MenusRepository)
+        public MenusService(IMenusRepository menusRepository, IMapper mapper)
         {
-            _MenusRepository = MenusRepository;
+            _menusRepository = menusRepository;
+            _mapper = mapper;
         }
 
-        public async Task<bool> AddMenusAsync(MenusDto MenusDto)
+        public async Task<bool> AddMenusAsync(MenusDto menusDto)
         {
-            try
-            {
-                // TODO: Add validations
-                var entity = MenusDto.ConvertToClassObject<MenusDto, Menus>();
-                await _MenusRepository.AddAsync(entity);
-                if (entity == null)
-                    throw new Exception("Failed to add Menus.");
-                return true;
-            }
-            catch (Exception)
-            {
-                throw;
-            }
+            // TODO: Add validations
+            var entity = _mapper.Map<Menus>(menusDto);
+            await _menusRepository.AddAsync(entity);
+            if (entity == null)
+                throw new Exception("Failed to add Menus.");
+            return true;
         }
 
         public async Task<bool> DeleteMenusAsync(int id)
         {
-            try
-            {
-                if (id <= 0)
-                    throw new ArgumentException("Invalid ID.");
-                await _MenusRepository.DeleteAsync(id);
-                return true;
-            }
-            catch (Exception)
-            {
-                throw;
-            }
+            if (id <= 0)
+                throw new ArgumentException("Invalid ID.");
+            await _menusRepository.DeleteAsync(id);
+            return true;
         }
 
         public async Task<IEnumerable<MenusDto>> GetAllMenusAsync()
         {
-            try
-            {
-                var list = await _MenusRepository.GetAllAsync();
-                var dtoList = new List<MenusDto>();
-                foreach (var item in list)
-                {
-                    dtoList.Add(item.ConvertToClassObject<Menus, MenusDto>());
-                }
-                return dtoList;
-            }
-            catch (Exception)
-            {
-                throw;
-            }
+            var list = await _menusRepository.GetAllAsync();
+            return _mapper.Map<IEnumerable<MenusDto>>(list);
         }
 
         public async Task<MenusDto?> GetMenusByIdAsync(int id)
         {
-            try
-            {
-                var entity = await _MenusRepository.GetByIdAsync(id);
-                return entity?.ConvertToClassObject<Menus, MenusDto>();
-            }
-            catch (Exception)
-            {
-                throw;
-            }
+            var entity = await _menusRepository.GetByIdAsync(id);
+            return _mapper.Map<MenusDto>(entity);
         }
 
-        public async Task<bool> UpdateMenusAsync(int id, MenusDto MenusDto)
+        public async Task<bool> UpdateMenusAsync(int id, MenusDto menusDto)
         {
-            try
-            {
-                if (id <= 0)
-                    throw new ArgumentException("Invalid ID.");
-                var entity = MenusDto.ConvertToClassObject<MenusDto, Menus>();
-                await _MenusRepository.UpdateAsync(entity);
-                return true;
-            }
-            catch (Exception)
-            {
-                throw;
-            }
+            if (id <= 0)
+                throw new ArgumentException("Invalid ID.");
+            var entity = _mapper.Map<Menus>(menusDto);
+            await _menusRepository.UpdateAsync(entity);
+            return true;
         }
     }
 }
