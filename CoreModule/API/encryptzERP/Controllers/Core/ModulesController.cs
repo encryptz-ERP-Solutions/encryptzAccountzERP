@@ -14,94 +14,47 @@ namespace encryptzERP.Controllers.Core
     [Authorize]
     public class ModulesController : ControllerBase
     {
-        private readonly IModulesService _ModulesService;
-        private readonly ExceptionHandler _exceptionHandler;
+        private readonly IModulesService _modulesService;
 
-        public ModulesController(IModulesService ModulesService, ExceptionHandler exceptionHandler)
+        public ModulesController(IModulesService modulesService)
         {
-            _ModulesService = ModulesService;
-            _exceptionHandler = exceptionHandler;
+            _modulesService = modulesService;
         }
 
         [HttpGet]
         public async Task<ActionResult<IEnumerable<Modules>>> GetAll()
         {
-            try
-            {
-                return Ok(await _ModulesService.GetAllModulesAsync());
-            }
-            catch (Exception ex)
-            {
-                _exceptionHandler.LogError(ex);
-                throw;
-            }
-            
+            return Ok(await _modulesService.GetAllModulesAsync());
         }
 
         [HttpGet("{id}")]
         public async Task<ActionResult<Modules>> GetById(int id)
         {
-            try
-            {
-                var Modules = await _ModulesService.GetModulesByIdAsync(id);
-                if (Modules == null) return NotFound();
-                return Ok(Modules);
-            }
-            catch (Exception ex)
-            {
-                _exceptionHandler.LogError(ex);
-                throw;
-            }
-            
+            var modules = await _modulesService.GetModulesByIdAsync(id);
+            if (modules == null) return NotFound();
+            return Ok(modules);
         }
 
         [HttpPost]
-        public async Task<IActionResult> Create(ModulesDto Modules)
+        public async Task<IActionResult> Create(ModulesDto modules)
         {
-            try
-            {
-                await _ModulesService.AddModulesAsync(Modules);
-                return CreatedAtAction(nameof(GetById), new { id = 0 }, Modules);
-            }
-            catch (Exception ex)
-            {
-                _exceptionHandler.LogError(ex);
-                throw;
-            }
-            
+            await _modulesService.AddModulesAsync(modules);
+            return CreatedAtAction(nameof(GetById), new { id = 0 }, modules);
         }
 
         [HttpPut("{id}")]
-        public async Task<IActionResult> Update(int id, ModulesDto Modules)
+        public async Task<IActionResult> Update(int id, ModulesDto modules)
         {
-            try
-            {
-                if (id <= 0) return BadRequest();
-                await _ModulesService.UpdateModulesAsync(id, Modules);
-                return NoContent();
-            }
-            catch (Exception ex)
-            {
-                _exceptionHandler.LogError(ex);
-                throw;
-            }
-            
+            if (id <= 0) return BadRequest();
+            await _modulesService.UpdateModulesAsync(id, modules);
+            return NoContent();
         }
 
         [HttpDelete("{id}")]
         public async Task<IActionResult> Delete(int id)
         {
-            try
-            {
-                await _ModulesService.DeleteModulesAsync(id);
-                return NoContent();
-            }
-            catch (Exception ex)
-            {
-                _exceptionHandler.LogError(ex);
-                throw;
-            }
-            
+            await _modulesService.DeleteModulesAsync(id);
+            return NoContent();
         }
     }
 }
