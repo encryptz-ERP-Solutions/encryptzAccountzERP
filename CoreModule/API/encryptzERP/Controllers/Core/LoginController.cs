@@ -96,5 +96,39 @@ namespace encryptzERP.Controllers.Core
 
             return Ok(new { Message = "Password has been reset successfully." });
         }
+
+        [HttpPost("request-otp")]
+        [AllowAnonymous]
+        public async Task<IActionResult> RequestLoginOtp([FromBody] OtpLoginRequestDto request)
+        {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+
+            await _loginService.RequestLoginOtpAsync(request);
+
+            // Always return OK to prevent user enumeration
+            return Ok(new { Message = "If an account with that identifier is registered, an OTP has been sent." });
+        }
+
+        [HttpPost("verify-otp")]
+        [AllowAnonymous]
+        public async Task<IActionResult> VerifyLoginOtp([FromBody] OtpLoginVerifyDto request)
+        {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+
+            var response = await _loginService.VerifyLoginOtpAsync(request);
+
+            if (!response.IsSuccess)
+            {
+                return Unauthorized(new { response.Message });
+            }
+
+            return Ok(response);
+        }
     }
 }

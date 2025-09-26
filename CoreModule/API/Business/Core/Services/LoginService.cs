@@ -120,5 +120,64 @@ namespace BusinessLogic.Core.Services
             var newHashedPassword = PasswordHasher.HashPassword(resetPasswordDto.NewPassword);
             return await _loginRepository.ChangePasswordAsync(user.UserID, newHashedPassword);
         }
+
+        public async Task<bool> RequestLoginOtpAsync(OtpLoginRequestDto request)
+        {
+            var otp = new Random().Next(100000, 999999).ToString();
+            await _loginRepository.SaveOTPAsync(request.LoginIdentifier, otp);
+
+            // TODO: Integrate a real email/SMS service here to send the OTP.
+            // For now, always return true to prevent user enumeration.
+            return true;
+        }
+
+        public async Task<LoginResponseDto> VerifyLoginOtpAsync(OtpLoginVerifyDto request)
+        {
+            var isOtpValid = await _loginRepository.VerifyOTPAsync(request.LoginIdentifier, request.Otp);
+            if (!isOtpValid)
+            {
+                return new LoginResponseDto { IsSuccess = false, Message = "Invalid or expired OTP." };
+            }
+
+            var isEmail = request.LoginIdentifier.Contains('@');
+            var user = isEmail
+                ? await _userRepository.GetByEmailAsync(request.LoginIdentifier)
+                : await _userRepository.GetByUserHandleAsync(request.LoginIdentifier);
+
+            // If user does not exist, create them on-the-fly
+            if (user == null)
+            {
+                var newUser = new Entities.Admin.User
+                {
+                    UserID = Guid.NewGuid(),
+                    Email = isEmail ? request.LoginIdentifier : null,
+                    UserHandle = isEmail ? request.LoginIdentifier.Split('@')[0] : request.LoginIdentifier,
+                    FullName = isEmail ? request.LoginIdentifier.Split('@')[0] : request.LoginIdentifier, // Default full name
+                    IsActive = true,
+                    CreatedAtUTC = DateTime.UtcNow,
+                    UpdatedAtUTC = DateTime.UtcNow
+                };
+                user = await _userRepository.AddAsync(newUser);
+            }
+
+            if (!user.IsActive)
+            {
+                return new LoginResponseDto { IsSuccess = false, Message = "User account is inactive." };
+            }
+
+            // Login is successful, generate token
+            var (tokenString, expiration) = _tokenService.GenerateAccessToken(user.UserID.ToString(), user.UserHandle, "User");
+
+            return new LoginResponseDto
+            {
+                IsSuccess = true,
+                Message = "Login successful.",
+                Token = tokenString,
+                TokenExpiration = expiration,
+                UserId = user.UserID,
+                UserHandle = user.UserHandle,
+                FullName = user.FullName
+            };
+        }
     }
 }

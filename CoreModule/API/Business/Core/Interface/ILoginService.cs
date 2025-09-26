@@ -37,5 +37,19 @@ namespace BusinessLogic.Core.Interface
         /// <param name="resetPasswordDto">The password reset data.</param>
         /// <returns>True if the password was successfully reset, otherwise false.</returns>
         Task<bool> ResetPasswordAsync(ResetPasswordDto resetPasswordDto);
+
+        /// <summary>
+        /// Initiates a passwordless login by sending an OTP to the user.
+        /// </summary>
+        /// <param name="request">The OTP login request data.</param>
+        /// <returns>True if the process was initiated successfully, otherwise false.</returns>
+        Task<bool> RequestLoginOtpAsync(OtpLoginRequestDto request);
+
+        /// <summary>
+        /// Verifies an OTP to complete a passwordless login.
+        /// </summary>
+        /// <param name="request">The OTP verification data.</param>
+        /// <returns>A DTO containing the login result, including a JWT on success.</returns>
+        Task<LoginResponseDto> VerifyLoginOtpAsync(OtpLoginVerifyDto request);
     }
 }
