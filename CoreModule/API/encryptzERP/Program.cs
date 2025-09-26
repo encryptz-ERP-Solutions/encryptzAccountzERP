@@ -80,6 +80,7 @@ builder.Services.AddScoped<ILoginRepository, LoginRepository>();
 builder.Services.AddScoped<ILoginService, LoginService>();
 
 builder.Services.AddScoped<ExceptionHandler>();
+builder.Services.AddTransient<EmailService>();
 
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(options =>

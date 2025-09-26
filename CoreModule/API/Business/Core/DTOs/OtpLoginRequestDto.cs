@@ -10,5 +10,8 @@ namespace BusinessLogic.Core.DTOs
         [Required]
         [StringLength(100)]
         public string LoginIdentifier { get; set; } = string.Empty;
+
+        [Required]
+        public string OtpMethod { get; set; } = "email"; // Default to "email"
     }
 }

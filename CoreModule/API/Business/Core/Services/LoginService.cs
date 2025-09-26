@@ -15,12 +15,14 @@ namespace BusinessLogic.Core.Services
         private readonly IUserRepository _userRepository;
         private readonly ILoginRepository _loginRepository;
         private readonly TokenService _tokenService;
+        private readonly EmailService _emailService;
 
-        public LoginService(IUserRepository userRepository, ILoginRepository loginRepository, TokenService tokenService)
+        public LoginService(IUserRepository userRepository, ILoginRepository loginRepository, TokenService tokenService, EmailService emailService)
         {
             _userRepository = userRepository;
             _loginRepository = loginRepository;
             _tokenService = tokenService;
+            _emailService = emailService;
         }
 
         public async Task<LoginResponseDto> LoginAsync(LoginRequestDto loginRequest)
@@ -92,8 +94,11 @@ namespace BusinessLogic.Core.Services
             var otp = new Random().Next(100000, 999999).ToString();
             await _loginRepository.SaveOTPAsync(forgotPasswordRequestDto.LoginIdentifier, otp);
 
-            // TODO: Integrate a real email/SMS service here to send the OTP.
-            // For now, the process is considered successful if the OTP is saved.
+            // If the identifier is an email, send the OTP.
+            if (isEmail)
+            {
+                await _emailService.SendEmail(user.Email, otp, user.FullName);
+            }
 
             return true;
         }
@@ -126,8 +131,22 @@ namespace BusinessLogic.Core.Services
             var otp = new Random().Next(100000, 999999).ToString();
             await _loginRepository.SaveOTPAsync(request.LoginIdentifier, otp);
 
-            // TODO: Integrate a real email/SMS service here to send the OTP.
-            // For now, always return true to prevent user enumeration.
+            if (request.OtpMethod.Equals("email", StringComparison.OrdinalIgnoreCase))
+            {
+                var isEmail = request.LoginIdentifier.Contains('@');
+                if (!isEmail)
+                {
+                    // Cannot send email if identifier is not an email address.
+                    // Silently succeed to prevent user enumeration.
+                    return true;
+                }
+
+                var user = await _userRepository.GetByEmailAsync(request.LoginIdentifier);
+                var fullName = user?.FullName ?? request.LoginIdentifier; // Use identifier as fallback name
+
+                await _emailService.SendEmail(request.LoginIdentifier, otp, fullName);
+            }
+
             return true;
         }
 
