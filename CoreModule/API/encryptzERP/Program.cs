@@ -1,7 +1,5 @@
 
 using Microsoft.AspNetCore.Mvc.Routing;
-using Repository.Core.Interface;
-using Repository.Core;
 using Data.Core;
 using Microsoft.OpenApi.Models;
 using Repository.Admin;
@@ -9,16 +7,15 @@ using Repository.Admin.Interface;
 using Infrastructure;
 using BusinessLogic.Admin.Services;
 using BusinessLogic.Admin.Interface;
-using BusinessLogic.Core.Services;
+using Repository.Core.Interface;
+using Repository.Core;
 using BusinessLogic.Core.Interface;
+using BusinessLogic.Core.Services;
+using Infrastructure.Jwt;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
 using Microsoft.Extensions.Options;
-using FluentValidation.AspNetCore;
-using FluentValidation;
-using BusinessLogic.Mappers;
-using BusinessLogic.Admin.Validators;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -54,10 +51,11 @@ builder.Services.AddCors(options =>
 
 
 builder.Services.AddScoped<TokenService>();
+
+// Add AutoMapper
+builder.Services.AddAutoMapper(typeof(BusinessLogic.Admin.Mappers.UserMappingProfile).Assembly);
+
 builder.Services.AddControllers();
-builder.Services.AddFluentValidationAutoValidation();
-builder.Services.AddValidatorsFromAssemblyContaining<UserDtoValidator>();
-builder.Services.AddAutoMapper(typeof(AutoMapperProfile).Assembly);
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 
 //builder.Services.AddTransient<emailService>();
@@ -76,12 +74,12 @@ builder.Services.AddAutoMapper(typeof(AutoMapperProfile).Assembly);
 builder.Services.AddSingleton<CoreSQLDbHelper>();
 
 // Register repository layer
-builder.Services.AddScoped<ICompanyService, CompanyService>();
-builder.Services.AddScoped<ICompanyRepository, CompanyRepository>();
 builder.Services.AddScoped<IUserRepository, UserRepository>();
 builder.Services.AddScoped<IUserService, UserService>();
 builder.Services.AddScoped<ILoginRepository, LoginRepository>();
 builder.Services.AddScoped<ILoginService, LoginService>();
+
+builder.Services.AddScoped<ExceptionHandler>();
 
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(options =>
@@ -112,11 +110,7 @@ builder.Services.AddSwaggerGen(options =>
         }
     });
 });
-
 var app = builder.Build();
-
-app.UseGlobalExceptionHandler();
-
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {

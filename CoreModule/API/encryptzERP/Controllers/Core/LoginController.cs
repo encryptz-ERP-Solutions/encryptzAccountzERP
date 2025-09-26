@@ -1,8 +1,9 @@
-﻿using BusinessLogic.Admin.DTOs;
-using BusinessLogic.Admin.Interface;
+using System;
+using System.Security.Claims;
+using System.Threading.Tasks;
 using BusinessLogic.Core.DTOs;
 using BusinessLogic.Core.Interface;
-using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace encryptzERP.Controllers.Core
@@ -18,59 +19,82 @@ namespace encryptzERP.Controllers.Core
             _loginService = loginService;
         }
 
-        [HttpPost]
-        public async Task<ActionResult> Login([FromBody] LoginRequest loginRequest)
+        [HttpPost("authenticate")]
+        [AllowAnonymous]
+        public async Task<IActionResult> Login([FromBody] LoginRequestDto loginRequest)
         {
-            var result = await _loginService.LoginAsync(loginRequest);
-            if (result.Token == null || result.Token == "")
-                return NotFound();
-            return Ok(result);
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+
+            var response = await _loginService.LoginAsync(loginRequest);
+
+            if (!response.IsSuccess)
+            {
+                return Unauthorized(new { response.Message });
+            }
+
+            return Ok(response);
         }
 
-        [HttpDelete]
-        public async Task<ActionResult> Logout(string userId)
+        [HttpPost("change-password")]
+        [Authorize]
+        public async Task<IActionResult> ChangePassword([FromBody] ChangePasswordDto changePasswordDto)
         {
-            var result = await _loginService.LogoutAsync(userId);
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+
+            var userIdString = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            if (!Guid.TryParse(userIdString, out var userId))
+            {
+                return Unauthorized();
+            }
+
+            var result = await _loginService.ChangePasswordAsync(userId, changePasswordDto);
+
             if (!result)
-                return NotFound();
-            return Ok($"{userId} logged out sccessfully..!");
-        }
-
-        [HttpPost("refresh")]
-        public async Task<ActionResult> RefreshToken([FromBody] RefreshTokenRequest request)
-        {
-            LoginResponse loginResponse = new LoginResponse();
-
-            loginResponse = await _loginService.RefreshTokenAsync(request);
-            if (loginResponse.Token != null || loginResponse.Token == "")
-                return Unauthorized("Invalid or expired refresh token");
-
-            return Ok(loginResponse);
-        }
-
-        [HttpPost("send-otp")]
-        public async Task<IActionResult> SendOTP([FromBody] SendOtpRequest request)
-        {
-            var response = await _loginService.SendOTP(request);
-            if (!response.Item1)
             {
-                return BadRequest(new { status = true, Message = "OTP sent successfully" });
+                return BadRequest(new { Message = "Failed to change password. Please check your old password." });
             }
-            return Ok(new { status = true, Message = "OTP sent successfully" });
+
+            return Ok(new { Message = "Password changed successfully." });
         }
 
-        [HttpPost("verify-otp")]
-        public async Task<IActionResult> VerifyOTP([FromBody] VerifyOtpRequest request)
+        [HttpPost("forgot-password")]
+        [AllowAnonymous]
+        public async Task<IActionResult> ForgotPassword([FromBody] ForgotPasswordRequestDto forgotPasswordDto)
         {
-            LoginResponse loginResponse = new LoginResponse();
-            var response = await _loginService.VerifyOTP(request);
-            if (response == null || response.Token == null || response.Token == "")
+            if (!ModelState.IsValid)
             {
-                return BadRequest(new { status = false, Message = "OTP verification failed" });
+                return BadRequest(ModelState);
             }
-            return Ok(new { status = true, response = response, Message = "OTP verified successfully" });
+
+            await _loginService.ForgotPasswordAsync(forgotPasswordDto);
+
+            // Always return OK to prevent user enumeration
+            return Ok(new { Message = "If an account with that identifier exists, a password reset OTP has been sent." });
         }
 
+        [HttpPost("reset-password")]
+        [AllowAnonymous]
+        public async Task<IActionResult> ResetPassword([FromBody] ResetPasswordDto resetPasswordDto)
+        {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
 
+            var result = await _loginService.ResetPasswordAsync(resetPasswordDto);
+
+            if (!result)
+            {
+                return BadRequest(new { Message = "Password reset failed. The OTP may be invalid or expired." });
+            }
+
+            return Ok(new { Message = "Password has been reset successfully." });
+        }
     }
 }

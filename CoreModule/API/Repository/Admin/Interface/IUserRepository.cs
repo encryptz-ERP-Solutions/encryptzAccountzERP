@@ -11,11 +11,12 @@ namespace Repository.Admin.Interface
     public interface IUserRepository
     {
         Task<IEnumerable<User>> GetAllAsync();
-        Task<User> GetByIdAsync(long id);
+        Task<User?> GetByIdAsync(Guid id);
         Task<User> AddAsync(User user);
         Task<User> UpdateAsync(User user);
-        Task DeleteAsync(long id);
-        Task<User> GetByLoginAsync(string loginValue, string loginType);
+        Task DeleteAsync(Guid id);
+        Task<User?> GetByUserHandleAsync(string userHandle);
+        Task<User?> GetByEmailAsync(string email);
       
     }
 }
