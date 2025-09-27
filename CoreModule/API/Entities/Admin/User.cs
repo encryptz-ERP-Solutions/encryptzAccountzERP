@@ -13,7 +13,7 @@ namespace Entities.Admin
         public string? HashedPassword { get; set; }
         public string? MobileCountryCode { get; set; }
         public string? MobileNumber { get; set; }
-        public byte[] PanCardNumber_Encrypted { get; set; } = Array.Empty<byte>();
+        public byte[]? PanCardNumber_Encrypted { get; set; }
         public byte[]? AadharNumber_Encrypted { get; set; }
         public bool IsActive { get; set; }
         public DateTime CreatedAtUTC { get; set; }

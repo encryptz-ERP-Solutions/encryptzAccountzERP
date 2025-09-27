@@ -37,7 +37,11 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
         };
     });
 // Add services to the container.
-builder.Services.AddAuthorization();
+builder.Services.AddAuthorization(options =>
+{
+    options.AddPolicy("CanManageBusinesses", policy =>
+        policy.RequireClaim("permission", "business:manage"));
+});
 
 // Enable CORS
 builder.Services.AddCors(options =>
@@ -75,9 +79,19 @@ builder.Services.AddSingleton<CoreSQLDbHelper>();
 
 // Register repository layer
 builder.Services.AddScoped<IUserRepository, UserRepository>();
+builder.Services.AddScoped<IBusinessRepository, BusinessRepository>();
 builder.Services.AddScoped<IUserService, UserService>();
 builder.Services.AddScoped<ILoginRepository, LoginRepository>();
 builder.Services.AddScoped<ILoginService, LoginService>();
+builder.Services.AddScoped<IBusinessService, BusinessService>();
+builder.Services.AddScoped<IModuleRepository, ModuleRepository>();
+builder.Services.AddScoped<IModuleService, ModuleService>();
+builder.Services.AddScoped<IMenuItemRepository, MenuItemRepository>();
+builder.Services.AddScoped<IMenuItemService, MenuItemService>();
+builder.Services.AddScoped<IPermissionRepository, PermissionRepository>();
+builder.Services.AddScoped<IPermissionService, PermissionService>();
+builder.Services.AddScoped<IRoleRepository, RoleRepository>();
+builder.Services.AddScoped<IRoleService, RoleService>();
 
 builder.Services.AddScoped<ExceptionHandler>();
 builder.Services.AddTransient<EmailService>();

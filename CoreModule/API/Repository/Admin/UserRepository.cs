@@ -12,7 +12,7 @@ namespace Repository.Admin
     public class UserRepository : IUserRepository
     {
         private readonly CoreSQLDbHelper _sqlHelper;
-        private const string BaseUserSelectQuery = "SELECT UserID, UserHandle, FullName, Email, HashedPassword, MobileCountryCode, MobileNumber, PanCardNumber_Encrypted, AadharNumber_Encrypted, IsActive, CreatedAtUTC, UpdatedAtUTC FROM Admin.Users";
+        private const string BaseUserSelectQuery = "SELECT UserID, UserHandle, FullName, Email, HashedPassword, MobileCountryCode, MobileNumber, PanCardNumber_Encrypted, AadharNumber_Encrypted, IsActive, CreatedAtUTC, UpdatedAtUTC FROM core.Users";
 
         public UserRepository(CoreSQLDbHelper sqlHelper)
         {
@@ -66,10 +66,10 @@ namespace Repository.Admin
         public async Task<User> AddAsync(User user)
         {
             var query = @"
-                INSERT INTO Admin.Users (UserID, UserHandle, FullName, Email, HashedPassword, MobileCountryCode, MobileNumber, PanCardNumber_Encrypted, AadharNumber_Encrypted, IsActive, CreatedAtUTC, UpdatedAtUTC)
+                INSERT INTO core.Users (UserID, UserHandle, FullName, Email, HashedPassword, MobileCountryCode, MobileNumber, PanCardNumber_Encrypted, AadharNumber_Encrypted, IsActive, CreatedAtUTC, UpdatedAtUTC)
                 VALUES (@UserID, @UserHandle, @FullName, @Email, @HashedPassword, @MobileCountryCode, @MobileNumber, @PanCardNumber_Encrypted, @AadharNumber_Encrypted, @IsActive, @CreatedAtUTC, @UpdatedAtUTC);
 
-                SELECT * FROM Admin.Users WHERE UserID = @UserID;";
+                SELECT * FROM core.Users WHERE UserID = @UserID;";
 
             var parameters = GetSqlParameters(user);
             var dataTable = await _sqlHelper.ExecuteQueryAsync(query, parameters);
@@ -85,7 +85,7 @@ namespace Repository.Admin
         public async Task<User> UpdateAsync(User user)
         {
             var query = @"
-                UPDATE Admin.Users SET
+                UPDATE core.Users SET
                     UserHandle = @UserHandle,
                     FullName = @FullName,
                     Email = @Email,
@@ -98,7 +98,7 @@ namespace Repository.Admin
                     UpdatedAtUTC = @UpdatedAtUTC
                 WHERE UserID = @UserID;
 
-                SELECT * FROM Admin.Users WHERE UserID = @UserID;";
+                SELECT * FROM core.Users WHERE UserID = @UserID;";
 
             var parameters = GetSqlParameters(user);
             var dataTable = await _sqlHelper.ExecuteQueryAsync(query, parameters);
@@ -113,7 +113,7 @@ namespace Repository.Admin
 
         public async Task DeleteAsync(Guid id)
         {
-            var query = "DELETE FROM Admin.Users WHERE UserID = @UserID";
+            var query = "DELETE FROM core.Users WHERE UserID = @UserID";
             var parameters = new[] { new SqlParameter("@UserID", id) };
             await _sqlHelper.ExecuteNonQueryAsync(query, parameters);
         }
@@ -148,7 +148,7 @@ namespace Repository.Admin
                 new SqlParameter("@HashedPassword", (object)user.HashedPassword ?? DBNull.Value),
                 new SqlParameter("@MobileCountryCode", (object)user.MobileCountryCode ?? DBNull.Value),
                 new SqlParameter("@MobileNumber", (object)user.MobileNumber ?? DBNull.Value),
-                new SqlParameter("@PanCardNumber_Encrypted", user.PanCardNumber_Encrypted),
+                new SqlParameter("@PanCardNumber_Encrypted", (object)user.PanCardNumber_Encrypted ?? DBNull.Value),
                 new SqlParameter("@AadharNumber_Encrypted", (object)user.AadharNumber_Encrypted ?? DBNull.Value),
                 new SqlParameter("@IsActive", user.IsActive),
                 new SqlParameter("@CreatedAtUTC", user.CreatedAtUTC),

@@ -14,13 +14,20 @@ namespace BusinessLogic.Core.Services
     {
         private readonly IUserRepository _userRepository;
         private readonly ILoginRepository _loginRepository;
+        private readonly IRoleRepository _roleRepository;
         private readonly TokenService _tokenService;
         private readonly EmailService _emailService;
 
-        public LoginService(IUserRepository userRepository, ILoginRepository loginRepository, TokenService tokenService, EmailService emailService)
+        public LoginService(
+            IUserRepository userRepository,
+            ILoginRepository loginRepository,
+            IRoleRepository roleRepository,
+            TokenService tokenService,
+            EmailService emailService)
         {
             _userRepository = userRepository;
             _loginRepository = loginRepository;
+            _roleRepository = roleRepository;
             _tokenService = tokenService;
             _emailService = emailService;
         }
@@ -43,8 +50,9 @@ namespace BusinessLogic.Core.Services
                 return new LoginResponseDto { IsSuccess = false, Message = "Invalid credentials." };
             }
 
-            // At this point, login is successful. Generate token.
-            var (tokenString, expiration) = _tokenService.GenerateAccessToken(user.UserID.ToString(), user.UserHandle, "User"); // Role can be expanded later
+            // At this point, login is successful. Fetch permissions and generate token.
+            var permissions = await _roleRepository.GetUserPermissionsAcrossBusinessesAsync(user.UserID);
+            var (tokenString, expiration) = _tokenService.GenerateAccessToken(user.UserID.ToString(), user.UserHandle, permissions);
 
             return new LoginResponseDto
             {
@@ -184,8 +192,9 @@ namespace BusinessLogic.Core.Services
                 return new LoginResponseDto { IsSuccess = false, Message = "User account is inactive." };
             }
 
-            // Login is successful, generate token
-            var (tokenString, expiration) = _tokenService.GenerateAccessToken(user.UserID.ToString(), user.UserHandle, "User");
+            // Login is successful, fetch permissions and generate token
+            var permissions = await _roleRepository.GetUserPermissionsAcrossBusinessesAsync(user.UserID);
+            var (tokenString, expiration) = _tokenService.GenerateAccessToken(user.UserID.ToString(), user.UserHandle, permissions);
 
             return new LoginResponseDto
             {

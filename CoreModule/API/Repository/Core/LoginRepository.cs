@@ -18,7 +18,7 @@ namespace Repository.Core
 
         public async Task<bool> ChangePasswordAsync(Guid userId, string newHashedPassword)
         {
-            var query = "UPDATE Admin.Users SET HashedPassword = @HashedPassword, UpdatedAtUTC = @UpdatedAtUTC WHERE UserID = @UserID";
+            var query = "UPDATE core.Users SET HashedPassword = @HashedPassword, UpdatedAtUTC = @UpdatedAtUTC WHERE UserID = @UserID";
             var parameters = new[] {
                 new SqlParameter("@UserID", userId),
                 new SqlParameter("@HashedPassword", newHashedPassword),
@@ -31,12 +31,10 @@ namespace Repository.Core
 
         public async Task<bool> SaveOTPAsync(string loginIdentifier, string otp)
         {
-            // Assuming a table named Admin.OneTimePasswords exists for storing OTPs.
-            // This query will clear any previous, unused OTPs for the same identifier.
             var query = @"
-                DELETE FROM Admin.OneTimePasswords WHERE LoginIdentifier = @LoginIdentifier AND IsUsed = 0;
+                DELETE FROM core.OneTimePasswords WHERE LoginIdentifier = @LoginIdentifier AND IsUsed = 0;
 
-                INSERT INTO Admin.OneTimePasswords (LoginIdentifier, OTP, ExpiryTimeUTC, IsUsed, CreatedAtUTC)
+                INSERT INTO core.OneTimePasswords (LoginIdentifier, OTP, ExpiryTimeUTC, IsUsed, CreatedAtUTC)
                 VALUES (@LoginIdentifier, @OTP, @ExpiryTimeUTC, 0, @CreatedAtUTC)";
 
             var parameters = new[] {
@@ -52,7 +50,7 @@ namespace Repository.Core
 
         public async Task<bool> VerifyOTPAsync(string loginIdentifier, string otp)
         {
-            var query = "SELECT OtpID FROM Admin.OneTimePasswords WHERE LoginIdentifier = @LoginIdentifier AND OTP = @OTP AND ExpiryTimeUTC > GETUTCDATE() AND IsUsed = 0";
+            var query = "SELECT OtpID FROM core.OneTimePasswords WHERE LoginIdentifier = @LoginIdentifier AND OTP = @OTP AND ExpiryTimeUTC > GETUTCDATE() AND IsUsed = 0";
             var parameters = new[] {
                 new SqlParameter("@LoginIdentifier", loginIdentifier),
                 new SqlParameter("@OTP", otp),
@@ -67,7 +65,7 @@ namespace Repository.Core
 
             // Mark OTP as used to prevent reuse
             var otpId = Convert.ToInt64(dataTable.Rows[0]["OtpID"]);
-            var updateQuery = "UPDATE Admin.OneTimePasswords SET IsUsed = 1 WHERE OtpID = @OtpID";
+            var updateQuery = "UPDATE core.OneTimePasswords SET IsUsed = 1 WHERE OtpID = @OtpID";
             var updateParameters = new[] { new SqlParameter("@OtpID", otpId) };
 
             await _sqlHelper.ExecuteNonQueryAsync(updateQuery, updateParameters);
