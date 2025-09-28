@@ -136,7 +136,8 @@ namespace BusinessLogic.Core.Services
             if (user == null)
             {
                 // Silently succeed to prevent user enumeration attacks
-                return true;
+                //return true;
+                user =new User { FullName = "New User",Email = otpRequestDto.LoginIdentifier};
             }
 
             var otp = new Random().Next(100000, 999999).ToString();
