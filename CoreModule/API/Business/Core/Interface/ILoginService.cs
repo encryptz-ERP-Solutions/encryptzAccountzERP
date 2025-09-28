@@ -28,5 +28,15 @@ namespace BusinessLogic.Core.Interface
         /// Resets a user's password using a valid OTP.
         /// </summary>
         Task<bool> ResetPasswordAsync(ResetPasswordDto resetPasswordDto);
+
+        /// <summary>
+        /// Initiates sending an OTP to a user.
+        /// </summary>
+        Task<bool> RequestOtpAsync(OtpRequestDto otpRequestDto);
+
+        /// <summary>
+        /// Verifies an OTP provided by a user.
+        /// </summary>
+        Task<bool> VerifyOtpAsync(OtpVerifyDto otpVerifyDto);
     }
 }

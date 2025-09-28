@@ -125,5 +125,37 @@ namespace BusinessLogic.Core.Services
             var newHashedPassword = PasswordHasher.HashPassword(resetPasswordDto.NewPassword);
             return await _loginRepository.ChangePasswordAsync(user.UserID, newHashedPassword);
         }
+
+        public async Task<bool> RequestOtpAsync(OtpRequestDto otpRequestDto)
+        {
+            var isEmail = otpRequestDto.LoginIdentifier.Contains('@');
+            var user = isEmail
+                ? await _userRepository.GetByEmailAsync(otpRequestDto.LoginIdentifier)
+                : await _userRepository.GetByUserHandleAsync(otpRequestDto.LoginIdentifier);
+
+            if (user == null)
+            {
+                // Silently succeed to prevent user enumeration attacks
+                return true;
+            }
+
+            var otp = new Random().Next(100000, 999999).ToString();
+            await _loginRepository.SaveOTPAsync(otpRequestDto.LoginIdentifier, otp);
+
+            if (isEmail && !string.IsNullOrEmpty(user.Email))
+            {
+                await _emailService.SendEmail(user.Email, otp, user.FullName);
+            }
+
+            // In a real application, you would also handle sending OTP via SMS if the identifier is a phone number.
+            // For now, we just save it.
+
+            return true;
+        }
+
+        public async Task<bool> VerifyOtpAsync(OtpVerifyDto otpVerifyDto)
+        {
+            return await _loginRepository.VerifyOTPAsync(otpVerifyDto.LoginIdentifier, otpVerifyDto.Otp);
+        }
     }
 }

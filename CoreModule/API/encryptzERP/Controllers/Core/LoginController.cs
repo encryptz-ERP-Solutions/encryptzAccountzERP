@@ -99,5 +99,39 @@ namespace encryptzERP.Controllers.Core
                 return StatusCode(500, "An internal error occurred.");
             }
         }
+
+        [HttpPost("request-otp")]
+        public async Task<IActionResult> RequestOtp(OtpRequestDto otpRequestDto)
+        {
+            try
+            {
+                await _loginService.RequestOtpAsync(otpRequestDto);
+                return Ok(new { message = "If an account with that identifier exists, an OTP has been sent." });
+            }
+            catch (Exception ex)
+            {
+                _exceptionHandler.LogError(ex);
+                return StatusCode(500, "An internal error occurred.");
+            }
+        }
+
+        [HttpPost("verify-otp")]
+        public async Task<IActionResult> VerifyOtp(OtpVerifyDto otpVerifyDto)
+        {
+            try
+            {
+                var success = await _loginService.VerifyOtpAsync(otpVerifyDto);
+                if (!success)
+                {
+                    return BadRequest(new { message = "Invalid OTP." });
+                }
+                return Ok(new { message = "OTP verified successfully." });
+            }
+            catch (Exception ex)
+            {
+                _exceptionHandler.LogError(ex);
+                return StatusCode(500, "An internal error occurred.");
+            }
+        }
     }
 }
