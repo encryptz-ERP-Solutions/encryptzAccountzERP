@@ -142,13 +142,15 @@ namespace BusinessLogic.Core.Services
             var otp = new Random().Next(100000, 999999).ToString();
             await _loginRepository.SaveOTPAsync(otpRequestDto.LoginIdentifier, otp);
 
-            if (isEmail && !string.IsNullOrEmpty(user.Email))
+            if (otpRequestDto.OtpMethod.Equals("email", StringComparison.OrdinalIgnoreCase))
             {
-                await _emailService.SendEmail(user.Email, otp, user.FullName);
+                if (isEmail && !string.IsNullOrEmpty(user.Email))
+                {
+                    await _emailService.SendEmail(user.Email, otp, user.FullName);
+                }
             }
 
-            // In a real application, you would also handle sending OTP via SMS if the identifier is a phone number.
-            // For now, we just save it.
+            // Logic for other OTP methods like SMS can be added here in the future.
 
             return true;
         }

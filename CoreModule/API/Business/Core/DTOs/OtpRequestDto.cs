@@ -6,5 +6,8 @@ namespace BusinessLogic.Core.DTOs
     {
         [Required]
         public string LoginIdentifier { get; set; }
+
+        [Required]
+        public string OtpMethod { get; set; }
     }
 }
