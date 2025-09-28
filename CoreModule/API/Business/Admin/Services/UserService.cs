@@ -29,26 +29,23 @@ namespace BusinessLogic.Admin.Services
         public async Task<UserDto?> GetUserByIdAsync(Guid id)
         {
             var user = await _userRepository.GetByIdAsync(id);
-            return user == null ? null : _mapper.Map<UserDto>(user);
+            return _mapper.Map<UserDto>(user);
         }
 
         public async Task<UserDto?> GetUserByUserHandleAsync(string userHandle)
         {
             var user = await _userRepository.GetByUserHandleAsync(userHandle);
-            return user == null ? null : _mapper.Map<UserDto>(user);
+            return _mapper.Map<UserDto>(user);
         }
 
         public async Task<UserDto?> GetUserByEmailAsync(string email)
         {
             var user = await _userRepository.GetByEmailAsync(email);
-            return user == null ? null : _mapper.Map<UserDto>(user);
+            return _mapper.Map<UserDto>(user);
         }
 
         public async Task<UserDto> CreateUserAsync(UserCreateDto userCreateDto)
         {
-            // In a real application, you'd add validation here (e.g., using FluentValidation)
-            // to ensure the user handle and email are unique before attempting to insert.
-
             var user = _mapper.Map<User>(userCreateDto);
 
             // Hash the password before saving
@@ -66,7 +63,6 @@ namespace BusinessLogic.Admin.Services
                 return false; // User not found
             }
 
-            // Use AutoMapper to update the existing user entity from the DTO
             _mapper.Map(userUpdateDto, user);
             user.UpdatedAtUTC = DateTime.UtcNow;
 
@@ -82,8 +78,9 @@ namespace BusinessLogic.Admin.Services
                 return false; // User not found
             }
 
-            await _userRepository.DeleteAsync(id);
-            return true;
+            // In a real app, you might have more complex logic here,
+            // like checking if the user has associated data before deletion.
+            return await _userRepository.DeleteAsync(id);
         }
     }
 }

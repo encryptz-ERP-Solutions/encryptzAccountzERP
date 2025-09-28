@@ -1,6 +1,7 @@
 using AutoMapper;
 using BusinessLogic.Admin.DTOs;
 using Entities.Admin;
+using System;
 
 namespace BusinessLogic.Admin.Mappers
 {
@@ -17,7 +18,7 @@ namespace BusinessLogic.Admin.Mappers
                 .ForMember(dest => dest.UpdatedAtUTC, opt => opt.MapFrom(src => DateTime.UtcNow));
 
             CreateMap<UserUpdateDto, User>()
-                .ForAllMembers(opts => opts.Condition((src, dest, srcMember) => srcMember != null)); // Only map non-null properties
+                .ForAllMembers(opts => opts.Condition((src, dest, srcMember) => srcMember != null));
 
             // From Entity to DTO
             CreateMap<User, UserDto>();

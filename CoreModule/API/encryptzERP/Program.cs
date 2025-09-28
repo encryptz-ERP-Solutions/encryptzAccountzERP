@@ -1,5 +1,7 @@
 
 using Microsoft.AspNetCore.Mvc.Routing;
+using Repository.Core.Interface;
+using Repository.Core;
 using Data.Core;
 using Microsoft.OpenApi.Models;
 using Repository.Admin;
@@ -7,11 +9,8 @@ using Repository.Admin.Interface;
 using Infrastructure;
 using BusinessLogic.Admin.Services;
 using BusinessLogic.Admin.Interface;
-using Repository.Core.Interface;
-using Repository.Core;
-using BusinessLogic.Core.Interface;
 using BusinessLogic.Core.Services;
-using Infrastructure.Jwt;
+using BusinessLogic.Core.Interface;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
@@ -37,11 +36,7 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
         };
     });
 // Add services to the container.
-builder.Services.AddAuthorization(options =>
-{
-    options.AddPolicy("CanManageBusinesses", policy =>
-        policy.RequireClaim("permission", "business:manage"));
-});
+builder.Services.AddAuthorization();
 
 // Enable CORS
 builder.Services.AddCors(options =>
@@ -56,45 +51,22 @@ builder.Services.AddCors(options =>
 
 builder.Services.AddScoped<TokenService>();
 
-// Add AutoMapper
+// Add AutoMapper and scan for mapping profiles
 builder.Services.AddAutoMapper(typeof(BusinessLogic.Admin.Mappers.UserMappingProfile).Assembly);
 
 builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
-
-//builder.Services.AddTransient<emailService>();
-
-
-
-// void ConfigureServices(IServiceCollection services)
-//{
-//    services.AddControllersWithViews();
-
-//    // Register EmailService for Dependency Injection
-//    services.AddTransient<emailService>();
-//}
 
 // Register database helper (ADO.NET)
 builder.Services.AddSingleton<CoreSQLDbHelper>();
 
 // Register repository layer
 builder.Services.AddScoped<IUserRepository, UserRepository>();
-builder.Services.AddScoped<IBusinessRepository, BusinessRepository>();
 builder.Services.AddScoped<IUserService, UserService>();
 builder.Services.AddScoped<ILoginRepository, LoginRepository>();
 builder.Services.AddScoped<ILoginService, LoginService>();
-builder.Services.AddScoped<IBusinessService, BusinessService>();
-builder.Services.AddScoped<IModuleRepository, ModuleRepository>();
-builder.Services.AddScoped<IModuleService, ModuleService>();
-builder.Services.AddScoped<IMenuItemRepository, MenuItemRepository>();
-builder.Services.AddScoped<IMenuItemService, MenuItemService>();
-builder.Services.AddScoped<IPermissionRepository, PermissionRepository>();
-builder.Services.AddScoped<IPermissionService, PermissionService>();
-builder.Services.AddScoped<IRoleRepository, RoleRepository>();
-builder.Services.AddScoped<IRoleService, RoleService>();
 
 builder.Services.AddScoped<ExceptionHandler>();
-builder.Services.AddTransient<EmailService>();
 
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(options =>

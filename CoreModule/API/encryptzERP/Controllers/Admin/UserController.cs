@@ -1,96 +1,121 @@
-using System;
-using System.Collections.Generic;
-using System.Threading.Tasks;
-using BusinessLogic.Admin.DTOs;
+﻿using BusinessLogic.Admin.DTOs;
 using BusinessLogic.Admin.Interface;
+using Entities.Admin;
+using Entities.Core;
+using Infrastructure;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Repository.Admin.Interface;
+using Repository.Core.Interface;
 
 namespace encryptzERP.Controllers.Admin
 {
     [Route("api/[controller]")]
     [ApiController]
-    [Authorize] // Secure all endpoints in this controller
+    [Authorize]
     public class UserController : ControllerBase
     {
-        private readonly IUserService _userService;
+        private readonly IUserService _UserService;
+        private readonly ExceptionHandler _exceptionHandler;
 
-        public UserController(IUserService userService)
+        public UserController(IUserService UserService, ExceptionHandler exceptionHandler)
         {
-            _userService = userService;
+            _UserService = UserService;
+            _exceptionHandler = exceptionHandler;
         }
 
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<UserDto>>> GetAllUsers()
+        public async Task<ActionResult<IEnumerable<UserDto>>> GetAll()
         {
-            var result = await _userService.GetAllUsersAsync();
-            return Ok(result);
+            try
+            {
+                var result = await _UserService.GetAllUserAsync();
+                return Ok(result);
+            }
+            catch (Exception ex)
+            {
+
+                _exceptionHandler.LogError(ex);
+                throw;
+            }
+
         }
 
-        [HttpGet("{id:guid}")]
-        public async Task<ActionResult<UserDto>> GetUserById(Guid id)
+        [HttpGet("{id}")]
+        public async Task<ActionResult<UserDto>> GetById(long id)
         {
-            var result = await _userService.GetUserByIdAsync(id);
-            if (result == null)
+            try
             {
-                return NotFound();
+                var result = await _UserService.GetUserByIdAsync(id);
+                if (result == null)
+                    return NotFound();
+
+                return Ok(result);
             }
-            return Ok(result);
+            catch (Exception ex)
+            {
+                _exceptionHandler.LogError(ex);
+                throw;
+            }
+
         }
 
         [HttpPost]
-        public async Task<IActionResult> CreateUser([FromBody] UserCreateDto userCreateDto)
+        public async Task<IActionResult> Create(UserDto UserDto)
         {
-            if (!ModelState.IsValid)
+            try
             {
-                return BadRequest(ModelState);
+                var response = await _UserService.AddUserAsync(UserDto);
+                if (response == null)
+                    return BadRequest("Failed to add business.");
+
+                return Ok(new { message = "Business added successfully." });
+            }
+            catch (Exception ex)
+            {
+                _exceptionHandler.LogError(ex);
+                throw;
             }
 
-            // Consider adding a check to see if user handle or email already exists
-            var existingUserByHandle = await _userService.GetUserByUserHandleAsync(userCreateDto.UserHandle);
-            if (existingUserByHandle != null)
-            {
-                return Conflict(new { Message = $"User handle '{userCreateDto.UserHandle}' is already taken." });
-            }
-
-            var existingUserByEmail = await _userService.GetUserByEmailAsync(userCreateDto.Email);
-            if (existingUserByEmail != null)
-            {
-                 return Conflict(new { Message = $"Email '{userCreateDto.Email}' is already in use." });
-            }
-
-            var newUser = await _userService.CreateUserAsync(userCreateDto);
-
-            return CreatedAtAction(nameof(GetUserById), new { id = newUser.UserID }, newUser);
         }
 
-        [HttpPut("{id:guid}")]
-        public async Task<IActionResult> UpdateUser(Guid id, [FromBody] UserUpdateDto userUpdateDto)
+        [HttpPut("{id}")]
+        public async Task<IActionResult> Update(long id, UserDto UserDto)
         {
-            if (!ModelState.IsValid)
+            try
             {
-                return BadRequest(ModelState);
+                var success = await _UserService.UpdateUserAsync(id, UserDto);
+                if (!success)
+                    return NotFound(new { message = "User not found or update failed." });
+
+                return Ok(new { message = "User updated successfully." });
+            }
+            catch (Exception ex)
+            {
+                _exceptionHandler.LogError(ex);
+                throw;
             }
 
-            var success = await _userService.UpdateUserAsync(id, userUpdateDto);
-            if (!success)
-            {
-                return NotFound(new { message = "User not found or update failed." });
-            }
-
-            return NoContent(); // Indicates success with no content to return
         }
 
-        [HttpDelete("{id:guid}")]
-        public async Task<IActionResult> DeleteUser(Guid id)
+        [HttpDelete("{id}")]
+        public async Task<IActionResult> Delete(long id)
         {
-            var success = await _userService.DeleteUserAsync(id);
-            if (!success)
+            try
             {
-                return NotFound(new { message = "User not found or could not be deleted." });
+                var success = await _UserService.DeleteUserAsync(id);
+                if (!success)
+                    return NotFound(new { message = "User not found or could not be deleted." });
+
+                return Ok(new { message = "User deleted successfully." });
+            }
+            catch (Exception ex)
+            {
+                _exceptionHandler.LogError(ex);
+                throw;
             }
 
-            return NoContent(); // Indicates success with no content to return
         }
     }
 }

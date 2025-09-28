@@ -3,7 +3,7 @@ using System;
 namespace BusinessLogic.Admin.DTOs
 {
     /// <summary>
-    /// Represents a user data transfer object.
+    /// Represents a user data transfer object for read operations.
     /// </summary>
     public class UserDto
     {

@@ -111,11 +111,12 @@ namespace Repository.Admin
             return MapDataRowToUser(dataTable.Rows[0]);
         }
 
-        public async Task DeleteAsync(Guid id)
+        public async Task<bool> DeleteAsync(Guid id)
         {
             var query = "DELETE FROM core.Users WHERE UserID = @UserID";
             var parameters = new[] { new SqlParameter("@UserID", id) };
-            await _sqlHelper.ExecuteNonQueryAsync(query, parameters);
+            int rowsAffected = await _sqlHelper.ExecuteNonQueryAsync(query, parameters);
+            return rowsAffected > 0;
         }
 
         private static User MapDataRowToUser(DataRow row)
@@ -129,7 +130,7 @@ namespace Repository.Admin
                 HashedPassword = row.Field<string?>("HashedPassword"),
                 MobileCountryCode = row.Field<string?>("MobileCountryCode"),
                 MobileNumber = row.Field<string?>("MobileNumber"),
-                PanCardNumber_Encrypted = row.Field<byte[]>("PanCardNumber_Encrypted") ?? Array.Empty<byte>(),
+                PanCardNumber_Encrypted = row.Field<byte[]?>("PanCardNumber_Encrypted"),
                 AadharNumber_Encrypted = row.Field<byte[]?>("AadharNumber_Encrypted"),
                 IsActive = row.Field<bool>("IsActive"),
                 CreatedAtUTC = row.Field<DateTime>("CreatedAtUTC"),
