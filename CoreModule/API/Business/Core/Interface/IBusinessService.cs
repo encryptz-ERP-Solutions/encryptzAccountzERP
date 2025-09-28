@@ -9,8 +9,8 @@ namespace BusinessLogic.Core.Interface
     {
         Task<IEnumerable<BusinessDto>> GetAllBusinessesAsync();
         Task<BusinessDto> GetBusinessByIdAsync(Guid id);
-        Task<BusinessDto> AddBusinessAsync(BusinessDto businessDto);
-        Task<bool> UpdateBusinessAsync(Guid id, BusinessDto businessDto);
+        Task<BusinessDto> AddBusinessAsync(BusinessDto businessDto, Guid createdByUserId);
+        Task<bool> UpdateBusinessAsync(Guid id, BusinessDto businessDto, Guid updatedByUserId);
         Task<bool> DeleteBusinessAsync(Guid id);
     }
 }
