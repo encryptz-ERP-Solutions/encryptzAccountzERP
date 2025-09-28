@@ -54,6 +54,7 @@ builder.Services.AddCors(options =>
 
 
 builder.Services.AddScoped<TokenService>();
+builder.Services.AddScoped<EmailService>();
 
 // Add AutoMapper and scan for mapping profiles
 builder.Services.AddAutoMapper(typeof(BusinessLogic.Admin.Mappers.UserMappingProfile).Assembly);
