@@ -39,7 +39,7 @@ namespace encryptzERP.Controllers.Core
         }
 
         [HttpGet("{id}")]
-        public async Task<ActionResult<BusinessDto>> GetById(long id)
+        public async Task<ActionResult<BusinessDto>> GetById(Guid id)
         {
             try
             {
@@ -62,7 +62,7 @@ namespace encryptzERP.Controllers.Core
             try
             {
                 var newBusiness = await _businessService.AddBusinessAsync(businessDto);
-                return CreatedAtAction(nameof(GetById), new { id = newBusiness.BusinessId }, newBusiness);
+                return CreatedAtAction(nameof(GetById), new { id = newBusiness.BusinessID }, newBusiness);
             }
             catch (Exception ex)
             {
@@ -72,11 +72,11 @@ namespace encryptzERP.Controllers.Core
         }
 
         [HttpPut("{id}")]
-        public async Task<IActionResult> Update(long id, BusinessDto businessDto)
+        public async Task<IActionResult> Update(Guid id, BusinessDto businessDto)
         {
             try
             {
-                if (id != businessDto.BusinessId)
+                if (id != businessDto.BusinessID)
                 {
                     return BadRequest("Business ID in the URL does not match the ID in the request body.");
                 }
@@ -95,7 +95,7 @@ namespace encryptzERP.Controllers.Core
         }
 
         [HttpDelete("{id}")]
-        public async Task<IActionResult> Delete(long id)
+        public async Task<IActionResult> Delete(Guid id)
         {
             try
             {
