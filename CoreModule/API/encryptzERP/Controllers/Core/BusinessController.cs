@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System;
 using System.Collections.Generic;
+using System.Security.Claims;
 using System.Threading.Tasks;
 
 namespace encryptzERP.Controllers.Core
@@ -61,7 +62,13 @@ namespace encryptzERP.Controllers.Core
         {
             try
             {
-                var newBusiness = await _businessService.AddBusinessAsync(businessDto);
+                var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier);
+                if (userIdClaim == null || !Guid.TryParse(userIdClaim.Value, out var userId))
+                {
+                    return Unauthorized("User ID claim is missing or invalid.");
+                }
+
+                var newBusiness = await _businessService.AddBusinessAsync(businessDto, userId);
                 return CreatedAtAction(nameof(GetById), new { id = newBusiness.BusinessID }, newBusiness);
             }
             catch (Exception ex)
@@ -81,7 +88,13 @@ namespace encryptzERP.Controllers.Core
                     return BadRequest("Business ID in the URL does not match the ID in the request body.");
                 }
 
-                var success = await _businessService.UpdateBusinessAsync(id, businessDto);
+                var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier);
+                if (userIdClaim == null || !Guid.TryParse(userIdClaim.Value, out var userId))
+                {
+                    return Unauthorized("User ID claim is missing or invalid.");
+                }
+
+                var success = await _businessService.UpdateBusinessAsync(id, businessDto, userId);
                 if (!success)
                     return NotFound(new { message = "Business not found or update failed." });
 

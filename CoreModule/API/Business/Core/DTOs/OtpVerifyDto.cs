@@ -5,6 +5,7 @@ namespace BusinessLogic.Core.DTOs
     public class OtpVerifyDto
     {
         [Required]
+        [StringLength(100)]
         public string LoginIdentifier { get; set; }
 
         [Required]
