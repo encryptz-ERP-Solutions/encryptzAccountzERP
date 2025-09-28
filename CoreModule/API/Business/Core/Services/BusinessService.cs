@@ -3,6 +3,7 @@ using BusinessLogic.Core.DTOs;
 using BusinessLogic.Core.Interface;
 using Entities.Core;
 using Repository.Core.Interface;
+using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
@@ -25,7 +26,7 @@ namespace BusinessLogic.Core.Services
             return _mapper.Map<IEnumerable<BusinessDto>>(businesses);
         }
 
-        public async Task<BusinessDto> GetBusinessByIdAsync(long id)
+        public async Task<BusinessDto> GetBusinessByIdAsync(Guid id)
         {
             var business = await _businessRepository.GetByIdAsync(id);
             return _mapper.Map<BusinessDto>(business);
@@ -34,11 +35,16 @@ namespace BusinessLogic.Core.Services
         public async Task<BusinessDto> AddBusinessAsync(BusinessDto businessDto)
         {
             var business = _mapper.Map<Business>(businessDto);
+            // You might need to set CreatedByUserID and UpdatedByUserID from the current user context
+            business.CreatedByUserID = Guid.NewGuid(); // Placeholder
+            business.UpdatedByUserID = Guid.NewGuid(); // Placeholder
+            business.BusinessID = Guid.NewGuid();
+            business.BusinessCode = "TEMP"; // Placeholder
             var newBusiness = await _businessRepository.AddAsync(business);
             return _mapper.Map<BusinessDto>(newBusiness);
         }
 
-        public async Task<bool> UpdateBusinessAsync(long id, BusinessDto businessDto)
+        public async Task<bool> UpdateBusinessAsync(Guid id, BusinessDto businessDto)
         {
             var business = await _businessRepository.GetByIdAsync(id);
             if (business == null)
@@ -47,11 +53,13 @@ namespace BusinessLogic.Core.Services
             }
 
             _mapper.Map(businessDto, business);
-            business.BusinessId = id; // Ensure the ID is not changed
+            business.BusinessID = id; // Ensure the ID is not changed
+            // You might need to set UpdatedByUserID from the current user context
+            business.UpdatedByUserID = Guid.NewGuid(); // Placeholder
             return await _businessRepository.UpdateAsync(business);
         }
 
-        public async Task<bool> DeleteBusinessAsync(long id)
+        public async Task<bool> DeleteBusinessAsync(Guid id)
         {
             return await _businessRepository.DeleteAsync(id);
         }

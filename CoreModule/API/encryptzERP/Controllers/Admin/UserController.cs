@@ -1,13 +1,11 @@
-﻿using BusinessLogic.Admin.DTOs;
+using BusinessLogic.Admin.DTOs;
 using BusinessLogic.Admin.Interface;
-using Entities.Admin;
-using Entities.Core;
 using Infrastructure;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using Repository.Admin.Interface;
-using Repository.Core.Interface;
+using System;
+using System.Collections.Generic;
+using System.Threading.Tasks;
 
 namespace encryptzERP.Controllers.Admin
 {
@@ -16,12 +14,12 @@ namespace encryptzERP.Controllers.Admin
     [Authorize]
     public class UserController : ControllerBase
     {
-        private readonly IUserService _UserService;
+        private readonly IUserService _userService;
         private readonly ExceptionHandler _exceptionHandler;
 
-        public UserController(IUserService UserService, ExceptionHandler exceptionHandler)
+        public UserController(IUserService userService, ExceptionHandler exceptionHandler)
         {
-            _UserService = UserService;
+            _userService = userService;
             _exceptionHandler = exceptionHandler;
         }
 
@@ -30,24 +28,22 @@ namespace encryptzERP.Controllers.Admin
         {
             try
             {
-                var result = await _UserService.GetAllUserAsync();
+                var result = await _userService.GetAllUsersAsync();
                 return Ok(result);
             }
             catch (Exception ex)
             {
-
                 _exceptionHandler.LogError(ex);
-                throw;
+                return StatusCode(500, "An internal error occurred.");
             }
-
         }
 
         [HttpGet("{id}")]
-        public async Task<ActionResult<UserDto>> GetById(long id)
+        public async Task<ActionResult<UserDto>> GetById(Guid id)
         {
             try
             {
-                var result = await _UserService.GetUserByIdAsync(id);
+                var result = await _userService.GetUserByIdAsync(id);
                 if (result == null)
                     return NotFound();
 
@@ -56,36 +52,34 @@ namespace encryptzERP.Controllers.Admin
             catch (Exception ex)
             {
                 _exceptionHandler.LogError(ex);
-                throw;
+                return StatusCode(500, "An internal error occurred.");
             }
-
         }
 
         [HttpPost]
-        public async Task<IActionResult> Create(UserDto UserDto)
+        public async Task<IActionResult> Create(UserCreateDto userCreateDto)
         {
             try
             {
-                var response = await _UserService.AddUserAsync(UserDto);
-                if (response == null)
-                    return BadRequest("Failed to add business.");
+                var newUser = await _userService.CreateUserAsync(userCreateDto);
+                if (newUser == null)
+                    return BadRequest("Failed to create user.");
 
-                return Ok(new { message = "Business added successfully." });
+                return CreatedAtAction(nameof(GetById), new { id = newUser.UserID }, newUser);
             }
             catch (Exception ex)
             {
                 _exceptionHandler.LogError(ex);
-                throw;
+                return StatusCode(500, "An internal error occurred.");
             }
-
         }
 
         [HttpPut("{id}")]
-        public async Task<IActionResult> Update(long id, UserDto UserDto)
+        public async Task<IActionResult> Update(Guid id, UserUpdateDto userUpdateDto)
         {
             try
             {
-                var success = await _UserService.UpdateUserAsync(id, UserDto);
+                var success = await _userService.UpdateUserAsync(id, userUpdateDto);
                 if (!success)
                     return NotFound(new { message = "User not found or update failed." });
 
@@ -94,17 +88,16 @@ namespace encryptzERP.Controllers.Admin
             catch (Exception ex)
             {
                 _exceptionHandler.LogError(ex);
-                throw;
+                return StatusCode(500, "An internal error occurred.");
             }
-
         }
 
         [HttpDelete("{id}")]
-        public async Task<IActionResult> Delete(long id)
+        public async Task<IActionResult> Delete(Guid id)
         {
             try
             {
-                var success = await _UserService.DeleteUserAsync(id);
+                var success = await _userService.DeleteUserAsync(id);
                 if (!success)
                     return NotFound(new { message = "User not found or could not be deleted." });
 
@@ -113,9 +106,8 @@ namespace encryptzERP.Controllers.Admin
             catch (Exception ex)
             {
                 _exceptionHandler.LogError(ex);
-                throw;
+                return StatusCode(500, "An internal error occurred.");
             }
-
         }
     }
 }
