@@ -1,21 +1,23 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
+using System;
 using System.Threading.Tasks;
-using Entities.Admin;
-
-
 
 namespace Repository.Core.Interface
 {
     public interface ILoginRepository
     {
-        Task<User> LoginAsync(string userName,string password);
-        Task<bool> SaveOTP(string loginType, string loginId, string otp, string fullName);
-        Task<bool> VerifyOTP(string loginType, string loginId, string otp);
-        Task<bool> ChangePassword(int userId, string newPassword);
-        Task<int?> GetUserIdByEmail(string email);
-        Task<int?> GetMaxofUserId();
+        /// <summary>
+        /// Saves a one-time password (OTP) for a given login identifier (e.g., email).
+        /// </summary>
+        Task<bool> SaveOTPAsync(string loginIdentifier, string otp);
+
+        /// <summary>
+        /// Verifies if the provided OTP is valid for the given login identifier.
+        /// </summary>
+        Task<bool> VerifyOTPAsync(string loginIdentifier, string otp);
+
+        /// <summary>
+        /// Updates the password for a specific user.
+        /// </summary>
+        Task<bool> ChangePasswordAsync(Guid userId, string newHashedPassword);
     }
 }

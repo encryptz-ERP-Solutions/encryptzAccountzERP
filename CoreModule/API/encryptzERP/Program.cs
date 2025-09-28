@@ -15,10 +15,6 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
 using Microsoft.Extensions.Options;
-using FluentValidation.AspNetCore;
-using FluentValidation;
-using BusinessLogic.Mappers;
-using BusinessLogic.Admin.Validators;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -40,7 +36,11 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
         };
     });
 // Add services to the container.
-builder.Services.AddAuthorization();
+builder.Services.AddAuthorization(options =>
+{
+    options.AddPolicy("CanManageBusinesses", policy =>
+        policy.RequireClaim("permission", "CanManageBusinesses"));
+});
 
 // Enable CORS
 builder.Services.AddCors(options =>
@@ -54,34 +54,32 @@ builder.Services.AddCors(options =>
 
 
 builder.Services.AddScoped<TokenService>();
+builder.Services.AddScoped<EmailService>();
+
+// Add AutoMapper and scan for mapping profiles
+builder.Services.AddAutoMapper(typeof(BusinessLogic.Admin.Mappers.UserMappingProfile).Assembly);
+
 builder.Services.AddControllers();
-builder.Services.AddFluentValidationAutoValidation();
-builder.Services.AddValidatorsFromAssemblyContaining<UserDtoValidator>();
-builder.Services.AddAutoMapper(typeof(AutoMapperProfile).Assembly);
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
-
-//builder.Services.AddTransient<emailService>();
-
-
-
-// void ConfigureServices(IServiceCollection services)
-//{
-//    services.AddControllersWithViews();
-
-//    // Register EmailService for Dependency Injection
-//    services.AddTransient<emailService>();
-//}
 
 // Register database helper (ADO.NET)
 builder.Services.AddSingleton<CoreSQLDbHelper>();
 
 // Register repository layer
-builder.Services.AddScoped<ICompanyService, CompanyService>();
-builder.Services.AddScoped<ICompanyRepository, CompanyRepository>();
 builder.Services.AddScoped<IUserRepository, UserRepository>();
+builder.Services.AddScoped<IRoleRepository, RoleRepository>();
 builder.Services.AddScoped<IUserService, UserService>();
 builder.Services.AddScoped<ILoginRepository, LoginRepository>();
 builder.Services.AddScoped<ILoginService, LoginService>();
+builder.Services.AddScoped<IBusinessRepository, BusinessRepository>();
+builder.Services.AddScoped<IBusinessService, BusinessService>();
+builder.Services.AddScoped<IModuleRepository, ModuleRepository>();
+builder.Services.AddScoped<IModuleService, ModuleService>();
+builder.Services.AddScoped<IMenuItemRepository, MenuItemRepository>();
+builder.Services.AddScoped<IMenuItemService, MenuItemService>();
+
+
+builder.Services.AddScoped<ExceptionHandler>();
 
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(options =>
@@ -112,11 +110,7 @@ builder.Services.AddSwaggerGen(options =>
         }
     });
 });
-
 var app = builder.Build();
-
-app.UseGlobalExceptionHandler();
-
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {

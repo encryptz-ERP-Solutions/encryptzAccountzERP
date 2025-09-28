@@ -1,121 +1,39 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Data;
-using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 using Data.Core;
 using Entities.Admin;
-using Entities.Core;
 using Microsoft.Data.SqlClient;
 using Repository.Admin.Interface;
-using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace Repository.Admin
 {
     public class UserRepository : IUserRepository
     {
         private readonly CoreSQLDbHelper _sqlHelper;
+        private const string BaseUserSelectQuery = "SELECT UserID, UserHandle, FullName, Email, HashedPassword, MobileCountryCode, MobileNumber, PanCardNumber_Encrypted, AadharNumber_Encrypted, IsActive, CreatedAtUTC, UpdatedAtUTC FROM core.Users";
 
         public UserRepository(CoreSQLDbHelper sqlHelper)
         {
             _sqlHelper = sqlHelper;
         }
-        public async Task<User> AddAsync(User user)
-        {
-            DataTable data = new DataTable();
-            var query = @"IF not exists(SELECT Id FROM core.userM WHERE Email = @Email)
-                            BEGIN 
-                            Insert Into core.userM( userId, userName, userPassword, Email, panNo, adharCardNo, phoneNo, address, stateId, nationId, isActive )
-                            Values(  @userId, @userName, @userPassword, @Email, @panNo, @adharCardNo, @phoneNo, @address, @stateId, @nationId, @isActive );
-                            END
-                            ELSE
-                            BEGIN
-                                set @userId=(SELECT top 1 userId FROM core.userM WHERE Email = @Email)
-                            END
-                             select * from core.userM where userId=@userId;";
 
-            var parameters = GetSqlParameters(user);
-            data = await _sqlHelper.ExecuteQueryAsync(query, parameters);
-            if (data.Rows.Count == 0) return null;
-            user = MapDataRowToUser(data.Rows[0]);
-            return user;
-
-        }
-        public async Task DeleteAsync(long id)
-        {
-            var query = "DELETE FROM core.CompanyM WHERE id = @Id";
-            var parameters = new[] { new SqlParameter("@Id", id) };
-            _sqlHelper.ExecuteNonQuery(query, parameters);
-            await Task.CompletedTask;
-        }
         public async Task<IEnumerable<User>> GetAllAsync()
         {
-            var query = "SELECT * FROM core.userM";
-            var dataTable = _sqlHelper.ExecuteQuery(query);
+            var dataTable = await _sqlHelper.ExecuteQueryAsync(BaseUserSelectQuery, null);
             var users = new List<User>();
-
             foreach (DataRow row in dataTable.Rows)
             {
                 users.Add(MapDataRowToUser(row));
             }
-
-            return await Task.FromResult(users);
+            return users;
         }
-        public async Task<User> GetByIdAsync(long id)
+
+        public async Task<User?> GetByIdAsync(Guid id)
         {
-            var query = "SELECT * FROM core.userM WHERE id = @Id";
-            var parameters = new[] { new SqlParameter("@Id", id) };
-            var dataTable = _sqlHelper.ExecuteQuery(query, parameters);
-
-            if (dataTable.Rows.Count == 0) return null;
-
-            return await Task.FromResult(MapDataRowToUser(dataTable.Rows[0]));
-        }
-        public async Task<User> UpdateAsync(User user)
-        {
-            DataTable data = new DataTable();
-            var query = @"Update core.userM set 
-                              userId = @userId
-                            , userName = @userName
-                            , userPassword = @userPassword
-                            , panNo = @panNo
-                            , Email = @Email
-                            , adharCardNo = @adharCardNo
-                            , phoneNo = @phoneNo
-                            , address = @address
-                            , stateId = @stateId
-                            , nationId = @nationId
-                            , isActive = @isActive
-                            WHERE id = @id;
-                        select * from core.UserM where id=@id";
-
-            var parameters = GetSqlParameters(user);
-            data = await _sqlHelper.ExecuteQueryAsync(query, parameters);
-            if (data.Rows.Count == 0) return null;
-            user = MapDataRowToUser(data.Rows[0]);
-            return user;
-        }
-        public async Task<User> GetByLoginAsync(string loginValue, string loginType)
-        {
-            string query;
-            SqlParameter[] parameters;
-
-            if (loginType.Equals("Email", StringComparison.OrdinalIgnoreCase))
-            {
-                query = "SELECT * FROM core.userM WHERE Email = @LoginValue";
-                parameters = new[] { new SqlParameter("@LoginValue", loginValue) };
-            }
-            else if (loginType.Equals("Phone", StringComparison.OrdinalIgnoreCase))
-            {
-                query = "SELECT * FROM core.userM WHERE phoneNo = @LoginValue";
-                parameters = new[] { new SqlParameter("@LoginValue", loginValue) };
-            }
-            else
-            {
-                return null;
-            }
-
+            var query = $"{BaseUserSelectQuery} WHERE UserID = @UserID";
+            var parameters = new[] { new SqlParameter("@UserID", id) };
             var dataTable = await _sqlHelper.ExecuteQueryAsync(query, parameters);
 
             if (dataTable.Rows.Count == 0) return null;
@@ -123,46 +41,120 @@ namespace Repository.Admin
             return MapDataRowToUser(dataTable.Rows[0]);
         }
 
+        public async Task<User?> GetByUserHandleAsync(string userHandle)
+        {
+            var query = $"{BaseUserSelectQuery} WHERE UserHandle = @UserHandle";
+            var parameters = new[] { new SqlParameter("@UserHandle", userHandle) };
+            var dataTable = await _sqlHelper.ExecuteQueryAsync(query, parameters);
 
+            if (dataTable.Rows.Count == 0) return null;
 
+            return MapDataRowToUser(dataTable.Rows[0]);
+        }
+
+        public async Task<User?> GetByEmailAsync(string email)
+        {
+            var query = $"{BaseUserSelectQuery} WHERE Email = @Email";
+            var parameters = new[] { new SqlParameter("@Email", email) };
+            var dataTable = await _sqlHelper.ExecuteQueryAsync(query, parameters);
+
+            if (dataTable.Rows.Count == 0) return null;
+
+            return MapDataRowToUser(dataTable.Rows[0]);
+        }
+
+        public async Task<User> AddAsync(User user)
+        {
+            var query = @"
+                INSERT INTO core.Users (UserID, UserHandle, FullName, Email, HashedPassword, MobileCountryCode, MobileNumber, PanCardNumber_Encrypted, AadharNumber_Encrypted, IsActive, CreatedAtUTC, UpdatedAtUTC)
+                VALUES (@UserID, @UserHandle, @FullName, @Email, @HashedPassword, @MobileCountryCode, @MobileNumber, @PanCardNumber_Encrypted, @AadharNumber_Encrypted, @IsActive, @CreatedAtUTC, @UpdatedAtUTC);
+
+                SELECT * FROM core.Users WHERE UserID = @UserID;";
+
+            var parameters = GetSqlParameters(user);
+            var dataTable = await _sqlHelper.ExecuteQueryAsync(query, parameters);
+
+            if (dataTable.Rows.Count == 0)
+            {
+                throw new DataException("Failed to add user, SELECT query returned no results.");
+            }
+
+            return MapDataRowToUser(dataTable.Rows[0]);
+        }
+
+        public async Task<User> UpdateAsync(User user)
+        {
+            var query = @"
+                UPDATE core.Users SET
+                    UserHandle = @UserHandle,
+                    FullName = @FullName,
+                    Email = @Email,
+                    HashedPassword = @HashedPassword,
+                    MobileCountryCode = @MobileCountryCode,
+                    MobileNumber = @MobileNumber,
+                    PanCardNumber_Encrypted = @PanCardNumber_Encrypted,
+                    AadharNumber_Encrypted = @AadharNumber_Encrypted,
+                    IsActive = @IsActive,
+                    UpdatedAtUTC = @UpdatedAtUTC
+                WHERE UserID = @UserID;
+
+                SELECT * FROM core.Users WHERE UserID = @UserID;";
+
+            var parameters = GetSqlParameters(user);
+            var dataTable = await _sqlHelper.ExecuteQueryAsync(query, parameters);
+
+            if (dataTable.Rows.Count == 0)
+            {
+                throw new DataException("Failed to update user, user may not exist.");
+            }
+
+            return MapDataRowToUser(dataTable.Rows[0]);
+        }
+
+        public async Task<bool> DeleteAsync(Guid id)
+        {
+            var query = "DELETE FROM core.Users WHERE UserID = @UserID";
+            var parameters = new[] { new SqlParameter("@UserID", id) };
+            int rowsAffected = await _sqlHelper.ExecuteNonQueryAsync(query, parameters);
+            return rowsAffected > 0;
+        }
 
         private static User MapDataRowToUser(DataRow row)
         {
             return new User
             {
-                id = Convert.ToInt64(row["id"]),
-                userId = Convert.ToString(row["userId"]),
-                userName = Convert.ToString(row["userName"]),
-                userPassword = row["userPassword"].ToString(),
-                email = row["Email"].ToString(),
-                panNo = row["panNo"].ToString(),
-                adharCardNo = row["adharCardNo"].ToString(),
-                phoneNo = row["phoneNo"].ToString(),
-                address = row["address"].ToString(),
-                stateId = row["stateId"] == DBNull.Value ? (int?)null : Convert.ToInt32(row["stateId"]),
-                nationId = row["nationId"] == DBNull.Value ? (int?)null : Convert.ToInt32(row["nationId"]),
-                isActive = Convert.ToBoolean(row["isActive"])
+                UserID = row.Field<Guid>("UserID"),
+                UserHandle = row.Field<string>("UserHandle") ?? string.Empty,
+                FullName = row.Field<string>("FullName") ?? string.Empty,
+                Email = row.Field<string?>("Email"),
+                HashedPassword = row.Field<string?>("HashedPassword"),
+                MobileCountryCode = row.Field<string?>("MobileCountryCode"),
+                MobileNumber = row.Field<string?>("MobileNumber"),
+                PanCardNumber_Encrypted = row.Field<byte[]?>("PanCardNumber_Encrypted"),
+                AadharNumber_Encrypted = row.Field<byte[]?>("AadharNumber_Encrypted"),
+                IsActive = row.Field<bool>("IsActive"),
+                CreatedAtUTC = row.Field<DateTime>("CreatedAtUTC"),
+                UpdatedAtUTC = row.Field<DateTime>("UpdatedAtUTC")
             };
         }
 
-
-        private static SqlParameter[] GetSqlParameters(User User)
+        private static SqlParameter[] GetSqlParameters(User user)
         {
             return new[]
             {
-                new SqlParameter("@id",User.id),
-                new SqlParameter("@userId",User.userId),
-                new SqlParameter("@userName",User.userName),
-                new SqlParameter("@userPassword",User.userPassword ?? (object)DBNull.Value),
-                new SqlParameter("@Email",User.email ?? (object)DBNull.Value),
-                new SqlParameter("@panNo",User.panNo ?? (object)DBNull.Value),
-                new SqlParameter("@adharCardNo",User.adharCardNo ?? (object)DBNull.Value),
-                new SqlParameter("@phoneNo",User.phoneNo ?? (object)DBNull.Value),
-                new SqlParameter("@address",User.address ?? (object)DBNull.Value),
-                new SqlParameter("@stateId",User.stateId ?? 0),
-                new SqlParameter("@nationId",User.nationId ?? 0),
-                new SqlParameter("@isActive",User.isActive)
-                };
+                new SqlParameter("@UserID", user.UserID),
+                new SqlParameter("@UserHandle", user.UserHandle),
+                new SqlParameter("@FullName", user.FullName),
+                new SqlParameter("@Email", (object)user.Email ?? DBNull.Value),
+                new SqlParameter("@HashedPassword", (object)user.HashedPassword ?? DBNull.Value),
+                new SqlParameter("@MobileCountryCode", (object)user.MobileCountryCode ?? DBNull.Value),
+                new SqlParameter("@MobileNumber", (object)user.MobileNumber ?? DBNull.Value),
+                new SqlParameter("@PanCardNumber_Encrypted", (object)user.PanCardNumber_Encrypted ?? DBNull.Value),
+                new SqlParameter("@AadharNumber_Encrypted", (object)user.AadharNumber_Encrypted ?? DBNull.Value),
+                new SqlParameter("@IsActive", user.IsActive),
+                new SqlParameter("@CreatedAtUTC", user.CreatedAtUTC),
+                new SqlParameter("@UpdatedAtUTC", user.UpdatedAtUTC)
+            };
         }
     }
 }

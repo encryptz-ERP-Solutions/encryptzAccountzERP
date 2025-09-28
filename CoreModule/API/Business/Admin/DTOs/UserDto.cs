@@ -1,25 +1,20 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using System;
 
 namespace BusinessLogic.Admin.DTOs
 {
+    /// <summary>
+    /// Represents a user data transfer object for read operations.
+    /// </summary>
     public class UserDto
     {
-        public long id { get; set; }
-        public string userId { get; set; } = string.Empty;
-        public string userName { get; set; } = string.Empty;
-        public string? userPassword { get; set; } = string.Empty;
-        public string? email { get; set; } = string.Empty;
-        public string? panNo { get; set; } = string.Empty;
-        public string? adharCardNo { get; set; } = string.Empty;
-        public string? phoneNo { get; set; } = string.Empty;
-        public string? address { get; set; } = string.Empty;
-        public int? stateId { get; set; } = 0;
-        public int? nationId { get; set; } = 0;
-        public bool isActive { get; set; } = true;
-
+        public Guid UserID { get; set; }
+        public string UserHandle { get; set; } = string.Empty;
+        public string FullName { get; set; } = string.Empty;
+        public string? Email { get; set; }
+        public string? MobileCountryCode { get; set; }
+        public string? MobileNumber { get; set; }
+        public bool IsActive { get; set; }
+        public DateTime CreatedAtUTC { get; set; }
+        public DateTime UpdatedAtUTC { get; set; }
     }
 }

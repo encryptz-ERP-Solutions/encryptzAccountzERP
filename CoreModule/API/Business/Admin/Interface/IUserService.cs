@@ -1,7 +1,5 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 using BusinessLogic.Admin.DTOs;
 
@@ -9,11 +7,12 @@ namespace BusinessLogic.Admin.Interface
 {
     public interface IUserService
     {
-        Task<IEnumerable<UserDto>> GetAllUserAsync();
-        Task<UserDto?> GetUserByIdAsync(long id);
-        Task<UserDto> AddUserAsync(UserDto user);
-        Task<bool> UpdateUserAsync(long id, UserDto user);
-        Task<bool> DeleteUserAsync(long id);
-        Task<UserDto?> GetUserByLoginAsync(string loginValue, string loginType);
+        Task<IEnumerable<UserDto>> GetAllUsersAsync();
+        Task<UserDto?> GetUserByIdAsync(Guid id);
+        Task<UserDto?> GetUserByUserHandleAsync(string userHandle);
+        Task<UserDto?> GetUserByEmailAsync(string email);
+        Task<UserDto> CreateUserAsync(UserCreateDto userCreateDto);
+        Task<bool> UpdateUserAsync(Guid id, UserUpdateDto userUpdateDto);
+        Task<bool> DeleteUserAsync(Guid id);
     }
 }

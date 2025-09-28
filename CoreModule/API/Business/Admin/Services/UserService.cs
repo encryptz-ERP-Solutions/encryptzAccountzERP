@@ -1,15 +1,11 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Net;
-using System.Text;
 using System.Threading.Tasks;
+using AutoMapper;
 using BusinessLogic.Admin.DTOs;
 using BusinessLogic.Admin.Interface;
 using Entities.Admin;
-using Repository.Admin;
 using Repository.Admin.Interface;
-using AutoMapper;
 
 namespace BusinessLogic.Admin.Services
 {
@@ -24,53 +20,67 @@ namespace BusinessLogic.Admin.Services
             _mapper = mapper;
         }
 
-        public async Task<UserDto> AddUserAsync(UserDto userDto)
-        {
-            var user = _mapper.Map<User>(userDto);
-
-            user = await _userRepository.AddAsync(user);
-            if (user == null)
-                throw new Exception("Failed to add user.");
-            return _mapper.Map<UserDto>(user);
-        }
-
-        public async Task<UserDto?> GetUserByLoginAsync(string loginValue, string loginType)
-        {
-            if (string.IsNullOrEmpty(loginValue) || string.IsNullOrEmpty(loginType))
-                throw new ArgumentException("Login value and type are required.");
-
-            var user = await _userRepository.GetByLoginAsync(loginValue, loginType);
-            return _mapper.Map<UserDto>(user);
-        }
-
-        public async Task<bool> DeleteUserAsync(long id)
-        {
-            if (id <= 0)
-                throw new ArgumentException("Invalid User ID.");
-
-            await _userRepository.DeleteAsync(id);
-            return true;
-        }
-
-        public async Task<IEnumerable<UserDto>> GetAllUserAsync()
+        public async Task<IEnumerable<UserDto>> GetAllUsersAsync()
         {
             var users = await _userRepository.GetAllAsync();
             return _mapper.Map<IEnumerable<UserDto>>(users);
         }
 
-        public async Task<UserDto?> GetUserByIdAsync(long id)
+        public async Task<UserDto?> GetUserByIdAsync(Guid id)
         {
             var user = await _userRepository.GetByIdAsync(id);
             return _mapper.Map<UserDto>(user);
         }
 
-        public async Task<bool> UpdateUserAsync(long id, UserDto userDto)
+        public async Task<UserDto?> GetUserByUserHandleAsync(string userHandle)
         {
-            if (id <= 0)
-                throw new ArgumentException("Invalid User ID.");
-            var userObj = _mapper.Map<User>(userDto);
-            await _userRepository.UpdateAsync(userObj);
+            var user = await _userRepository.GetByUserHandleAsync(userHandle);
+            return _mapper.Map<UserDto>(user);
+        }
+
+        public async Task<UserDto?> GetUserByEmailAsync(string email)
+        {
+            var user = await _userRepository.GetByEmailAsync(email);
+            return _mapper.Map<UserDto>(user);
+        }
+
+        public async Task<UserDto> CreateUserAsync(UserCreateDto userCreateDto)
+        {
+            var user = _mapper.Map<User>(userCreateDto);
+
+            // Hash the password before saving
+            user.HashedPassword = PasswordHasher.HashPassword(userCreateDto.Password);
+
+            var addedUser = await _userRepository.AddAsync(user);
+            return _mapper.Map<UserDto>(addedUser);
+        }
+
+        public async Task<bool> UpdateUserAsync(Guid id, UserUpdateDto userUpdateDto)
+        {
+            var user = await _userRepository.GetByIdAsync(id);
+            if (user == null)
+            {
+                return false; // User not found
+            }
+
+            _mapper.Map(userUpdateDto, user);
+            user.UpdatedAtUTC = DateTime.UtcNow;
+
+            await _userRepository.UpdateAsync(user);
             return true;
+        }
+
+        public async Task<bool> DeleteUserAsync(Guid id)
+        {
+            var user = await _userRepository.GetByIdAsync(id);
+            if (user == null)
+            {
+                return false; // User not found
+            }
+
+            // In a real app, you might have more complex logic here,
+            // like checking if the user has associated data before deletion.
+            return await _userRepository.DeleteAsync(id);
         }
     }
 }

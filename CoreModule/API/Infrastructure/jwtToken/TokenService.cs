@@ -1,5 +1,7 @@
-﻿using System;
+using System;
+using System.Collections.Generic;
 using System.IdentityModel.Tokens.Jwt;
+using System.Linq;
 using System.Security.Claims;
 using System.Security.Cryptography;
 using System.Text;
@@ -15,21 +17,35 @@ public class TokenService
         _config = config;
     }
 
-    public string GenerateAccessToken(string userId, string role)
+    public (string, DateTime) GenerateAccessToken(string userId, string userHandle, Dictionary<Guid, IEnumerable<string>>? permissionsByBusiness)
     {
         var key = Encoding.UTF8.GetBytes(_config["JwtSettings:SecretKey"]);
-        var claims = new[]
+        var expirationMinutes = Convert.ToInt32(_config["JwtSettings:AccessTokenExpirationMinutes"]);
+        var expires = DateTime.UtcNow.AddMinutes(expirationMinutes);
+
+        var claims = new List<Claim>
         {
-            new Claim(ClaimTypes.Name, userId),
-            new Claim(ClaimTypes.Role, role)
+            new Claim(JwtRegisteredClaimNames.Sub, userId),
+            new Claim(JwtRegisteredClaimNames.Name, userHandle)
         };
+
+        if (permissionsByBusiness != null)
+        {
+            foreach (var permission in permissionsByBusiness.SelectMany(kvp => kvp.Value))
+            {
+                claims.Add(new Claim("permission", permission));
+            }
+        }
+
+        if (claims.Any(c => c.Type == "permission"))
+        {
+            claims.Add(new Claim(ClaimTypes.Role, "User"));
+        }
 
         var tokenDescriptor = new SecurityTokenDescriptor
         {
             Subject = new ClaimsIdentity(claims),
-            Expires = DateTime.UtcNow.AddMinutes(
-                Convert.ToInt32(_config["JwtSettings:AccessTokenExpirationMinutes"])
-            ),
+            Expires = expires,
             Issuer = _config["JwtSettings:Issuer"],
             Audience = _config["JwtSettings:Audience"],
             SigningCredentials = new SigningCredentials(
@@ -38,7 +54,9 @@ public class TokenService
 
         var tokenHandler = new JwtSecurityTokenHandler();
         var token = tokenHandler.CreateToken(tokenDescriptor);
-        return tokenHandler.WriteToken(token);
+        var tokenString = tokenHandler.WriteToken(token);
+
+        return (tokenString, expires);
     }
 
     public string GenerateRefreshToken()

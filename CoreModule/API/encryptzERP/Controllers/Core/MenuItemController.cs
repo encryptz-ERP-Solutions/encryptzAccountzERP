@@ -1,5 +1,5 @@
-using BusinessLogic.Admin.DTOs;
-using BusinessLogic.Admin.Interface;
+using BusinessLogic.Core.DTOs;
+using BusinessLogic.Core.Interface;
 using Infrastructure;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -7,28 +7,28 @@ using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
-namespace encryptzERP.Controllers.Admin
+namespace encryptzERP.Controllers.Core
 {
     [Route("api/[controller]")]
     [ApiController]
     [Authorize]
-    public class UserController : ControllerBase
+    public class MenuItemController : ControllerBase
     {
-        private readonly IUserService _userService;
+        private readonly IMenuItemService _menuItemService;
         private readonly ExceptionHandler _exceptionHandler;
 
-        public UserController(IUserService userService, ExceptionHandler exceptionHandler)
+        public MenuItemController(IMenuItemService menuItemService, ExceptionHandler exceptionHandler)
         {
-            _userService = userService;
+            _menuItemService = menuItemService;
             _exceptionHandler = exceptionHandler;
         }
 
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<UserDto>>> GetAll()
+        public async Task<ActionResult<IEnumerable<MenuItemDto>>> GetAll()
         {
             try
             {
-                var result = await _userService.GetAllUsersAsync();
+                var result = await _menuItemService.GetAllMenuItemsAsync();
                 return Ok(result);
             }
             catch (Exception ex)
@@ -39,11 +39,11 @@ namespace encryptzERP.Controllers.Admin
         }
 
         [HttpGet("{id}")]
-        public async Task<ActionResult<UserDto>> GetById(Guid id)
+        public async Task<ActionResult<MenuItemDto>> GetById(int id)
         {
             try
             {
-                var result = await _userService.GetUserByIdAsync(id);
+                var result = await _menuItemService.GetMenuItemByIdAsync(id);
                 if (result == null)
                     return NotFound();
 
@@ -57,15 +57,12 @@ namespace encryptzERP.Controllers.Admin
         }
 
         [HttpPost]
-        public async Task<IActionResult> Create(UserCreateDto userCreateDto)
+        public async Task<IActionResult> Create(MenuItemDto menuItemDto)
         {
             try
             {
-                var newUser = await _userService.CreateUserAsync(userCreateDto);
-                if (newUser == null)
-                    return BadRequest("Failed to create user.");
-
-                return CreatedAtAction(nameof(GetById), new { id = newUser.UserID }, newUser);
+                var newMenuItem = await _menuItemService.AddMenuItemAsync(menuItemDto);
+                return CreatedAtAction(nameof(GetById), new { id = newMenuItem.MenuItemID }, newMenuItem);
             }
             catch (Exception ex)
             {
@@ -75,15 +72,20 @@ namespace encryptzERP.Controllers.Admin
         }
 
         [HttpPut("{id}")]
-        public async Task<IActionResult> Update(Guid id, UserUpdateDto userUpdateDto)
+        public async Task<IActionResult> Update(int id, MenuItemDto menuItemDto)
         {
             try
             {
-                var success = await _userService.UpdateUserAsync(id, userUpdateDto);
-                if (!success)
-                    return NotFound(new { message = "User not found or update failed." });
+                if (id != menuItemDto.MenuItemID)
+                {
+                    return BadRequest("MenuItem ID in the URL does not match the ID in the request body.");
+                }
 
-                return Ok(new { message = "User updated successfully." });
+                var success = await _menuItemService.UpdateMenuItemAsync(id, menuItemDto);
+                if (!success)
+                    return NotFound(new { message = "MenuItem not found or update failed." });
+
+                return Ok(new { message = "MenuItem updated successfully." });
             }
             catch (Exception ex)
             {
@@ -93,15 +95,15 @@ namespace encryptzERP.Controllers.Admin
         }
 
         [HttpDelete("{id}")]
-        public async Task<IActionResult> Delete(Guid id)
+        public async Task<IActionResult> Delete(int id)
         {
             try
             {
-                var success = await _userService.DeleteUserAsync(id);
+                var success = await _menuItemService.DeleteMenuItemAsync(id);
                 if (!success)
-                    return NotFound(new { message = "User not found or could not be deleted." });
+                    return NotFound(new { message = "MenuItem not found or could not be deleted." });
 
-                return Ok(new { message = "User deleted successfully." });
+                return Ok(new { message = "MenuItem deleted successfully." });
             }
             catch (Exception ex)
             {
