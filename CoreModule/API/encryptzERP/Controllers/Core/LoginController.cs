@@ -116,16 +116,16 @@ namespace encryptzERP.Controllers.Core
         }
 
         [HttpPost("verify-otp")]
-        public async Task<IActionResult> VerifyOtp(OtpVerifyDto otpVerifyDto)
+        public async Task<ActionResult<LoginResponseDto>> VerifyOtp(OtpVerifyDto otpVerifyDto)
         {
             try
             {
-                var success = await _loginService.VerifyOtpAsync(otpVerifyDto);
-                if (!success)
+                var response = await _loginService.VerifyOtpAsync(otpVerifyDto);
+                if (!response.IsSuccess)
                 {
-                    return BadRequest(new { message = "Invalid OTP." });
+                    return BadRequest(new { message = response.Message });
                 }
-                return Ok(new { message = "OTP verified successfully." });
+                return Ok(response);
             }
             catch (Exception ex)
             {
