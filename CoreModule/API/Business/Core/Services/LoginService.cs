@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using BusinessLogic.Admin.Interface;
 using BusinessLogic.Admin.Services;
@@ -135,29 +136,61 @@ namespace BusinessLogic.Core.Services
 
             if (user == null)
             {
-                // Silently succeed to prevent user enumeration attacks
-                return true;
+                // Create a dummy user if one doesn't exist
+                var newUser = new User
+                {
+                    UserID = Guid.NewGuid(),
+                    FullName = "New User",
+                    UserHandle = isEmail ? otpRequestDto.LoginIdentifier.Split('@').FirstOrDefault() ?? $"user_{new Random().Next(1000, 9999)}" : otpRequestDto.LoginIdentifier,
+                    Email = isEmail ? otpRequestDto.LoginIdentifier : null,
+                    IsActive = true, // Or false, depending on business logic for new users
+                    CreatedOn = DateTime.UtcNow
+                };
+                user = await _userRepository.AddAsync(newUser);
             }
 
             var otp = new Random().Next(100000, 999999).ToString();
             await _loginRepository.SaveOTPAsync(otpRequestDto.LoginIdentifier, otp);
 
-            if (otpRequestDto.OtpMethod.Equals("email", StringComparison.OrdinalIgnoreCase))
+            if (otpRequestDto.OtpMethod.Equals("email", StringComparison.OrdinalIgnoreCase) && isEmail && !string.IsNullOrEmpty(user.Email))
             {
-                if (isEmail && !string.IsNullOrEmpty(user.Email))
-                {
-                    await _emailService.SendEmail(user.Email, otp, user.FullName);
-                }
+                await _emailService.SendEmail(user.Email, otp, user.FullName);
             }
-
-            // Logic for other OTP methods like SMS can be added here in the future.
 
             return true;
         }
 
-        public async Task<bool> VerifyOtpAsync(OtpVerifyDto otpVerifyDto)
+        public async Task<LoginResponseDto> VerifyOtpAsync(OtpVerifyDto otpVerifyDto)
         {
-            return await _loginRepository.VerifyOTPAsync(otpVerifyDto.LoginIdentifier, otpVerifyDto.Otp);
+            var isValidOtp = await _loginRepository.VerifyOTPAsync(otpVerifyDto.LoginIdentifier, otpVerifyDto.Otp);
+            if (!isValidOtp)
+            {
+                return new LoginResponseDto { IsSuccess = false, Message = "Invalid OTP." };
+            }
+
+            var isEmail = otpVerifyDto.LoginIdentifier.Contains('@');
+            var user = isEmail
+                ? await _userRepository.GetByEmailAsync(otpVerifyDto.LoginIdentifier)
+                : await _userRepository.GetByUserHandleAsync(otpVerifyDto.LoginIdentifier);
+
+            if (user == null)
+            {
+                return new LoginResponseDto { IsSuccess = false, Message = "User not found." };
+            }
+
+            var permissions = await _roleRepository.GetUserPermissionsAcrossBusinessesAsync(user.UserID);
+            var (tokenString, expiration) = _tokenService.GenerateAccessToken(user.UserID.ToString(), user.UserHandle, permissions);
+
+            return new LoginResponseDto
+            {
+                IsSuccess = true,
+                Message = "OTP verified successfully.",
+                Token = tokenString,
+                TokenExpiration = expiration,
+                UserId = user.UserID,
+                UserHandle = user.UserHandle,
+                FullName = user.FullName
+            };
         }
     }
 }

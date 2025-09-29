@@ -37,6 +37,6 @@ namespace BusinessLogic.Core.Interface
         /// <summary>
         /// Verifies an OTP provided by a user.
         /// </summary>
-        Task<bool> VerifyOtpAsync(OtpVerifyDto otpVerifyDto);
+        Task<LoginResponseDto> VerifyOtpAsync(OtpVerifyDto otpVerifyDto);
     }
 }
