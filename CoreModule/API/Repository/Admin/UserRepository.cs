@@ -153,7 +153,7 @@ namespace Repository.Admin
                 new SqlParameter("@AadharNumber_Encrypted", (object)user.AadharNumber_Encrypted ?? DBNull.Value),
                 new SqlParameter("@IsActive", user.IsActive),
                 new SqlParameter("@CreatedAtUTC", user.CreatedAtUTC),
-                new SqlParameter("@UpdatedAtUTC", user.UpdatedAtUTC)
+                new SqlParameter("@UpdatedAtUTC", (object)user.UpdatedAtUTC?? DBNull.Value)
             };
         }
     }

@@ -17,7 +17,7 @@ namespace Entities.Admin
         public byte[]? AadharNumber_Encrypted { get; set; }
         public bool IsActive { get; set; }
         public DateTime CreatedAtUTC { get; set; }
-        public DateTime UpdatedAtUTC { get; set; }
+        public DateTime? UpdatedAtUTC { get; set; }
 
         // Navigation properties
         public virtual ICollection<UserBusinessRole> UserBusinessRoles { get; set; } = new List<UserBusinessRole>();
