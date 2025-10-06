@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Data;
+using System.Text;
 using System.Threading.Tasks;
 using Data.Core;
 using Entities.Admin;
@@ -121,39 +122,50 @@ namespace Repository.Admin
 
         private static User MapDataRowToUser(DataRow row)
         {
+            // For HashedPassword, convert varbinary back to string for use in the application.
+            var hashedPasswordBytes = row.Field<byte[]?>("HashedPassword");
+            var hashedPassword = hashedPasswordBytes != null ? Encoding.UTF8.GetString(hashedPasswordBytes) : null;
+
             return new User
             {
                 UserID = row.Field<Guid>("UserID"),
                 UserHandle = row.Field<string>("UserHandle") ?? string.Empty,
                 FullName = row.Field<string>("FullName") ?? string.Empty,
                 Email = row.Field<string?>("Email"),
-                HashedPassword = row.Field<string?>("HashedPassword"),
+                HashedPassword = hashedPassword,
                 MobileCountryCode = row.Field<string?>("MobileCountryCode"),
                 MobileNumber = row.Field<string?>("MobileNumber"),
                 PanCardNumber_Encrypted = row.Field<byte[]?>("PanCardNumber_Encrypted"),
                 AadharNumber_Encrypted = row.Field<byte[]?>("AadharNumber_Encrypted"),
                 IsActive = row.Field<bool>("IsActive"),
                 CreatedAtUTC = row.Field<DateTime>("CreatedAtUTC"),
-                UpdatedAtUTC = row.Field<DateTime>("UpdatedAtUTC")
+                UpdatedAtUTC = row.Field<DateTime?>("UpdatedAtUTC")
             };
         }
 
         private static SqlParameter[] GetSqlParameters(User user)
         {
+            // Convert HashedPassword string to byte array for varbinary storage
+            object hashedPasswordValue = DBNull.Value;
+            if (!string.IsNullOrEmpty(user.HashedPassword))
+            {
+                hashedPasswordValue = Encoding.UTF8.GetBytes(user.HashedPassword);
+            }
+
             return new[]
             {
                 new SqlParameter("@UserID", user.UserID),
                 new SqlParameter("@UserHandle", user.UserHandle),
                 new SqlParameter("@FullName", user.FullName),
                 new SqlParameter("@Email", (object)user.Email ?? DBNull.Value),
-                new SqlParameter("@HashedPassword", (object)user.HashedPassword ?? DBNull.Value),
+                new SqlParameter("@HashedPassword", hashedPasswordValue),
                 new SqlParameter("@MobileCountryCode", (object)user.MobileCountryCode ?? DBNull.Value),
                 new SqlParameter("@MobileNumber", (object)user.MobileNumber ?? DBNull.Value),
                 new SqlParameter("@PanCardNumber_Encrypted", (object)user.PanCardNumber_Encrypted ?? DBNull.Value),
                 new SqlParameter("@AadharNumber_Encrypted", (object)user.AadharNumber_Encrypted ?? DBNull.Value),
                 new SqlParameter("@IsActive", user.IsActive),
                 new SqlParameter("@CreatedAtUTC", user.CreatedAtUTC),
-                new SqlParameter("@UpdatedAtUTC", (object)user.UpdatedAtUTC?? DBNull.Value)
+                new SqlParameter("@UpdatedAtUTC", (object)user.UpdatedAtUTC ?? DBNull.Value)
             };
         }
     }
