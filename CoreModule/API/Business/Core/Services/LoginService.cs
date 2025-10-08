@@ -145,9 +145,9 @@ namespace BusinessLogic.Core.Services
                     Email = isEmail ? otpRequestDto.LoginIdentifier : null,
                     IsActive = true, // Or false, depending on business logic for new users
                     CreatedAtUTC = DateTime.UtcNow,
-                    PanCardNumber_Encrypted = null,
-                    AadharNumber_Encrypted = null,
-                    HashedPassword = null,
+                    PanCardNumber_Encrypted = [],
+                    AadharNumber_Encrypted = [],
+                    HashedPassword = PasswordHasher.HashPassword("WelcomePassword"), // Set a default password or handle differently
                     MobileCountryCode = null,
                     MobileNumber = null,
                     UpdatedAtUTC = null

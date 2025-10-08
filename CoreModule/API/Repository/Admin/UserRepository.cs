@@ -122,17 +122,13 @@ namespace Repository.Admin
 
         private static User MapDataRowToUser(DataRow row)
         {
-            // For HashedPassword, convert varbinary back to string for use in the application.
-            var hashedPasswordBytes = row.Field<byte[]?>("HashedPassword");
-            var hashedPassword = hashedPasswordBytes != null ? Encoding.UTF8.GetString(hashedPasswordBytes) : null;
-
             return new User
             {
                 UserID = row.Field<Guid>("UserID"),
                 UserHandle = row.Field<string>("UserHandle") ?? string.Empty,
                 FullName = row.Field<string>("FullName") ?? string.Empty,
                 Email = row.Field<string?>("Email"),
-                HashedPassword = hashedPassword,
+                HashedPassword = row.Field<string?>("HashedPassword"),
                 MobileCountryCode = row.Field<string?>("MobileCountryCode"),
                 MobileNumber = row.Field<string?>("MobileNumber"),
                 PanCardNumber_Encrypted = row.Field<byte[]?>("PanCardNumber_Encrypted"),
@@ -146,11 +142,7 @@ namespace Repository.Admin
         private static SqlParameter[] GetSqlParameters(User user)
         {
             // Convert HashedPassword string to byte array for varbinary storage
-            object hashedPasswordValue = DBNull.Value;
-            if (!string.IsNullOrEmpty(user.HashedPassword))
-            {
-                hashedPasswordValue = Encoding.UTF8.GetBytes(user.HashedPassword);
-            }
+            
 
             return new[]
             {
@@ -158,7 +150,7 @@ namespace Repository.Admin
                 new SqlParameter("@UserHandle", user.UserHandle),
                 new SqlParameter("@FullName", user.FullName),
                 new SqlParameter("@Email", (object)user.Email ?? DBNull.Value),
-                new SqlParameter("@HashedPassword", hashedPasswordValue),
+                new SqlParameter("@HashedPassword", user.HashedPassword),
                 new SqlParameter("@MobileCountryCode", (object)user.MobileCountryCode ?? DBNull.Value),
                 new SqlParameter("@MobileNumber", (object)user.MobileNumber ?? DBNull.Value),
                 new SqlParameter("@PanCardNumber_Encrypted", (object)user.PanCardNumber_Encrypted ?? DBNull.Value),
