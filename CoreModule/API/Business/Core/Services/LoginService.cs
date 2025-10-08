@@ -144,7 +144,14 @@ namespace BusinessLogic.Core.Services
                     UserHandle = isEmail ? otpRequestDto.LoginIdentifier.Split('@').FirstOrDefault() ?? $"user_{new Random().Next(1000, 9999)}" : otpRequestDto.LoginIdentifier,
                     Email = isEmail ? otpRequestDto.LoginIdentifier : null,
                     IsActive = true, // Or false, depending on business logic for new users
-                    CreatedOn = DateTime.UtcNow
+                    CreatedAtUTC = DateTime.UtcNow,
+                    PanCardNumber_Encrypted = [],
+                    AadharNumber_Encrypted = [],
+                    HashedPassword = PasswordHasher.HashPassword("WelcomePassword"), // Set a default password or handle differently
+                    MobileCountryCode = null,
+                    MobileNumber = null,
+                    UpdatedAtUTC = null
+                    
                 };
                 user = await _userRepository.AddAsync(newUser);
             }

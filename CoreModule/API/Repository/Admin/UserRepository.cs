@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Data;
+using System.Text;
 using System.Threading.Tasks;
 using Data.Core;
 using Entities.Admin;
@@ -134,26 +135,29 @@ namespace Repository.Admin
                 AadharNumber_Encrypted = row.Field<byte[]?>("AadharNumber_Encrypted"),
                 IsActive = row.Field<bool>("IsActive"),
                 CreatedAtUTC = row.Field<DateTime>("CreatedAtUTC"),
-                UpdatedAtUTC = row.Field<DateTime>("UpdatedAtUTC")
+                UpdatedAtUTC = row.Field<DateTime?>("UpdatedAtUTC")
             };
         }
 
         private static SqlParameter[] GetSqlParameters(User user)
         {
+            // Convert HashedPassword string to byte array for varbinary storage
+            
+
             return new[]
             {
                 new SqlParameter("@UserID", user.UserID),
                 new SqlParameter("@UserHandle", user.UserHandle),
                 new SqlParameter("@FullName", user.FullName),
                 new SqlParameter("@Email", (object)user.Email ?? DBNull.Value),
-                new SqlParameter("@HashedPassword", (object)user.HashedPassword ?? DBNull.Value),
+                new SqlParameter("@HashedPassword", user.HashedPassword),
                 new SqlParameter("@MobileCountryCode", (object)user.MobileCountryCode ?? DBNull.Value),
                 new SqlParameter("@MobileNumber", (object)user.MobileNumber ?? DBNull.Value),
                 new SqlParameter("@PanCardNumber_Encrypted", (object)user.PanCardNumber_Encrypted ?? DBNull.Value),
                 new SqlParameter("@AadharNumber_Encrypted", (object)user.AadharNumber_Encrypted ?? DBNull.Value),
                 new SqlParameter("@IsActive", user.IsActive),
                 new SqlParameter("@CreatedAtUTC", user.CreatedAtUTC),
-                new SqlParameter("@UpdatedAtUTC", user.UpdatedAtUTC)
+                new SqlParameter("@UpdatedAtUTC", (object)user.UpdatedAtUTC ?? DBNull.Value)
             };
         }
     }
