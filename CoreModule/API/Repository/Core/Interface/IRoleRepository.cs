@@ -6,10 +6,14 @@ namespace Repository.Core.Interface
 {
     public interface IRoleRepository
     {
+        Task<Dictionary<Guid, IEnumerable<string>>> GetUserPermissionsAcrossBusinessesAsync(Guid userId);
         Task<IEnumerable<Role>> GetAllAsync();
         Task<Role> GetByIdAsync(int id);
         Task<Role> AddAsync(Role role);
         Task<bool> UpdateAsync(Role role);
         Task<bool> DeleteAsync(int id);
+        Task<IEnumerable<Permission>> GetPermissionsForRoleAsync(int roleId);
+        Task<bool> AddPermissionToRoleAsync(int roleId, int permissionId);
+        Task<bool> RemovePermissionFromRoleAsync(int roleId, int permissionId);
     }
 }

@@ -18,6 +18,37 @@ namespace Repository.Core
             _sqlHelper = sqlHelper;
         }
 
+        public async Task<Dictionary<Guid, IEnumerable<string>>> GetUserPermissionsAcrossBusinessesAsync(Guid userId)
+        {
+            var query = @"
+                SELECT DISTINCT ubr.BusinessID, p.PermissionKey
+                FROM core.Users u
+                JOIN core.UserBusinessRoles ubr ON u.UserID = ubr.UserID
+                JOIN core.Roles r ON ubr.RoleID = r.RoleID
+                JOIN core.RolePermissions rp ON r.RoleID = rp.RoleID
+                JOIN core.Permissions p ON rp.PermissionID = p.PermissionID
+                WHERE u.UserID = @UserID;";
+
+            var parameters = new[] { new SqlParameter("@UserID", userId) };
+            var dataTable = await _sqlHelper.ExecuteQueryAsync(query, parameters);
+            var permissionsByBusiness = new Dictionary<Guid, List<string>>();
+
+            foreach (DataRow row in dataTable.Rows)
+            {
+                var businessId = (Guid)row["BusinessID"];
+                var permissionKey = row["PermissionKey"].ToString();
+
+                if (!permissionsByBusiness.TryGetValue(businessId, out var permissions))
+                {
+                    permissions = new List<string>();
+                    permissionsByBusiness[businessId] = permissions;
+                }
+                permissions.Add(permissionKey);
+            }
+
+            return permissionsByBusiness.ToDictionary(kvp => kvp.Key, kvp => (IEnumerable<string>)kvp.Value);
+        }
+
         public async Task<IEnumerable<Role>> GetAllAsync()
         {
             var query = "SELECT * FROM core.Roles";
@@ -85,6 +116,49 @@ namespace Repository.Core
             var result = await _sqlHelper.ExecuteNonQueryAsync(query, parameters);
             return result > 0;
         }
+        public async Task<IEnumerable<Permission>> GetPermissionsForRoleAsync(int roleId)
+        {
+            var query = @"
+                SELECT p.*
+                FROM core.Permissions p
+                JOIN core.RolePermissions rp ON p.PermissionID = rp.PermissionID
+                WHERE rp.RoleID = @RoleID;";
+            var parameters = new[] { new SqlParameter("@RoleID", roleId) };
+            var dataTable = await _sqlHelper.ExecuteQueryAsync(query, parameters);
+            var permissions = new List<Permission>();
+
+            foreach (DataRow row in dataTable.Rows)
+            {
+                permissions.Add(MapToPermission(row));
+            }
+
+            return permissions;
+        }
+
+        public async Task<bool> AddPermissionToRoleAsync(int roleId, int permissionId)
+        {
+            var query = "INSERT INTO core.RolePermissions (RoleID, PermissionID) VALUES (@RoleID, @PermissionID)";
+            var parameters = new[]
+            {
+                new SqlParameter("@RoleID", roleId),
+                new SqlParameter("@PermissionID", permissionId)
+            };
+            var result = await _sqlHelper.ExecuteNonQueryAsync(query, parameters);
+            return result > 0;
+        }
+
+        public async Task<bool> RemovePermissionFromRoleAsync(int roleId, int permissionId)
+        {
+            var query = "DELETE FROM core.RolePermissions WHERE RoleID = @RoleID AND PermissionID = @PermissionID";
+            var parameters = new[]
+            {
+                new SqlParameter("@RoleID", roleId),
+                new SqlParameter("@PermissionID", permissionId)
+            };
+            var result = await _sqlHelper.ExecuteNonQueryAsync(query, parameters);
+            return result > 0;
+        }
+
 
         private Role MapToRole(DataRow row)
         {
@@ -94,6 +168,18 @@ namespace Repository.Core
                 RoleName = row["RoleName"].ToString(),
                 Description = row["Description"] != DBNull.Value ? row["Description"].ToString() : null,
                 IsSystemRole = Convert.ToBoolean(row["IsSystemRole"])
+            };
+        }
+
+        private Permission MapToPermission(DataRow row)
+        {
+            return new Permission
+            {
+                PermissionID = Convert.ToInt32(row["PermissionID"]),
+                PermissionKey = row["PermissionKey"].ToString(),
+                Description = row["Description"].ToString(),
+                MenuItemID = row["MenuItemID"] == DBNull.Value ? null : (int?)Convert.ToInt32(row["MenuItemID"]),
+                ModuleID = Convert.ToInt32(row["ModuleID"])
             };
         }
     }
