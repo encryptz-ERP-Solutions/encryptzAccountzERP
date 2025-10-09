@@ -3,9 +3,9 @@ using Repository.Core;
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
-using System.Data.SqlClient;
+using Microsoft.Data.SqlClient;
 using Infrastructure;
-using System.Linq;
+using System.Data;
 
 namespace Data.Core
 {
@@ -45,7 +45,18 @@ namespace Data.Core
         public async Task<IEnumerable<UserBusinessRole>> GetAllAsync()
         {
             var sql = "SELECT * FROM core.UserBusinessRoles";
-            return await _dbHelper.ExecuteQueryAsync<UserBusinessRole>(sql);
+            var dataTable = await _dbHelper.ExecuteQueryAsync(sql);
+            var userBusinessRoles = new List<UserBusinessRole>();
+            foreach (DataRow row in dataTable.Rows)
+            {
+                userBusinessRoles.Add(new UserBusinessRole
+                {
+                    UserID = (Guid)row["UserID"],
+                    BusinessID = (Guid)row["BusinessID"],
+                    RoleID = Convert.ToInt32(row["RoleID"])
+                });
+            }
+            return userBusinessRoles;
         }
 
         public async Task<UserBusinessRole> GetByIdAsync(Guid userId, Guid businessId, int roleId)
@@ -57,8 +68,18 @@ namespace Data.Core
                 new SqlParameter("@BusinessID", businessId),
                 new SqlParameter("@RoleID", roleId)
             };
-            var result = await _dbHelper.ExecuteQueryAsync<UserBusinessRole>(sql, parameters);
-            return result.FirstOrDefault();
+            var dataTable = await _dbHelper.ExecuteQueryAsync(sql, parameters);
+            if (dataTable.Rows.Count > 0)
+            {
+                DataRow row = dataTable.Rows[0];
+                return new UserBusinessRole
+                {
+                    UserID = (Guid)row["UserID"],
+                    BusinessID = (Guid)row["BusinessID"],
+                    RoleID = Convert.ToInt32(row["RoleID"])
+                };
+            }
+            return null;
         }
     }
 }

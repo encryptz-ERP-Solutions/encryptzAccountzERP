@@ -2,9 +2,10 @@ using Entities.Core;
 using Repository.Core;
 using System.Collections.Generic;
 using System.Threading.Tasks;
-using System.Data.SqlClient;
+using Microsoft.Data.SqlClient;
 using Infrastructure;
-using System.Linq;
+using System.Data;
+using System;
 
 namespace Data.Core
 {
@@ -42,7 +43,17 @@ namespace Data.Core
         public async Task<IEnumerable<RolePermission>> GetAllAsync()
         {
             var sql = "SELECT * FROM core.RolePermissions";
-            return await _dbHelper.ExecuteQueryAsync<RolePermission>(sql);
+            var dataTable = await _dbHelper.ExecuteQueryAsync(sql);
+            var rolePermissions = new List<RolePermission>();
+            foreach (DataRow row in dataTable.Rows)
+            {
+                rolePermissions.Add(new RolePermission
+                {
+                    RoleID = Convert.ToInt32(row["RoleID"]),
+                    PermissionID = Convert.ToInt32(row["PermissionID"])
+                });
+            }
+            return rolePermissions;
         }
 
         public async Task<RolePermission> GetByIdAsync(int roleId, int permissionId)
@@ -53,8 +64,17 @@ namespace Data.Core
                 new SqlParameter("@RoleID", roleId),
                 new SqlParameter("@PermissionID", permissionId)
             };
-            var result = await _dbHelper.ExecuteQueryAsync<RolePermission>(sql, parameters);
-            return result.FirstOrDefault();
+            var dataTable = await _dbHelper.ExecuteQueryAsync(sql, parameters);
+            if (dataTable.Rows.Count > 0)
+            {
+                DataRow row = dataTable.Rows[0];
+                return new RolePermission
+                {
+                    RoleID = Convert.ToInt32(row["RoleID"]),
+                    PermissionID = Convert.ToInt32(row["PermissionID"])
+                };
+            }
+            return null;
         }
     }
 }
