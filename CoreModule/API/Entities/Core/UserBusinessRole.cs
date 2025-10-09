@@ -1,5 +1,5 @@
-using System;
 using Entities.Admin;
+using System;
 
 namespace Entities.Core
 {
@@ -10,8 +10,8 @@ namespace Entities.Core
         public int RoleID { get; set; }
 
         // Navigation properties
-        public virtual User? User { get; set; }
-        public virtual Business? Business { get; set; }
-        public virtual Role? Role { get; set; }
+        public virtual User User { get; set; }
+        public virtual Business Business { get; set; }
+        public virtual Role Role { get; set; }
     }
 }

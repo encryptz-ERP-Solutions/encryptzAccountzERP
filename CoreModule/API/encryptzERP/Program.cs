@@ -15,6 +15,9 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
 using Microsoft.Extensions.Options;
+using Business.Core;
+using Repository.Core;
+using Data.Core;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -80,6 +83,10 @@ builder.Services.AddScoped<IMenuItemService, MenuItemService>();
 builder.Services.AddScoped<IPermissionRepository, PermissionRepository>();
 builder.Services.AddScoped<IPermissionService, PermissionService>();
 builder.Services.AddScoped<IRoleService, RoleService>();
+builder.Services.AddScoped<IRolePermissionRepository, RolePermissionRepository>();
+builder.Services.AddScoped<IUserBusinessRoleRepository, UserBusinessRoleRepository>();
+builder.Services.AddScoped<IRolePermissionService, RolePermissionService>();
+builder.Services.AddScoped<IUserBusinessRoleService, UserBusinessRoleService>();
 
 
 builder.Services.AddScoped<ExceptionHandler>();
