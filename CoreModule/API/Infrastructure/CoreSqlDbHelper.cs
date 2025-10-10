@@ -35,6 +35,20 @@ namespace Infrastructure
             _connection?.Close();
         }
 
+        public int ExecuteNonQuery(string query, SqlParameter[] parameters = null)
+        {
+            using (var connection = new SqlConnection(_connectionString))
+            using (var command = new SqlCommand(query, connection))
+            {
+                command.CommandType = CommandType.Text;
+                if (parameters != null)
+                    command.Parameters.AddRange(parameters);
+
+                connection.Open();
+                return command.ExecuteNonQuery();
+            }
+        }
+
         public async Task<DataTable> ExecuteQueryAsync(string query, SqlParameter[] parameters = null)
         {
             using (var connection = new SqlConnection(_connectionString))

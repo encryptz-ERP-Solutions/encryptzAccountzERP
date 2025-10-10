@@ -8,6 +8,16 @@ namespace BusinessLogic.Accounts.Mappers
     {
         public AccountMappingProfile()
         {
+            // AccountType Mappings
+            CreateMap<AccountType, AccountTypeDto>();
+            CreateMap<CreateAccountTypeDto, AccountType>();
+            CreateMap<UpdateAccountTypeDto, AccountType>();
+
+            // ChartOfAccount Mappings
+            CreateMap<ChartOfAccount, ChartOfAccountDto>();
+            CreateMap<CreateChartOfAccountDto, ChartOfAccount>();
+            CreateMap<UpdateChartOfAccountDto, ChartOfAccount>();
+
             // Transaction Mappings
             CreateMap<TransactionHeader, TransactionHeaderDto>();
             CreateMap<TransactionDetail, TransactionDetailDto>();
