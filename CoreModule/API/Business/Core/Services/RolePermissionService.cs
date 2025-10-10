@@ -1,12 +1,12 @@
 using AutoMapper;
-using Business.Core;
+using BusinessLogic.Core.Interface;
 using Entities.Core;
 using Repository.Core;
 using Shared.Core;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
-namespace Business.Core
+namespace BusinessLogic.Core.Services
 {
     public class RolePermissionService : IRolePermissionService
     {

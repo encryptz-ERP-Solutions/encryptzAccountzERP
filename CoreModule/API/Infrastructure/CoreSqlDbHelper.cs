@@ -4,7 +4,7 @@ using Microsoft.Data.SqlClient;
 using Microsoft.Extensions.Configuration;
 
 
-namespace Data.Core
+namespace Infrastructure
 {
     public class CoreSQLDbHelper
     {
