@@ -8,8 +8,8 @@ namespace BusinessLogic.Core.Mappers
     {
         public BusinessMappingProfile()
         {
-            CreateMap<Business, BusinessDto>();
-            CreateMap<BusinessDto, Business>();
+            CreateMap<Entities.Core.Business, BusinessDto>();
+            CreateMap<BusinessDto, Entities.Core.Business>();
         }
     }
 }
