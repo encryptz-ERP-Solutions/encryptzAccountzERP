@@ -97,10 +97,12 @@ builder.Services.AddScoped<ITransactionService, TransactionService>();
 // Register new repository layer
 builder.Services.AddScoped<ISubscriptionPlanRepository, SubscriptionPlanRepository>();
 builder.Services.AddScoped<IUserSubscriptionRepository, UserSubscriptionRepository>();
+builder.Services.AddScoped<ISubscriptionPlanPermissionRepository, SubscriptionPlanPermissionRepository>();
 
 // Register new business logic layer
 builder.Services.AddScoped<ISubscriptionPlanService, SubscriptionPlanService>();
 builder.Services.AddScoped<IUserSubscriptionService, UserSubscriptionService>();
+builder.Services.AddScoped<ISubscriptionPlanPermissionService, SubscriptionPlanPermissionService>();
 
 
 builder.Services.AddScoped<ExceptionHandler>();
