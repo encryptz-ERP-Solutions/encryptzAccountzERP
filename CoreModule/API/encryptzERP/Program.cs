@@ -2,7 +2,6 @@
 using Microsoft.AspNetCore.Mvc.Routing;
 using Repository.Core.Interface;
 using Repository.Core;
-using Data.Core;
 using Microsoft.OpenApi.Models;
 using Repository.Admin;
 using Repository.Admin.Interface;
@@ -16,7 +15,6 @@ using Microsoft.IdentityModel.Tokens;
 using System.Text;
 using Microsoft.Extensions.Options;
 using Repository.Core;
-using Data.Core;
 
 var builder = WebApplication.CreateBuilder(args);
 

@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
-using Business.Core;
+using BusinessLogic.Core.DTOs;
+using BusinessLogic.Core.Interface;
 using Shared.Core;
 using System.Threading.Tasks;
 using System;

@@ -1,4 +1,3 @@
-using Data.Core;
 using Entities.Core;
 using Infrastructure;
 using Microsoft.Data.SqlClient;
