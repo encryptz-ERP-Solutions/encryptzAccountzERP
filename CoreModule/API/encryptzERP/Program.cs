@@ -10,6 +10,8 @@ using BusinessLogic.Admin.Services;
 using BusinessLogic.Admin.Interface;
 using BusinessLogic.Core.Services;
 using BusinessLogic.Core.Interface;
+using Business.Core;
+using Repository.Core;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
@@ -91,6 +93,14 @@ builder.Services.AddScoped<IAccountTypeService, AccountTypeService>();
 builder.Services.AddScoped<IChartOfAccountService, ChartOfAccountService>();
 builder.Services.AddScoped<ITransactionRepository, TransactionRepository>();
 builder.Services.AddScoped<ITransactionService, TransactionService>();
+
+// Register new repository layer
+builder.Services.AddScoped<ISubscriptionPlanRepository, SubscriptionPlanRepository>();
+builder.Services.AddScoped<IUserSubscriptionRepository, UserSubscriptionRepository>();
+
+// Register new business logic layer
+builder.Services.AddScoped<ISubscriptionPlanService, SubscriptionPlanService>();
+builder.Services.AddScoped<IUserSubscriptionService, UserSubscriptionService>();
 
 
 builder.Services.AddScoped<ExceptionHandler>();
