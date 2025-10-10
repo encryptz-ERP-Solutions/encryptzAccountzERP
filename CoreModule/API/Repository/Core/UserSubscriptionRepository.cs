@@ -29,8 +29,11 @@ namespace Repository.Core
                 new SqlParameter("@EndDateUTC", userSubscription.EndDateUTC),
                 new SqlParameter("@TrialEndsAtUTC", (object)userSubscription.TrialEndsAtUTC ?? DBNull.Value)
             };
-            var id = await _dbHelper.ExecuteScalarAsync(sql, parameters);
-            userSubscription.SubscriptionID = (Guid)id;
+            var dt = await _dbHelper.ExecuteQueryAsync(sql, parameters);
+            if (dt.Rows.Count > 0)
+            {
+                userSubscription.SubscriptionID = (Guid)dt.Rows[0][0];
+            }
             return userSubscription;
         }
 
