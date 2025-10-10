@@ -1,8 +1,8 @@
 using Microsoft.AspNetCore.Mvc;
-using Business.Core;
 using Shared.Core;
 using System.Threading.Tasks;
 using System;
+using BusinessLogic.Core.Interface;
 
 namespace encryptzERP.Controllers.Core
 {
