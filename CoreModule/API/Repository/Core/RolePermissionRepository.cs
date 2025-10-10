@@ -7,7 +7,7 @@ using Infrastructure;
 using System.Data;
 using System;
 
-namespace Data.Core
+namespace Repository.Core
 {
     public class RolePermissionRepository : IRolePermissionRepository
     {
