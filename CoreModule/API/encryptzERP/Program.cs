@@ -14,6 +14,8 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
 using Microsoft.Extensions.Options;
+using Repository.Accounts;
+using BusinessLogic.Accounts;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -83,6 +85,10 @@ builder.Services.AddScoped<IRolePermissionRepository, RolePermissionRepository>(
 builder.Services.AddScoped<IUserBusinessRoleRepository, UserBusinessRoleRepository>();
 builder.Services.AddScoped<IRolePermissionService, RolePermissionService>();
 builder.Services.AddScoped<IUserBusinessRoleService, UserBusinessRoleService>();
+builder.Services.AddScoped<IAccountTypeRepository, AccountTypeRepository>();
+builder.Services.AddScoped<IChartOfAccountRepository, ChartOfAccountRepository>();
+builder.Services.AddScoped<IAccountTypeService, AccountTypeService>();
+builder.Services.AddScoped<IChartOfAccountService, ChartOfAccountService>();
 
 
 builder.Services.AddScoped<ExceptionHandler>();
