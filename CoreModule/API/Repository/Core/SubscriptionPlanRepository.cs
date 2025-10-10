@@ -19,7 +19,7 @@ namespace Repository.Core
 
         public async Task<SubscriptionPlan> CreateAsync(SubscriptionPlan subscriptionPlan)
         {
-            var sql = "INSERT INTO core.SubscriptionPlans (PlanName, Description, Price, MaxUsers, MaxBusinesses, IsPubliclyVisible, IsActive) VALUES (@PlanName, @Description, @Price, @MaxUsers, @MaxBusinesses, @IsPubliclyVisible, @IsActive); SELECT SCOPE_IDENTITY();";
+            var sql = "INSERT INTO core.SubscriptionPlans (PlanName, Description, Price, MaxUsers, MaxBusinesses, IsPubliclyVisible, IsActive) OUTPUT INSERTED.PlanID VALUES (@PlanName, @Description, @Price, @MaxUsers, @MaxBusinesses, @IsPubliclyVisible, @IsActive);";
             var parameters = new[]
             {
                 new SqlParameter("@PlanName", subscriptionPlan.PlanName),
@@ -30,8 +30,11 @@ namespace Repository.Core
                 new SqlParameter("@IsPubliclyVisible", subscriptionPlan.IsPubliclyVisible),
                 new SqlParameter("@IsActive", subscriptionPlan.IsActive)
             };
-            var id = await _dbHelper.ExecuteScalarAsync(sql, parameters);
-            subscriptionPlan.PlanID = Convert.ToInt32(id);
+            var dt = await _dbHelper.ExecuteQueryAsync(sql, parameters);
+            if (dt.Rows.Count > 0)
+            {
+                subscriptionPlan.PlanID = Convert.ToInt32(dt.Rows[0][0]);
+            }
             return subscriptionPlan;
         }
 
