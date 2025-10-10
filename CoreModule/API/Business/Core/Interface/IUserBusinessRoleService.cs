@@ -3,7 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
-namespace Business.Core
+namespace BusinessLogic.Core.Interface
 {
     public interface IUserBusinessRoleService
     {
