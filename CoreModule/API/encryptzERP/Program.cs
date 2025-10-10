@@ -85,10 +85,8 @@ builder.Services.AddScoped<IRolePermissionRepository, RolePermissionRepository>(
 builder.Services.AddScoped<IUserBusinessRoleRepository, UserBusinessRoleRepository>();
 builder.Services.AddScoped<IRolePermissionService, RolePermissionService>();
 builder.Services.AddScoped<IUserBusinessRoleService, UserBusinessRoleService>();
-builder.Services.AddScoped<IAccountTypeRepository, AccountTypeRepository>();
-builder.Services.AddScoped<IChartOfAccountRepository, ChartOfAccountRepository>();
-builder.Services.AddScoped<IAccountTypeService, AccountTypeService>();
-builder.Services.AddScoped<IChartOfAccountService, ChartOfAccountService>();
+builder.Services.AddScoped<ITransactionRepository, TransactionRepository>();
+builder.Services.AddScoped<ITransactionService, TransactionService>();
 
 
 builder.Services.AddScoped<ExceptionHandler>();

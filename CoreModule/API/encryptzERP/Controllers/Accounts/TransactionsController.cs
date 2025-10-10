@@ -12,23 +12,23 @@ namespace encryptzERP.Controllers.Accounts
     [Route("api/[controller]")]
     [ApiController]
     [Authorize]
-    public class AccountTypesController : ControllerBase
+    public class TransactionsController : ControllerBase
     {
-        private readonly IAccountTypeService _accountTypeService;
+        private readonly ITransactionService _transactionService;
         private readonly ExceptionHandler _exceptionHandler;
 
-        public AccountTypesController(IAccountTypeService accountTypeService, ExceptionHandler exceptionHandler)
+        public TransactionsController(ITransactionService transactionService, ExceptionHandler exceptionHandler)
         {
-            _accountTypeService = accountTypeService;
+            _transactionService = transactionService;
             _exceptionHandler = exceptionHandler;
         }
 
-        [HttpGet]
-        public async Task<ActionResult<IEnumerable<AccountTypeDto>>> GetAll()
+        [HttpGet("business/{businessId}")]
+        public async Task<ActionResult<IEnumerable<TransactionHeaderDto>>> GetAll(Guid businessId)
         {
             try
             {
-                var result = await _accountTypeService.GetAllAccountTypesAsync();
+                var result = await _transactionService.GetTransactionsByBusinessIdAsync(businessId);
                 return Ok(result);
             }
             catch (Exception ex)
@@ -39,11 +39,11 @@ namespace encryptzERP.Controllers.Accounts
         }
 
         [HttpGet("{id}")]
-        public async Task<ActionResult<AccountTypeDto>> GetById(int id)
+        public async Task<ActionResult<TransactionHeaderDto>> GetById(Guid id)
         {
             try
             {
-                var result = await _accountTypeService.GetAccountTypeByIdAsync(id);
+                var result = await _transactionService.GetTransactionByIdAsync(id);
                 if (result == null)
                     return NotFound();
 
@@ -57,12 +57,16 @@ namespace encryptzERP.Controllers.Accounts
         }
 
         [HttpPost]
-        public async Task<IActionResult> Create(CreateAccountTypeDto createDto)
+        public async Task<IActionResult> Create(CreateTransactionDto createDto)
         {
             try
             {
-                var newAccountType = await _accountTypeService.CreateAccountTypeAsync(createDto);
-                return CreatedAtAction(nameof(GetById), new { id = newAccountType.AccountTypeID }, newAccountType);
+                var newTransaction = await _transactionService.CreateTransactionAsync(createDto);
+                return CreatedAtAction(nameof(GetById), new { id = newTransaction.TransactionHeaderID }, newTransaction);
+            }
+            catch (InvalidOperationException ex)
+            {
+                return BadRequest(ex.Message);
             }
             catch (Exception ex)
             {
@@ -72,12 +76,12 @@ namespace encryptzERP.Controllers.Accounts
         }
 
         [HttpPut("{id}")]
-        public async Task<IActionResult> Update(int id, UpdateAccountTypeDto updateDto)
+        public async Task<IActionResult> Update(Guid id, UpdateTransactionHeaderDto updateDto)
         {
             try
             {
-                await _accountTypeService.UpdateAccountTypeAsync(id, updateDto);
-                return Ok(new { message = "Account type updated successfully." });
+                await _transactionService.UpdateTransactionHeaderAsync(id, updateDto);
+                return Ok(new { message = "Transaction header updated successfully." });
             }
             catch (Exception ex)
             {
@@ -87,12 +91,12 @@ namespace encryptzERP.Controllers.Accounts
         }
 
         [HttpDelete("{id}")]
-        public async Task<IActionResult> Delete(int id)
+        public async Task<IActionResult> Delete(Guid id)
         {
             try
             {
-                await _accountTypeService.DeleteAccountTypeAsync(id);
-                return Ok(new { message = "Account type deleted successfully." });
+                await _transactionService.DeleteTransactionAsync(id);
+                return Ok(new { message = "Transaction deleted successfully." });
             }
             catch (Exception ex)
             {
