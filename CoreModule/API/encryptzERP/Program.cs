@@ -61,10 +61,10 @@ builder.Services.AddScoped<EmailService>();
 builder.Services.AddAutoMapper(typeof(BusinessLogic.Admin.Mappers.UserMappingProfile).Assembly);
 
 builder.Services.AddControllers();
-// Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
+// Learn more about configuring Swagger/OpenAPI at https.aka.ms/aspnetcore/swashbuckle
 
 // Register database helper (ADO.NET)
-builder.Services.AddSingleton<CoreSQLDbHelper>();
+builder.Services.AddScoped<CoreSQLDbHelper>();
 
 // Register repository layer
 builder.Services.AddScoped<IUserRepository, UserRepository>();
@@ -89,6 +89,8 @@ builder.Services.AddScoped<IAccountTypeRepository, AccountTypeRepository>();
 builder.Services.AddScoped<IChartOfAccountRepository, ChartOfAccountRepository>();
 builder.Services.AddScoped<IAccountTypeService, AccountTypeService>();
 builder.Services.AddScoped<IChartOfAccountService, ChartOfAccountService>();
+builder.Services.AddScoped<ITransactionRepository, TransactionRepository>();
+builder.Services.AddScoped<ITransactionService, TransactionService>();
 
 
 builder.Services.AddScoped<ExceptionHandler>();

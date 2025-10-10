@@ -17,6 +17,13 @@ namespace BusinessLogic.Accounts.Mappers
             CreateMap<ChartOfAccount, ChartOfAccountDto>();
             CreateMap<CreateChartOfAccountDto, ChartOfAccount>();
             CreateMap<UpdateChartOfAccountDto, ChartOfAccount>();
+
+            // Transaction Mappings
+            CreateMap<TransactionHeader, TransactionHeaderDto>();
+            CreateMap<TransactionDetail, TransactionDetailDto>();
+            CreateMap<CreateTransactionDto, TransactionHeader>();
+            CreateMap<CreateTransactionDetailDto, TransactionDetail>();
+            CreateMap<UpdateTransactionHeaderDto, TransactionHeader>();
         }
     }
 }

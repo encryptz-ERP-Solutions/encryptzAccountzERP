@@ -22,6 +22,7 @@ namespace BusinessLogic.Accounts
         {
             var accountType = _mapper.Map<AccountType>(createAccountTypeDto);
             await _accountTypeRepository.AddAccountTypeAsync(accountType);
+            // This is a simplification. In a real app, you'd get the created entity back from the repo.
             return _mapper.Map<AccountTypeDto>(accountType);
         }
 
@@ -47,7 +48,7 @@ namespace BusinessLogic.Accounts
             var accountType = await _accountTypeRepository.GetAccountTypeByIdAsync(id);
             if (accountType == null)
             {
-                // Or throw a custom not found exception
+                // In a real app, you would throw a NotFoundException or similar.
                 return;
             }
             _mapper.Map(updateAccountTypeDto, accountType);

@@ -50,7 +50,6 @@ namespace BusinessLogic.Accounts
             var chartOfAccount = await _chartOfAccountRepository.GetChartOfAccountByIdAsync(id);
             if (chartOfAccount == null)
             {
-                // Or throw a custom not found exception
                 return;
             }
             _mapper.Map(updateChartOfAccountDto, chartOfAccount);
