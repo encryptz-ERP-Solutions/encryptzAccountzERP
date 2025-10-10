@@ -7,7 +7,7 @@ using Microsoft.Data.SqlClient;
 using Infrastructure;
 using System.Data;
 
-namespace Data.Core
+namespace Repository.Core
 {
     public class UserBusinessRoleRepository : IUserBusinessRoleRepository
     {

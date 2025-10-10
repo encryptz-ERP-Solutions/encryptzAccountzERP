@@ -2,6 +2,7 @@ using System;
 using System.Data;
 using System.Threading.Tasks;
 using Data.Core;
+using Infrastructure;
 using Microsoft.Data.SqlClient;
 using Repository.Core.Interface;
 
