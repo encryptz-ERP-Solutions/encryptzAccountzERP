@@ -1,14 +1,13 @@
-using Data.Core;
 using Entities.Core;
+using Infrastructure;
 using Microsoft.Data.SqlClient;
-using Repository.Admin.Interface;
+using Repository.Core.Interface;
 using System;
 using System.Collections.Generic;
 using System.Data;
-using System.Linq;
 using System.Threading.Tasks;
 
-namespace Repository.Admin
+namespace Repository.Core
 {
     public class RoleRepository : IRoleRepository
     {
@@ -50,7 +49,7 @@ namespace Repository.Admin
             return permissionsByBusiness.ToDictionary(kvp => kvp.Key, kvp => (IEnumerable<string>)kvp.Value);
         }
 
-        public async Task<IEnumerable<Role>> GetAllRolesAsync()
+        public async Task<IEnumerable<Role>> GetAllAsync()
         {
             var query = "SELECT * FROM core.Roles";
             var dataTable = await _sqlHelper.ExecuteQueryAsync(query);
@@ -64,16 +63,16 @@ namespace Repository.Admin
             return roles;
         }
 
-        public async Task<Role> GetRoleByIdAsync(int roleId)
+        public async Task<Role> GetByIdAsync(int id)
         {
             var query = "SELECT * FROM core.Roles WHERE RoleID = @RoleID";
-            var parameters = new[] { new SqlParameter("@RoleID", roleId) };
+            var parameters = new[] { new SqlParameter("@RoleID", id) };
             var dataTable = await _sqlHelper.ExecuteQueryAsync(query, parameters);
 
             return dataTable.Rows.Count > 0 ? MapToRole(dataTable.Rows[0]) : null;
         }
 
-        public async Task<Role> AddRoleAsync(Role role)
+        public async Task<Role> AddAsync(Role role)
         {
             var query = @"
                 INSERT INTO core.Roles (RoleName, Description, IsSystemRole)
@@ -91,7 +90,7 @@ namespace Repository.Admin
             return MapToRole(dataTable.Rows[0]);
         }
 
-        public async Task<bool> UpdateRoleAsync(Role role)
+        public async Task<bool> UpdateAsync(Role role)
         {
             var query = @"
                 UPDATE core.Roles
@@ -110,14 +109,13 @@ namespace Repository.Admin
             return result > 0;
         }
 
-        public async Task<bool> DeleteRoleAsync(int roleId)
+        public async Task<bool> DeleteAsync(int id)
         {
             var query = "DELETE FROM core.Roles WHERE RoleID = @RoleID";
-            var parameters = new[] { new SqlParameter("@RoleID", roleId) };
+            var parameters = new[] { new SqlParameter("@RoleID", id) };
             var result = await _sqlHelper.ExecuteNonQueryAsync(query, parameters);
             return result > 0;
         }
-
         public async Task<IEnumerable<Permission>> GetPermissionsForRoleAsync(int roleId)
         {
             var query = @"
@@ -161,13 +159,14 @@ namespace Repository.Admin
             return result > 0;
         }
 
+
         private Role MapToRole(DataRow row)
         {
             return new Role
             {
                 RoleID = Convert.ToInt32(row["RoleID"]),
                 RoleName = row["RoleName"].ToString(),
-                Description = row["Description"] == DBNull.Value ? null : row["Description"].ToString(),
+                Description = row["Description"] != DBNull.Value ? row["Description"].ToString() : null,
                 IsSystemRole = Convert.ToBoolean(row["IsSystemRole"])
             };
         }

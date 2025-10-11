@@ -34,7 +34,7 @@ namespace BusinessLogic.Core.Services
 
         public async Task<BusinessDto> AddBusinessAsync(BusinessDto businessDto, Guid createdByUserId)
         {
-            var business = _mapper.Map<Business>(businessDto);
+            var business = _mapper.Map<Entities.Core.Business>(businessDto);
             business.CreatedByUserID = createdByUserId;
             business.UpdatedByUserID = createdByUserId;
             business.BusinessID = Guid.NewGuid();

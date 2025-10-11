@@ -3,8 +3,8 @@ using System.Collections.Generic;
 using System.Data;
 using System.Text;
 using System.Threading.Tasks;
-using Data.Core;
 using Entities.Admin;
+using Infrastructure;
 using Microsoft.Data.SqlClient;
 using Repository.Admin.Interface;
 

@@ -2,7 +2,6 @@
 using Microsoft.AspNetCore.Mvc.Routing;
 using Repository.Core.Interface;
 using Repository.Core;
-using Data.Core;
 using Microsoft.OpenApi.Models;
 using Repository.Admin;
 using Repository.Admin.Interface;
@@ -11,10 +10,14 @@ using BusinessLogic.Admin.Services;
 using BusinessLogic.Admin.Interface;
 using BusinessLogic.Core.Services;
 using BusinessLogic.Core.Interface;
+using Business.Core;
+using Repository.Core;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
 using Microsoft.Extensions.Options;
+using Repository.Accounts;
+using BusinessLogic.Accounts;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -60,10 +63,10 @@ builder.Services.AddScoped<EmailService>();
 builder.Services.AddAutoMapper(typeof(BusinessLogic.Admin.Mappers.UserMappingProfile).Assembly);
 
 builder.Services.AddControllers();
-// Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
+// Learn more about configuring Swagger/OpenAPI at https.aka.ms/aspnetcore/swashbuckle
 
 // Register database helper (ADO.NET)
-builder.Services.AddSingleton<CoreSQLDbHelper>();
+builder.Services.AddScoped<CoreSQLDbHelper>();
 
 // Register repository layer
 builder.Services.AddScoped<IUserRepository, UserRepository>();
@@ -77,6 +80,29 @@ builder.Services.AddScoped<IModuleRepository, ModuleRepository>();
 builder.Services.AddScoped<IModuleService, ModuleService>();
 builder.Services.AddScoped<IMenuItemRepository, MenuItemRepository>();
 builder.Services.AddScoped<IMenuItemService, MenuItemService>();
+builder.Services.AddScoped<IPermissionRepository, PermissionRepository>();
+builder.Services.AddScoped<IPermissionService, PermissionService>();
+builder.Services.AddScoped<IRoleService, RoleService>();
+builder.Services.AddScoped<IRolePermissionRepository, RolePermissionRepository>();
+builder.Services.AddScoped<IUserBusinessRoleRepository, UserBusinessRoleRepository>();
+builder.Services.AddScoped<IRolePermissionService, RolePermissionService>();
+builder.Services.AddScoped<IUserBusinessRoleService, UserBusinessRoleService>();
+builder.Services.AddScoped<IAccountTypeRepository, AccountTypeRepository>();
+builder.Services.AddScoped<IChartOfAccountRepository, ChartOfAccountRepository>();
+builder.Services.AddScoped<IAccountTypeService, AccountTypeService>();
+builder.Services.AddScoped<IChartOfAccountService, ChartOfAccountService>();
+builder.Services.AddScoped<ITransactionRepository, TransactionRepository>();
+builder.Services.AddScoped<ITransactionService, TransactionService>();
+
+// Register new repository layer
+builder.Services.AddScoped<ISubscriptionPlanRepository, SubscriptionPlanRepository>();
+builder.Services.AddScoped<IUserSubscriptionRepository, UserSubscriptionRepository>();
+builder.Services.AddScoped<ISubscriptionPlanPermissionRepository, SubscriptionPlanPermissionRepository>();
+
+// Register new business logic layer
+builder.Services.AddScoped<ISubscriptionPlanService, SubscriptionPlanService>();
+builder.Services.AddScoped<IUserSubscriptionService, UserSubscriptionService>();
+builder.Services.AddScoped<ISubscriptionPlanPermissionService, SubscriptionPlanPermissionService>();
 
 
 builder.Services.AddScoped<ExceptionHandler>();
