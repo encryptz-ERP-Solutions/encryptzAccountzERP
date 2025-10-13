@@ -106,7 +106,7 @@ namespace encryptzERP.Controllers.Core
             try
             {
                 await _loginService.RequestOtpAsync(otpRequestDto);
-                return Ok(new { message = "If an account with that identifier exists, an OTP has been sent." });
+                return Ok(new { status = "Success", message = "If an account with that identifier exists, an OTP has been sent." });
             }
             catch (Exception ex)
             {
