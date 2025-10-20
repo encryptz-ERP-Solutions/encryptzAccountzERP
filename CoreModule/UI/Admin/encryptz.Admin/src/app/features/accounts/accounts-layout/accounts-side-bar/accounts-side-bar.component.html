@@ -27,7 +27,7 @@
             <a href="#" mat-button (click)="navigateMenu(item.label)"
                 [ngClass]="{'active-menu': selectedMenu === item.label}"
                 class="d-flex align-items-center justify-content-start pd-8 pdT-10 pdB-10 single-menu-wd cursor-pointer">
-                <mat-icon class="icon-12 material-symbols-outlined">{{ item.icon }}</mat-icon>
+                <mat-icon class="icon-12 material-symbols-outlined mrL-0">{{ item.icon }}</mat-icon>
                 <span class="mont400 f-sz11">{{ item.label }}</span>
             </a>
         </div>
@@ -39,7 +39,7 @@
                     <mat-expansion-panel-header class="inner-expansel" [matTooltip]="!isExpand ? item.label : ''"
                         matTooltipPosition="right">
                         <mat-panel-title class="mont400 f-sz11 letter-sp-n">
-                            <mat-icon class="icon-14 mrR-10 material-symbols-outlined">{{ item.icon }}</mat-icon>
+                            <mat-icon class="icon-14 mrR-10 material-symbols-outlined mrL-0">{{ item.icon }}</mat-icon>
                             <div class="text-left no-wrap wd-170p">{{ item.label }}</div>
                         </mat-panel-title>
                     </mat-expansion-panel-header>
@@ -50,7 +50,7 @@
                         <a href="#" mat-button (click)="navigateMenu(submenu.label)"
                             [ngClass]="{'active-menu': selectedMenu === submenu.label}"
                             class="d-flex align-items-center justify-content-start pd-8 pdT-10 pdB-10 single-menu-wd-sec-1 cursor-pointer position-relative">
-                            <mat-icon class="icon-12 material-symbols-outlined">{{ submenu.icon }}</mat-icon>
+                            <mat-icon class="icon-12 material-symbols-outlined mrL-0">{{ submenu.icon }}</mat-icon>
                             <span class="mont400 f-sz11">{{ submenu.label }}</span>
                         </a>
                     </div>

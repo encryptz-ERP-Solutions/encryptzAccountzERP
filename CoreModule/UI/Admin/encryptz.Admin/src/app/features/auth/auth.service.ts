@@ -72,8 +72,10 @@ export class AuthService {
     }
   }
 
-  sendOTP(body: any) {
-    return this.http.post(environment.apiUrl + 'api/Login/send-otp', body)
+  
+
+  requestOTP(body: any) {
+    return this.http.post(environment.apiUrl + 'api/Login/request-otp', body)
   }
 
   verifyOTP(body: any) {
@@ -81,7 +83,7 @@ export class AuthService {
       .pipe(
         tap((res: any) => {
           debugger
-          this.setToken(res.response.token);
+          this.setToken(res.token);
           // this.setCurrentUser(res.response.user);
         })
       );

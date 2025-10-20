@@ -1,4 +1,3 @@
-
 <div class="container-fluid p-0">
     <div class="row g-0">
         <div
@@ -28,58 +27,62 @@
                 </div>
 
                 <div class="wd-100 mt-4">
-                    <mat-label class="f-sz11 mont400">User ID or PAN No</mat-label>
+                    <mat-label class="f-sz10 mont400">User Name Or User Id</mat-label>
                     <mat-form-field class="wd-100 custom-form-field small mt-1" appearance="outline">
-                        <input matInput class="mont400 f-sz11" [formControl]="email">
+                        <input matInput class="mont400 f-sz10" [formControl]="email">
                     </mat-form-field>
                 </div>
 
                 <div class="wd-100 mt-2">
-                    <mat-label class="f-sz11 mont400">Password</mat-label>
+                    <mat-label class="f-sz10 mont400">Password</mat-label>
                     <mat-form-field class="wd-100 custom-form-field small mt-1" appearance="outline">
-                        <input matInput class="mont400 f-sz11" [formControl]="password">
+                        <input matInput [type]="isVisible ? 'text' : 'password'" class="mont400 f-sz10"
+                            [formControl]="password">
+                        <button matSuffix mat-mini-fab class="mini-fab-btn-24 shadow-n border-btn" color="primary"
+                            (click)="isVisible = !isVisible">
+                            <mat-icon color="primary" class="icon-12 material-symbols-outlined">{{isVisible ?
+                                'visibility' : 'visibility_off'}}</mat-icon>
+                        </button>
                     </mat-form-field>
                 </div>
 
 
                 <div class="wd-100 mt-2 z-1 position-relative d-flex justify-content-between align-items-center">
-                    <mat-checkbox color="primary"><span class="mont400 f-sz11">Remember Me</span></mat-checkbox>
-                    <div class="mont500 f-sz11"><a href=""
+                    <mat-checkbox color="primary"><span class="mont400 f-sz10">Remember Me</span></mat-checkbox>
+                    <div class="mont500 f-sz10"><a href=""
                             class="theme-error text-decoration-none cursor-pointer">Forgot Password?</a></div>
                 </div>
                 }
 
                 @if(!isOTPValidation && enableEmailLogin){
                 <div class="wd-100 mt-2">
-                    <mat-label class="f-sz11 mont400">Email Id <span class="mandatory">*</span></mat-label>
+                    <mat-label class="f-sz10 mont400">Email Id Or Mobile Number</mat-label>
                     <mat-form-field class="wd-100 custom-form-field small mt-1" appearance="outline">
-                        <input matInput class="mont400 f-sz11" [formControl]="emailOTP">
+                        <input matInput class="mont400 f-sz10" [formControl]="emailOTP">
+                    </mat-form-field>
+                </div>
+                <!-- 
+                <div class="wd-100 mt-2">
+                    <mat-label class="f-sz10 mont400">Full Name</mat-label>
+                    <mat-form-field class="wd-100 custom-form-field small mt-1" appearance="outline">
+                        <input matInput class="mont400 f-sz10" [formControl]="fullNameOTP">
                     </mat-form-field>
                 </div>
 
                 <div class="wd-100 mt-2">
-                    <mat-label class="f-sz11 mont400">Full Name</mat-label>
+                    <mat-label class="f-sz10 mont400">PAN Number</mat-label>
                     <mat-form-field class="wd-100 custom-form-field small mt-1" appearance="outline">
-                        <input matInput class="mont400 f-sz11" [formControl]="fullNameOTP">
+                        <input matInput class="mont400 f-sz10" [formControl]="panOTP">
                     </mat-form-field>
-                </div>
-
-                <div class="wd-100 mt-2">
-                    <mat-label class="f-sz11 mont400">PAN Number</mat-label>
-                    <mat-form-field class="wd-100 custom-form-field small mt-1" appearance="outline">
-                        <input matInput class="mont400 f-sz11" [formControl]="panOTP">
-                    </mat-form-field>
-                </div>
+                </div> -->
                 }
 
                 @if (isOTPValidation && enableEmailLogin) {
                 <div class="wd-100 d-flex align-items-center justify-content-center" [formGroup]="otpLoginForm">
                     @for(field of otpFields; track $index){
                     <mat-form-field class="custom-form-field small otp-field" appearance="outline">
-                        <input matInput #otpInput class="mont400 f-sz11 text-center" maxlength="1"
-                            [formControlName]="field" 
-                            (input)="onOtpInput($event, $index)" 
-                            (paste)="onOtpPaste($event)"
+                        <input matInput #otpInput class="mont400 f-sz10 text-center" maxlength="1"
+                            [formControlName]="field" (input)="onOtpInput($event, $index)" (paste)="onOtpPaste($event)"
                             (keydown)="onOtpKeyDown($event,  $index);">
                     </mat-form-field>
                     }
@@ -88,31 +91,32 @@
 
                 <div class="wd-100 mt-4">
                     @if(!enableEmailLogin){
-                    <button mat-flat-button color="primary" class="wd-100 radius-4 mont600 f-sz11" (click)="onLogin()">
+                    <button mat-flat-button color="primary" class="wd-100 radius-4 mont600 f-sz10" (click)="onLogin()">
                         Login</button>
                     }
                     @else{
                     <button mat-flat-button color="primary" [disabled]="isOTPValidation && !isVerifyOTP"
-                        class="wd-100 radius-4 mont600 f-sz11" (click)="isVerifyOTP ? verifyOTP() :getOTP()">
+                        class="wd-100 radius-4 mont600 f-sz10" (click)="isVerifyOTP ? verifyOTP() :requestOTP()">
                         {{isVerifyOTP ? 'Verify OTP' : 'Get OTP'}}</button>
                     }
                 </div>
-
+                @if (isOTPValidation && enableEmailLogin) {
                 <div class="wd-100 d-flex justify-content-end mt-2">
-                    <div class="f-sz11 mont400 position-relative">
-                        <span><a class="mont600 text-right" href="#">Resend OTP</a></span>
+                    <div class="f-sz10 mont400 position-relative">
+                        <span><a class="mont600 text-right" href="#" (click)="requestOTP()">Resend OTP</a></span>
                     </div>
                 </div>
+                }
 
 
                 <div class="wd-100 d-flex justify-content-center mt-4">
-                    <div class="f-sz11 mont400 position-relative">
+                    <div class="f-sz10 mont400 position-relative">
                         Not Registered an account? <span><a class="mont600" href="#">Crate an Account</a></span>
                     </div>
                 </div>
 
                 <!-- <mat-card appearance="outlined" class="p-2 mt-4 radius-4 d-flex align-items-center">
-                    <div class="mont400 f-sz11 text-center">Login With Email</div>
+                    <div class="mont400 f-sz10 text-center">Login With Email</div>
                 </mat-card> -->
             </div>
         </div>
@@ -124,43 +128,52 @@
                     <div ngxSlickItem class="slide position-relative ht-100vh">
                         <!-- <img [src]="slide.img" alt="" width="100%"> -->
                         <div class="blur-slider">
-                            <img src="assets/images/screen-add1.jpg" alt="">
+                            <img src="../../../../assets/images/screen-add1.jpeg" alt="">
                         </div>
                         <div class="d-flex align-items-center justify-content-center wd-100 ht-100vh content-slider">
-                            <img src="assets/images/screen-add1.jpg" alt="" class="z-1">
+                            <img src="../../../../assets/images/screen-add1.jpeg" alt="" class="z-1">
                         </div>
 
                     </div>
                     <div ngxSlickItem class="slide position-relative">
                         <div class="blur-slider">
-                            <img src="assets/images/screen-add2.jpg" alt="">
+                            <img src="../../../../assets/images/screen-add2.jpeg" alt="">
                         </div>
                         <div class="d-flex align-items-center justify-content-center wd-100 ht-100vh content-slider">
-                            <img src="assets/images/screen-add2.jpg" alt="" class="z-1">
+                            <img src="../../../../assets/images/screen-add2.jpeg" alt="" class="z-1">
                         </div>
                     </div>
                     <div ngxSlickItem class="slide position-relative">
                         <div class="blur-slider">
-                            <img src="assets/images/screen-add3.jpg" alt="">
+                            <img src="../../../../assets/images/screen-add3.jpeg" alt="">
                         </div>
                         <div class="d-flex align-items-center justify-content-center wd-100 ht-100vh content-slider">
-                            <img src="assets/images/screen-add3.jpg" alt="" class="z-1">
+                            <img src="../../../../assets/images/screen-add3.jpeg" alt="" class="z-1">
                         </div>
                     </div>
                     <div ngxSlickItem class="slide position-relative">
                         <div class="blur-slider">
-                            <img src="assets/images/screen-add4.jpg" alt="">
+                            <img src="../../../../assets/images/screen-add4.jpeg" alt="">
                         </div>
                         <div class="d-flex align-items-center justify-content-center wd-100 ht-100vh content-slider">
-                            <img src="assets/images/screen-add4.jpg" alt="" class="z-1">
+                            <img src="../../../../assets/images/screen-add4.jpeg" alt="" class="z-1">
                         </div>
                     </div>
                     <div ngxSlickItem class="slide position-relative">
                         <div class="blur-slider">
-                            <img src="assets/images/screen-add5.jpg" alt="">
+                            <img src="../../../../assets/images/screen-add5.jpeg" alt="">
                         </div>
                         <div class="d-flex align-items-center justify-content-center wd-100 ht-100vh content-slider">
-                            <img src="assets/images/screen-add5.jpg" alt="" class="z-1">
+                            <img src="../../../../assets/images/screen-add5.jpeg" alt="" class="z-1">
+                        </div>
+                    </div>
+
+                    <div ngxSlickItem class="slide position-relative">
+                        <div class="blur-slider">
+                            <img src="../../../../assets/images/screen-add6.jpeg" alt="">
+                        </div>
+                        <div class="d-flex align-items-center justify-content-center wd-100 ht-100vh content-slider">
+                            <img src="../../../../assets/images/screen-add6.jpeg" alt="" class="z-1">
                         </div>
                     </div>
                     <!-- } -->

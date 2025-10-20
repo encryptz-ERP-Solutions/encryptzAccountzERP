@@ -1,6 +1,6 @@
 <div class="wd-100">
     <div class="d-flex justify-content-end mb-2">
-        <button mat-flat-button class="mont500 mat-btn-30 f-sz11" color="primary" (click)="addEditUser(1)">Create New User</button>
+        <button mat-flat-button class="mont500 mat-btn-30 f-sz10" color="primary" (click)="addEditUser(1)">Create New User</button>
     </div>
 
     <mat-card class="table-default p-2">
@@ -39,14 +39,14 @@
             <tbody>
                 @for(user of userList; track $index){
                 <tr>
-                    <td class="mont400 f-sz11 text-left pd-5 wd-60px">{{user.userId}}</td>
-                    <td class="mont400 f-sz11 text-left pd-5">{{user.userName}} </td>
-                    <td class="mont400 f-sz11 text-left pd-5">{{user.address}}</td>
-                    <td class="mont400 f-sz11 text-left pd-5">{{user.panNo}}</td>
-                    <td class="mont400 f-sz11 text-left pd-5">{{user.adharCardNo}}</td>
-                    <td class="mont400 f-sz11 text-left pd-5 wd-140px">{{user.phoneNo}}</td>
-                    <td class="mont400 f-sz11 text-left pd-5 wd-140px">{{user.email}}</td>
-                    <td class="mont400 f-sz11 text-left pd-5 wd-70px">
+                    <td class="mont400 f-sz10 text-left pd-5 wd-60px">{{user.userId}}</td>
+                    <td class="mont400 f-sz10 text-left pd-5">{{user.userName}} </td>
+                    <td class="mont400 f-sz10 text-left pd-5">{{user.address}}</td>
+                    <td class="mont400 f-sz10 text-left pd-5">{{user.panNo}}</td>
+                    <td class="mont400 f-sz10 text-left pd-5">{{user.adharCardNo}}</td>
+                    <td class="mont400 f-sz10 text-left pd-5 wd-140px">{{user.phoneNo}}</td>
+                    <td class="mont400 f-sz10 text-left pd-5 wd-140px">{{user.email}}</td>
+                    <td class="mont400 f-sz10 text-left pd-5 wd-70px">
                         <div class="d-flex">
                             <button matMiniFab class="shadow-n mini-fab-btn-18 mrR-2" color="primary" (click)="addEditUser(2, user)">
                                 <mat-icon class="icon-10 material-symbols-outlined">edit</mat-icon>
@@ -59,13 +59,13 @@
                 </tr>
                 }
                 <!-- <tr>
-                    <td class="mont400 f-sz11 text-left pd-5 pdT-8 pdB-8 wd-60px">0001</td>
-                    <td class="mont400 f-sz11 text-left pd-5 pdT-8 pdB-8">Zayed Mohammed </td>
-                    <td class="mont400 f-sz11 text-left pd-5 pdT-8 pdB-8 wd-70px">Male</td>
-                    <td class="mont400 f-sz11 text-left pd-5 pdT-8 pdB-8">Pisharath Parambil</td>
-                    <td class="mont400 f-sz11 text-left pd-5 pdT-8 pdB-8">zeydmohammed1999gmail.com</td>
-                    <td class="mont400 f-sz11 text-left pd-5 pdT-8 pdB-8 wd-140px">+91 8789565467</td>
-                    <td class="mont400 f-sz11 text-left pd-5 pdT-8 pdB-8 wd-70px">
+                    <td class="mont400 f-sz10 text-left pd-5 pdT-8 pdB-8 wd-60px">0001</td>
+                    <td class="mont400 f-sz10 text-left pd-5 pdT-8 pdB-8">Zayed Mohammed </td>
+                    <td class="mont400 f-sz10 text-left pd-5 pdT-8 pdB-8 wd-70px">Male</td>
+                    <td class="mont400 f-sz10 text-left pd-5 pdT-8 pdB-8">Pisharath Parambil</td>
+                    <td class="mont400 f-sz10 text-left pd-5 pdT-8 pdB-8">zeydmohammed1999gmail.com</td>
+                    <td class="mont400 f-sz10 text-left pd-5 pdT-8 pdB-8 wd-140px">+91 8789565467</td>
+                    <td class="mont400 f-sz10 text-left pd-5 pdT-8 pdB-8 wd-70px">
                         <div class="d-flex">
                             <button matMiniFab class="shadow-n mini-fab-btn-18 mrR-2" color="primary">
                                 <mat-icon class="icon-10 material-symbols-outlined">edit</mat-icon>

@@ -44,7 +44,7 @@ export class AddEditUserComponent {
   initForm() {
     this.userInfoForm = new FormGroup({
       id: new FormControl(''),      
-      userId: new FormControl('', Validators.required),
+      userId: new FormControl(''),
       userName: new FormControl('', Validators.required),
       userPassword: new FormControl('', Validators.required),
       panNo: new FormControl('', Validators.required),

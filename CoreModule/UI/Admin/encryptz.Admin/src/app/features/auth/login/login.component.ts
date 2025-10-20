@@ -35,6 +35,7 @@ export class LoginComponent {
   fullNameOTP = new FormControl('')
   panOTP = new FormControl('')
 
+  isVisible : boolean = false
   enableEmailLogin: boolean = false
   isOTPValidation: boolean = false
   isVerifyOTP: boolean = false
@@ -65,25 +66,43 @@ export class LoginComponent {
 
   onLogin() {
     if (this.email.valid && this.password.valid) {
-      const message = 'Log In Successfully'
-      this.common.showSnackbar(message, 'SUCCESS', 3000)
-      this.router.navigate(['/dashboard']);
+      // const message = 'Log In Successfully'
+      // this.common.showSnackbar(message, 'SUCCESS', 3000)
+      // this.router.navigate(['/dashboard']);
+      let payload = {
+        "loginIdentifier": this.email.value,
+        "password": this.password.value,
+      }
+
+      this.authService.login(payload).subscribe({
+        next: (res: any) => {
+          debugger
+          if (res.isSuccess) {
+            this.router.navigate(['/dashboard'])
+            this.common.showSnackbar('Logged In Successfully', 'SUCCESS', 3000);
+          }
+        },
+        error: (err: any) => {
+          this.common.showSnackbar(err.error.message, 'ERROR', 3000)
+        }
+      })
+
     } else {
-      const message = 'Please enter valid user name and password'
+      const message = 'Please enter user name and password'
       this.common.showSnackbar(message, 'ERROR', 3000)
     }
   }
 
-  getOTP() {
+  requestOTP() {
     if (this.emailOTP.valid) {
       let payload = {
-        "loginType": "Email",
-        "loginId": this.emailOTP.value,
-        "fullName": this.fullNameOTP.value,
-        "panNo": this.panOTP.value
+        "loginIdentifier": this.emailOTP.value,
+        "otpMethod": 'email',
+        // "fullName": this.fullNameOTP.value,
+        // "panNo": this.panOTP.value
       }
 
-      this.authService.sendOTP(payload).subscribe({
+      this.authService.requestOTP(payload).subscribe({
         next: (res: any) => {
           if (res.status) {
             this.isOTPValidation = true
@@ -107,16 +126,16 @@ export class LoginComponent {
     if (this.otpLoginForm.valid) {
       const otp = Object.values(this.otpLoginForm.value).join('');
       let payload = {
-        "loginType": "Email",
-        "loginId": this.emailOTP.value,
-        "fullName": this.fullNameOTP.value,
-        "panNo": this.panOTP.value,
+        // "loginType": "Email",
+        "loginIdentifier": this.emailOTP.value,
+        // "fullName": this.fullNameOTP.value,
+        // "panNo": this.panOTP.value,
         "otp": otp
       }
 
       this.authService.verifyOTP(payload).subscribe({
         next: (res: any) => {
-          if (res.status) {
+          if (res.isSuccess) {
             this.router.navigate(['/dashboard'])
             this.common.showSnackbar('Logged In Successfully', 'SUCCESS', 3000);
           }

@@ -1,4 +1,4 @@
-import { Injectable } from '@angular/core';
+import { Injectable, signal } from '@angular/core';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { SnackbarComponent } from '../components/snackbar/snackbar.component';
 
@@ -7,12 +7,18 @@ import { SnackbarComponent } from '../components/snackbar/snackbar.component';
   providedIn: 'root'
 })
 export class CommonService {
+  isLoader = signal(false)
+
 
   constructor(
     private snackBar: MatSnackBar
   ) { }
 
-   showSnackbar(message: string, status: string, duration: number): void {
+  loaderState(status: boolean) {
+    this.isLoader.set(status)
+  }
+
+  showSnackbar(message: string, status: string, duration: number): void {
     this.snackBar.openFromComponent(SnackbarComponent, {
       data: { message, status },
       duration: duration,
