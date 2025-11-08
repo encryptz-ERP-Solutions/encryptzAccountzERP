@@ -11,7 +11,7 @@
                 </div>
 
                 <button mat-stroked-button color="primary" class="wd-100 mt-5 radius-4 mb-4"
-                    (click)="enableEmailLogin = !enableEmailLogin ; isOTPValidation = false; isVerifyOTP = false">
+                    (click)="enableEmailLogin = !enableEmailLogin ; resetOtpState()">
                     <div class="d-flex align-items-center">
                         <mat-icon class="icon-14 material-symbols-outlined">mark_as_unread</mat-icon>
                         <div class="mont500 f-sz10 ms-2">{{!enableEmailLogin ? 'Login With Email' :
@@ -20,12 +20,15 @@
                 </button>
 
                 @if(!enableEmailLogin){
+
                 <div class="wd-100 d-flex justify-content-center opacity7">
                     <div class="existing-account f-sz10 mont400 position-relative">
-                        or Sign in with existing account
+                        {{isForgotPassword ? 'Forgot Password' : 'or Sign in with existing account'}}
                     </div>
                 </div>
 
+
+                @if(!isForgotPassword){
                 <div class="wd-100 mt-4">
                     <mat-label class="f-sz10 mont400">User Name Or User Id</mat-label>
                     <mat-form-field class="wd-100 custom-form-field small mt-1" appearance="outline">
@@ -46,12 +49,55 @@
                     </mat-form-field>
                 </div>
 
-
                 <div class="wd-100 mt-2 z-1 position-relative d-flex justify-content-between align-items-center">
                     <mat-checkbox color="primary"><span class="mont400 f-sz10">Remember Me</span></mat-checkbox>
-                    <div class="mont500 f-sz10"><a href=""
-                            class="theme-error text-decoration-none cursor-pointer">Forgot Password?</a></div>
+                    <div class="mont500 f-sz10">
+                        <a href="#" class="theme-error text-decoration-none cursor-pointer"
+                            (click)="isForgotPassword = true">Forgot Password?</a>
+                    </div>
                 </div>
+                }
+                @else if(isForgotPassword && !isOTPValidation) {
+                <div class="wd-100 mt-2">
+                    <mat-label class="f-sz10 mont400">Email Id Or Mobile Number</mat-label>
+                    <mat-form-field class="wd-100 custom-form-field small mt-1" appearance="outline">
+                        <input matInput class="mont400 f-sz10" [formControl]="forgotPasswordMail">
+                    </mat-form-field>
+                </div>
+                }
+
+                @if (isForgotPassword && isOTPValidation) {
+                <div class=" mt-4">
+                    <mat-label class="f-sz10 mont400">OTP</mat-label>
+                    <div class="wd-100 d-flex align-items-center justify-content-center" [formGroup]="otpLoginForm">
+                        @for(field of otpFields; track $index){
+                        <mat-form-field class="custom-form-field small otp-field mt-1" appearance="outline">
+                            <input matInput #otpInput class="mont400 f-sz10 text-center" maxlength="1"
+                                [formControlName]="field" (input)="onOtpInput($event, $index)"
+                                (paste)="onOtpPaste($event)" (keydown)="onOtpKeyDown($event,  $index);">
+                        </mat-form-field>
+                        }
+                    </div>
+                </div>
+
+                <div class="wd-100 mt-2">
+                    <mat-label class="f-sz10 mont400">New Password</mat-label>
+                    <!-- <mat-form-field class="wd-100 custom-form-field small mt-1" appearance="outline">
+                        <input matInput class="mont400 f-sz10" [formControl]="newPassword">
+                    </mat-form-field> -->
+                    <mat-form-field class="wd-100 custom-form-field small mt-1" appearance="outline">
+                        <input matInput [type]="newPasswordVisible ? 'text' : 'password'" class="mont400 f-sz10"
+                            [formControl]="newPassword">
+                        <button matSuffix mat-mini-fab class="mini-fab-btn-24 shadow-n border-btn" color="primary"
+                            (click)="newPasswordVisible = !newPasswordVisible">
+                            <mat-icon color="primary" class="icon-12 material-symbols-outlined">{{newPasswordVisible ?
+                                'visibility' : 'visibility_off'}}</mat-icon>
+                        </button>
+                    </mat-form-field>
+                </div>
+
+                }
+
                 }
 
                 @if(!isOTPValidation && enableEmailLogin){
@@ -61,26 +107,13 @@
                         <input matInput class="mont400 f-sz10" [formControl]="emailOTP">
                     </mat-form-field>
                 </div>
-                <!-- 
-                <div class="wd-100 mt-2">
-                    <mat-label class="f-sz10 mont400">Full Name</mat-label>
-                    <mat-form-field class="wd-100 custom-form-field small mt-1" appearance="outline">
-                        <input matInput class="mont400 f-sz10" [formControl]="fullNameOTP">
-                    </mat-form-field>
-                </div>
-
-                <div class="wd-100 mt-2">
-                    <mat-label class="f-sz10 mont400">PAN Number</mat-label>
-                    <mat-form-field class="wd-100 custom-form-field small mt-1" appearance="outline">
-                        <input matInput class="mont400 f-sz10" [formControl]="panOTP">
-                    </mat-form-field>
-                </div> -->
                 }
 
                 @if (isOTPValidation && enableEmailLogin) {
+                <mat-label class="f-sz10 mont400">OTP</mat-label>
                 <div class="wd-100 d-flex align-items-center justify-content-center" [formGroup]="otpLoginForm">
                     @for(field of otpFields; track $index){
-                    <mat-form-field class="custom-form-field small otp-field" appearance="outline">
+                    <mat-form-field class="custom-form-field small otp-field mrT-1" appearance="outline">
                         <input matInput #otpInput class="mont400 f-sz10 text-center" maxlength="1"
                             [formControlName]="field" (input)="onOtpInput($event, $index)" (paste)="onOtpPaste($event)"
                             (keydown)="onOtpKeyDown($event,  $index);">
@@ -90,9 +123,15 @@
                 }
 
                 <div class="wd-100 mt-4">
-                    @if(!enableEmailLogin){
+                    @if(!enableEmailLogin && !isForgotPassword){
                     <button mat-flat-button color="primary" class="wd-100 radius-4 mont600 f-sz10" (click)="onLogin()">
                         Login</button>
+                    }
+                    @else if (isForgotPassword) {
+                    <button mat-flat-button color="primary" [disabled]="isOTPValidation && !isVerifyOTP"
+                        class="wd-100 radius-4 mont600 f-sz10"
+                        (click)="isVerifyOTP ? resetPassword() :requestForgotOTP()">
+                        {{isVerifyOTP ? 'Reset Password' : 'Get OTP'}}</button>
                     }
                     @else{
                     <button mat-flat-button color="primary" [disabled]="isOTPValidation && !isVerifyOTP"
@@ -100,10 +139,11 @@
                         {{isVerifyOTP ? 'Verify OTP' : 'Get OTP'}}</button>
                     }
                 </div>
-                @if (isOTPValidation && enableEmailLogin) {
+                @if ((isOTPValidation && enableEmailLogin) || isForgotPassword) {
                 <div class="wd-100 d-flex justify-content-end mt-2">
                     <div class="f-sz10 mont400 position-relative">
-                        <span><a class="mont600 text-right" href="#" (click)="requestOTP()">Resend OTP</a></span>
+                        <span><a class="mont600 text-right" href="#"
+                                (click)="isForgotPassword ? requestForgotOTP() : requestOTP()">Resend OTP</a></span>
                     </div>
                 </div>
                 }

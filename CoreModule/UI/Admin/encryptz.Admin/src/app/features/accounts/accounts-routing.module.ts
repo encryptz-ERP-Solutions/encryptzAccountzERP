@@ -23,6 +23,14 @@ const routes: Routes = [
             (m) => m.AccountsDashboardComponent
           )
       },
+
+      {
+        path: 'chartofaccounts',
+        loadComponent: () =>
+          import('./components/Masters/chartofaccounts/chartofaccounts.component').then(
+            (m) => m.ChartofaccountsComponent
+          )
+      },
     ]
   },
 ];
