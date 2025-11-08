@@ -1,4 +1,4 @@
-import { Component, ElementRef, QueryList, ViewChildren } from '@angular/core';
+import { ChangeDetectorRef, Component, ElementRef, QueryList, ViewChildren } from '@angular/core';
 import { FormBuilder, FormControl, FormGroup, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
 import { MatInputModule } from '@angular/material/input';
@@ -32,13 +32,17 @@ export class LoginComponent {
   email = new FormControl('', Validators.required)
   password = new FormControl('', Validators.required)
   emailOTP = new FormControl('', Validators.required)
+  forgotPasswordMail = new FormControl('', Validators.required)
+  newPassword = new FormControl('', Validators.required)
   fullNameOTP = new FormControl('')
   panOTP = new FormControl('')
 
-  isVisible : boolean = false
+  isVisible: boolean = false
+  newPasswordVisible: boolean = false
   enableEmailLogin: boolean = false
   isOTPValidation: boolean = false
   isVerifyOTP: boolean = false
+  isForgotPassword: boolean = false
   otpFields = ['otpFirst', 'otpSecond', 'otpThird', 'otpFourth', 'otpFifth', 'otpSixth'];
   @ViewChildren('otpInput') otpInputs!: QueryList<ElementRef>;
   otpLoginForm !: FormGroup
@@ -56,19 +60,16 @@ export class LoginComponent {
     pauseOnDotsHover: false
   };
 
-
   constructor(
     private router: Router,
     private common: CommonService,
     private fb: FormBuilder,
-    private authService: AuthService
+    private authService: AuthService,
+    private cd: ChangeDetectorRef
   ) { }
 
   onLogin() {
     if (this.email.valid && this.password.valid) {
-      // const message = 'Log In Successfully'
-      // this.common.showSnackbar(message, 'SUCCESS', 3000)
-      // this.router.navigate(['/dashboard']);
       let payload = {
         "loginIdentifier": this.email.value,
         "password": this.password.value,
@@ -76,17 +77,19 @@ export class LoginComponent {
 
       this.authService.login(payload).subscribe({
         next: (res: any) => {
-          debugger
           if (res.isSuccess) {
             this.router.navigate(['/dashboard'])
             this.common.showSnackbar('Logged In Successfully', 'SUCCESS', 3000);
+          } else {
+            const errorMessage = res?.message || 'Login failed. Please try again.';
+            this.common.showSnackbar(errorMessage, 'ERROR', 3000);
           }
         },
         error: (err: any) => {
-          this.common.showSnackbar(err.error.message, 'ERROR', 3000)
+          const errorMessage = err?.error?.message || err?.message || 'Login failed. Please check your credentials.';
+          this.common.showSnackbar(errorMessage, 'ERROR', 3000)
         }
       })
-
     } else {
       const message = 'Please enter user name and password'
       this.common.showSnackbar(message, 'ERROR', 3000)
@@ -97,9 +100,7 @@ export class LoginComponent {
     if (this.emailOTP.valid) {
       let payload = {
         "loginIdentifier": this.emailOTP.value,
-        "otpMethod": 'email',
-        // "fullName": this.fullNameOTP.value,
-        // "panNo": this.panOTP.value
+        "otpMethod": 'email'
       }
 
       this.authService.requestOTP(payload).subscribe({
@@ -107,13 +108,16 @@ export class LoginComponent {
           if (res.status) {
             this.isOTPValidation = true
             this.generateOTPLoginForm()
-            setTimeout(() => {
-              this.otpInputs.first.nativeElement.focus();
-            }, 100);
+            this.cd.detectChanges();
+            this.otpInputs.first?.nativeElement.focus();
+          } else {
+            const errorMessage = res?.message || 'Failed to send OTP. Please try again.';
+            this.common.showSnackbar(errorMessage, 'ERROR', 3000);
           }
         },
         error: (err: any) => {
-
+          const errorMessage = err?.error?.message || err?.message || 'Failed to send OTP. Please try again.';
+          this.common.showSnackbar(errorMessage, 'ERROR', 3000);
         }
       })
     }
@@ -126,10 +130,7 @@ export class LoginComponent {
     if (this.otpLoginForm.valid) {
       const otp = Object.values(this.otpLoginForm.value).join('');
       let payload = {
-        // "loginType": "Email",
         "loginIdentifier": this.emailOTP.value,
-        // "fullName": this.fullNameOTP.value,
-        // "panNo": this.panOTP.value,
         "otp": otp
       }
 
@@ -138,17 +139,81 @@ export class LoginComponent {
           if (res.isSuccess) {
             this.router.navigate(['/dashboard'])
             this.common.showSnackbar('Logged In Successfully', 'SUCCESS', 3000);
+          } else {
+            const errorMessage = res?.message || 'OTP verification failed. Please try again.';
+            this.common.showSnackbar(errorMessage, 'ERROR', 3000);
           }
         },
         error: (err: any) => {
-          this.common.showSnackbar('OTP verification failed', 'ERROR', 3000);
+          const errorMessage = err?.error?.message || err?.message || 'OTP verification failed. Please try again.';
+          this.common.showSnackbar(errorMessage, 'ERROR', 3000);
         }
       })
     }
     else {
+      this.otpLoginForm.markAllAsTouched()
       return;
     }
+  }
 
+  requestForgotOTP() {
+    if (this.forgotPasswordMail.valid) {
+      let payload = {
+        "loginIdentifier": this.forgotPasswordMail.value
+      }
+
+      this.authService.requestForgotOTP(payload).subscribe({
+        next: (res: any) => {
+          if (res.status) {
+            this.isOTPValidation = true
+            this.generateOTPLoginForm()
+            this.cd.detectChanges();
+            this.otpInputs.first?.nativeElement.focus();
+          } else {
+            const errorMessage = res?.message || 'Failed to send OTP. Please try again.';
+            this.common.showSnackbar(errorMessage, 'ERROR', 3000);
+          }
+        },
+        error: (err: any) => {
+          const errorMessage = err?.error?.message || err?.message || 'Failed to send OTP. Please try again.';
+          this.common.showSnackbar(errorMessage, 'ERROR', 3000);
+        }
+      })
+    }
+    else {
+      this.forgotPasswordMail.markAsTouched()
+    }
+  }
+
+  resetPassword() {
+    if (this.otpLoginForm.valid && this.newPassword.valid) {
+      const otp = Object.values(this.otpLoginForm.value).join('');
+      let payload = {
+        "loginIdentifier": this.forgotPasswordMail.value,
+        "otp": otp,
+        "newPassword": this.newPassword.value
+      }
+
+      this.authService.resetPassword(payload).subscribe({
+        next: (res: any) => {
+          if (res.status) {
+            this.router.navigate(['/dashboard'])
+            this.common.showSnackbar('Logged In Successfully', 'SUCCESS', 3000);
+          } else {
+            const errorMessage = res?.message || 'Password reset failed. Please try again.';
+            this.common.showSnackbar(errorMessage, 'ERROR', 3000);
+          }
+        },
+        error: (err: any) => {
+          const errorMessage = err?.error?.message || err?.message || 'Password reset failed. Please try again.';
+          this.common.showSnackbar(errorMessage, 'ERROR', 3000);
+        }
+      })
+    }
+    else {
+      this.newPassword.markAsTouched()
+      return;
+    }
   }
 
   generateOTPLoginForm() {
@@ -160,25 +225,28 @@ export class LoginComponent {
       otpFifth: ['', Validators.required],
       otpSixth: ['', Validators.required],
     })
+    this.isVerifyOTP = false;
   }
 
 
   onOtpInput(event: any, index: number) {
-    const input = event.target
-    const value = input.value
-    if (value.length > 1) {
-      input.value = value[0];
-    }
-    if (value) {
-      const inputArray = this.otpInputs.toArray();
-      if (index < inputArray.length - 1) {
-        const nextInput = inputArray[index + 1];
-        nextInput?.nativeElement.focus();
-      }
-    }
+    const input = event.target as HTMLInputElement;
+    const raw = input.value || '';
+    const char = raw.replace(/\s/g, '').charAt(0) || '';
 
-    if (this.otpLoginForm.valid) this.isVerifyOTP = true
-    else this.isVerifyOTP = false
+    // update the native input to single char
+    input.value = char;
+
+    // update the form control explicitly
+    const controlName = this.otpFields[index];
+    this.otpLoginForm.get(controlName)?.setValue(char, { emitEvent: false });
+
+    // focus next
+    const inputs = this.otpInputs.toArray();
+    if (char && index < inputs.length - 1) {
+      (inputs[index + 1].nativeElement as HTMLInputElement).focus();
+    }
+    this.updateVerifyOTPState();
   }
 
   onOtpKeyDown(event: KeyboardEvent, index: number) {
@@ -202,7 +270,23 @@ export class LoginComponent {
     });
     const nextEmptyIndex = digits.length < 6 ? digits.length : 5;
     this.otpInputs.get(nextEmptyIndex)?.nativeElement.focus();
-    if (this.otpLoginForm.valid) this.isVerifyOTP = true
-    else this.isVerifyOTP = false
+    this.updateVerifyOTPState();
+  }
+
+  private updateVerifyOTPState(): void {
+    if (this.otpLoginForm) {
+      this.isVerifyOTP = this.otpLoginForm.valid;
+    } else {
+      this.isVerifyOTP = false;
+    }
+  }
+
+  resetOtpState() {
+    this.isOTPValidation = false;
+    this.isVerifyOTP = false;
+    this.isForgotPassword = false
+    if (this.otpLoginForm) {
+      this.otpLoginForm.reset();
+    }
   }
 }

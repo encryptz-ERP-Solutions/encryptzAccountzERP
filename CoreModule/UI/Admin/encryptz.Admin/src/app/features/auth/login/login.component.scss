@@ -174,9 +174,15 @@ mat-form-field.small {
 }
 
 .otp-field {
-    width: 30px;
+    // width: 30px;
     margin-left: 5px;
     margin-right: 5px;
+    &:first-child{
+        margin-left: 0px;
+    }
+    &:last-child{
+        margin-right: 0px;
+    }
 }
 
 @media (max-width: 992px) {

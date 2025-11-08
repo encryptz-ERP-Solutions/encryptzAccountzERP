@@ -72,19 +72,31 @@ export class AuthService {
     }
   }
 
-  
+
 
   requestOTP(body: any) {
     return this.http.post(environment.apiUrl + 'api/Login/request-otp', body)
+  }
+
+  requestForgotOTP(body: any) {
+    return this.http.post(environment.apiUrl + 'api/Login/forgot-password', body)
   }
 
   verifyOTP(body: any) {
     return this.http.post(environment.apiUrl + 'api/Login/verify-otp', body)
       .pipe(
         tap((res: any) => {
-          debugger
           this.setToken(res.token);
           // this.setCurrentUser(res.response.user);
+        })
+      );
+  }
+
+   resetPassword(body: any) {
+    return this.http.post(environment.apiUrl + 'api/Login/reset-password', body)
+      .pipe(
+        tap((res: any) => {
+          this.setToken(res.token);
         })
       );
   }

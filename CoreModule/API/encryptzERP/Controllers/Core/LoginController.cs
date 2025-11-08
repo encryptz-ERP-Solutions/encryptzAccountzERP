@@ -46,7 +46,7 @@ namespace encryptzERP.Controllers.Core
             try
             {
                 await _loginService.ForgotPasswordAsync(forgotPasswordDto);
-                return Ok(new { message = "If a user with that email exists, an OTP has been sent." });
+                return Ok(new { status = "Success", message = "If a user with that email exists, an OTP has been sent." });
             }
             catch (Exception ex)
             {
@@ -65,7 +65,7 @@ namespace encryptzERP.Controllers.Core
                 {
                     return BadRequest(new { message = "Invalid OTP or failed to reset password." });
                 }
-                return Ok(new { message = "Password has been reset successfully." });
+                return Ok(new { status = "Success", message = "Password has been reset successfully." });
             }
             catch (Exception ex)
             {
