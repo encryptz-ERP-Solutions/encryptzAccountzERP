@@ -11,18 +11,19 @@ using BusinessLogic.Admin.Interface;
 using BusinessLogic.Core.Services;
 using BusinessLogic.Core.Interface;
 using Business.Core;
-using Repository.Core;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
 using Microsoft.Extensions.Options;
 using Repository.Accounts;
 using BusinessLogic.Accounts;
+using System;
 
 var builder = WebApplication.CreateBuilder(args);
 
 var jwtSettings = builder.Configuration.GetSection("JwtSettings");
-var key = Encoding.UTF8.GetBytes(jwtSettings["SecretKey"]);
+var secretKey = jwtSettings["SecretKey"] ?? throw new InvalidOperationException("JWT SecretKey not found in configuration");
+var key = Encoding.UTF8.GetBytes(secretKey);
 
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     .AddJwtBearer(options =>
@@ -104,6 +105,14 @@ builder.Services.AddScoped<ISubscriptionPlanService, SubscriptionPlanService>();
 builder.Services.AddScoped<IUserSubscriptionService, UserSubscriptionService>();
 builder.Services.AddScoped<ISubscriptionPlanPermissionService, SubscriptionPlanPermissionService>();
 
+// Register new infrastructure for PostgreSQL
+builder.Services.AddScoped<IDbConnectionFactory, NpgsqlConnectionFactory>();
+
+// Register new audit and user-business services
+builder.Services.AddScoped<IAuditRepository, AuditRepository>();
+builder.Services.AddScoped<IAuditService, AuditService>();
+builder.Services.AddScoped<IUserBusinessRepository, UserBusinessRepository>();
+builder.Services.AddScoped<IUserBusinessService, UserBusinessService>();
 
 builder.Services.AddScoped<ExceptionHandler>();
 

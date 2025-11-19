@@ -1,7 +1,7 @@
 
 using Entities.Core;
 using Infrastructure;
-using Microsoft.Data.SqlClient;
+using Npgsql;
 using Repository.Core.Interface;
 using System;
 using System.Collections.Generic;
@@ -21,7 +21,7 @@ namespace Repository.Core
 
         public async Task<IEnumerable<Business>> GetAllAsync()
         {
-            var query = "SELECT * FROM core.Businesses";
+            var query = "SELECT * FROM core.businesses";
             var dataTable = await _sqlHelper.ExecuteQueryAsync(query);
             var businesses = new List<Business>();
 
@@ -35,8 +35,8 @@ namespace Repository.Core
 
         public async Task<Business> GetByIdAsync(Guid id)
         {
-            var query = "SELECT * FROM core.Businesses WHERE BusinessID = @BusinessID";
-            var parameters = new[] { new SqlParameter("@BusinessID", id) };
+            var query = "SELECT * FROM core.businesses WHERE business_id = @BusinessID";
+            var parameters = new[] { new NpgsqlParameter("@BusinessID", id) };
             var dataTable = await _sqlHelper.ExecuteQueryAsync(query, parameters);
 
             return dataTable.Rows.Count > 0 ? MapToBusiness(dataTable.Rows[0]) : null;
@@ -45,28 +45,28 @@ namespace Repository.Core
         public async Task<Business> AddAsync(Business business)
         {
             var query = @"
-                INSERT INTO core.Businesses (BusinessID, BusinessName, BusinessCode, IsActive, Gstin, TanNumber, AddressLine1, AddressLine2, City, StateID, PinCode, CountryID, CreatedByUserID, CreatedAtUTC, UpdatedByUserID, UpdatedAtUTC)
-                OUTPUT INSERTED.*
-                VALUES (@BusinessID, @BusinessName, @BusinessCode, @IsActive, @Gstin, @TanNumber, @AddressLine1, @AddressLine2, @City, @StateID, @PinCode, @CountryID, @CreatedByUserID, @CreatedAtUTC, @UpdatedByUserID, @UpdatedAtUTC);";
+                INSERT INTO core.businesses (business_id, business_name, business_code, is_active, gstin, tan_number, address_line1, address_line2, city, state_id, pin_code, country_id, created_by_user_id, created_at_utc, updated_by_user_id, updated_at_utc)
+                VALUES (@BusinessID, @BusinessName, @BusinessCode, @IsActive, @Gstin, @TanNumber, @AddressLine1, @AddressLine2, @City, @StateID, @PinCode, @CountryID, @CreatedByUserID, @CreatedAtUTC, @UpdatedByUserID, @UpdatedAtUTC)
+                RETURNING business_id, business_name, business_code, is_active, gstin, tan_number, address_line1, address_line2, city, state_id, pin_code, country_id, created_by_user_id, created_at_utc, updated_by_user_id, updated_at_utc;";
 
             var parameters = new[]
             {
-                new SqlParameter("@BusinessID", business.BusinessID),
-                new SqlParameter("@BusinessName", business.BusinessName),
-                new SqlParameter("@BusinessCode", business.BusinessCode),
-                new SqlParameter("@IsActive", business.IsActive),
-                new SqlParameter("@Gstin", (object)business.Gstin ?? DBNull.Value),
-                new SqlParameter("@TanNumber", (object)business.TanNumber ?? DBNull.Value),
-                new SqlParameter("@AddressLine1", (object)business.AddressLine1 ?? DBNull.Value),
-                new SqlParameter("@AddressLine2", (object)business.AddressLine2 ?? DBNull.Value),
-                new SqlParameter("@City", (object)business.City ?? DBNull.Value),
-                new SqlParameter("@StateID", (object)business.StateID ?? DBNull.Value),
-                new SqlParameter("@PinCode", (object)business.PinCode ?? DBNull.Value),
-                new SqlParameter("@CountryID", (object)business.CountryID ?? DBNull.Value),
-                new SqlParameter("@CreatedByUserID", business.CreatedByUserID),
-                new SqlParameter("@CreatedAtUTC", DateTime.UtcNow),
-                new SqlParameter("@UpdatedByUserID", business.UpdatedByUserID),
-                new SqlParameter("@UpdatedAtUTC", DateTime.UtcNow)
+                new NpgsqlParameter("@BusinessID", business.BusinessID),
+                new NpgsqlParameter("@BusinessName", business.BusinessName),
+                new NpgsqlParameter("@BusinessCode", business.BusinessCode),
+                new NpgsqlParameter("@IsActive", business.IsActive),
+                new NpgsqlParameter("@Gstin", (object)business.Gstin ?? DBNull.Value),
+                new NpgsqlParameter("@TanNumber", (object)business.TanNumber ?? DBNull.Value),
+                new NpgsqlParameter("@AddressLine1", (object)business.AddressLine1 ?? DBNull.Value),
+                new NpgsqlParameter("@AddressLine2", (object)business.AddressLine2 ?? DBNull.Value),
+                new NpgsqlParameter("@City", (object)business.City ?? DBNull.Value),
+                new NpgsqlParameter("@StateID", (object)business.StateID ?? DBNull.Value),
+                new NpgsqlParameter("@PinCode", (object)business.PinCode ?? DBNull.Value),
+                new NpgsqlParameter("@CountryID", (object)business.CountryID ?? DBNull.Value),
+                new NpgsqlParameter("@CreatedByUserID", business.CreatedByUserID),
+                new NpgsqlParameter("@CreatedAtUTC", DateTime.UtcNow),
+                new NpgsqlParameter("@UpdatedByUserID", business.UpdatedByUserID),
+                new NpgsqlParameter("@UpdatedAtUTC", DateTime.UtcNow)
             };
 
             var dataTable = await _sqlHelper.ExecuteQueryAsync(query, parameters);
@@ -76,27 +76,27 @@ namespace Repository.Core
         public async Task<bool> UpdateAsync(Business business)
         {
             var query = @"
-                UPDATE core.Businesses
-                SET BusinessName = @BusinessName, IsActive = @IsActive, Gstin = @Gstin, TanNumber = @TanNumber,
-                    AddressLine1 = @AddressLine1, AddressLine2 = @AddressLine2, City = @City, StateID = @StateID,
-                    PinCode = @PinCode, CountryID = @CountryID, UpdatedByUserID = @UpdatedByUserID, UpdatedAtUTC = @UpdatedAtUTC
-                WHERE BusinessID = @BusinessID;";
+                UPDATE core.businesses
+                SET business_name = @BusinessName, is_active = @IsActive, gstin = @Gstin, tan_number = @TanNumber,
+                    address_line1 = @AddressLine1, address_line2 = @AddressLine2, city = @City, state_id = @StateID,
+                    pin_code = @PinCode, country_id = @CountryID, updated_by_user_id = @UpdatedByUserID, updated_at_utc = @UpdatedAtUTC
+                WHERE business_id = @BusinessID;";
 
             var parameters = new[]
             {
-                new SqlParameter("@BusinessID", business.BusinessID),
-                new SqlParameter("@BusinessName", business.BusinessName),
-                new SqlParameter("@IsActive", business.IsActive),
-                new SqlParameter("@Gstin", (object)business.Gstin ?? DBNull.Value),
-                new SqlParameter("@TanNumber", (object)business.TanNumber ?? DBNull.Value),
-                new SqlParameter("@AddressLine1", (object)business.AddressLine1 ?? DBNull.Value),
-                new SqlParameter("@AddressLine2", (object)business.AddressLine2 ?? DBNull.Value),
-                new SqlParameter("@City", (object)business.City ?? DBNull.Value),
-                new SqlParameter("@StateID", (object)business.StateID ?? DBNull.Value),
-                new SqlParameter("@PinCode", (object)business.PinCode ?? DBNull.Value),
-                new SqlParameter("@CountryID", (object)business.CountryID ?? DBNull.Value),
-                new SqlParameter("@UpdatedByUserID", business.UpdatedByUserID),
-                new SqlParameter("@UpdatedAtUTC", DateTime.UtcNow)
+                new NpgsqlParameter("@BusinessID", business.BusinessID),
+                new NpgsqlParameter("@BusinessName", business.BusinessName),
+                new NpgsqlParameter("@IsActive", business.IsActive),
+                new NpgsqlParameter("@Gstin", (object)business.Gstin ?? DBNull.Value),
+                new NpgsqlParameter("@TanNumber", (object)business.TanNumber ?? DBNull.Value),
+                new NpgsqlParameter("@AddressLine1", (object)business.AddressLine1 ?? DBNull.Value),
+                new NpgsqlParameter("@AddressLine2", (object)business.AddressLine2 ?? DBNull.Value),
+                new NpgsqlParameter("@City", (object)business.City ?? DBNull.Value),
+                new NpgsqlParameter("@StateID", (object)business.StateID ?? DBNull.Value),
+                new NpgsqlParameter("@PinCode", (object)business.PinCode ?? DBNull.Value),
+                new NpgsqlParameter("@CountryID", (object)business.CountryID ?? DBNull.Value),
+                new NpgsqlParameter("@UpdatedByUserID", business.UpdatedByUserID),
+                new NpgsqlParameter("@UpdatedAtUTC", DateTime.UtcNow)
             };
 
             var result = await _sqlHelper.ExecuteNonQueryAsync(query, parameters);
@@ -105,32 +105,33 @@ namespace Repository.Core
 
         public async Task<bool> DeleteAsync(Guid id)
         {
-            var query = "DELETE FROM core.Businesses WHERE BusinessID = @BusinessID";
-            var parameters = new[] { new SqlParameter("@BusinessID", id) };
+            var query = "DELETE FROM core.businesses WHERE business_id = @BusinessID";
+            var parameters = new[] { new NpgsqlParameter("@BusinessID", id) };
             var result = await _sqlHelper.ExecuteNonQueryAsync(query, parameters);
             return result > 0;
         }
 
         private Business MapToBusiness(DataRow row)
         {
+            // Map from PostgreSQL snake_case to C# PascalCase
             return new Business
             {
-                BusinessID = (Guid)row["BusinessID"],
-                BusinessName = row["BusinessName"].ToString(),
-                BusinessCode = row["BusinessCode"].ToString(),
-                IsActive = Convert.ToBoolean(row["IsActive"]),
-                Gstin = row["Gstin"] == DBNull.Value ? null : row["Gstin"].ToString(),
-                TanNumber = row["TanNumber"] == DBNull.Value ? null : row["TanNumber"].ToString(),
-                AddressLine1 = row["AddressLine1"] == DBNull.Value ? null : row["AddressLine1"].ToString(),
-                AddressLine2 = row["AddressLine2"] == DBNull.Value ? null : row["AddressLine2"].ToString(),
-                City = row["City"] == DBNull.Value ? null : row["City"].ToString(),
-                StateID = row["StateID"] == DBNull.Value ? null : (int?)Convert.ToInt32(row["StateID"]),
-                PinCode = row["PinCode"] == DBNull.Value ? null : row["PinCode"].ToString(),
-                CountryID = row["CountryID"] == DBNull.Value ? null : (int?)Convert.ToInt32(row["CountryID"]),
-                CreatedByUserID = (Guid)row["CreatedByUserID"],
-                CreatedAtUTC = Convert.ToDateTime(row["CreatedAtUTC"]),
-                UpdatedByUserID = (Guid)row["UpdatedByUserID"],
-                UpdatedAtUTC = Convert.ToDateTime(row["UpdatedAtUTC"])
+                BusinessID = (Guid)row["business_id"],
+                BusinessName = row["business_name"].ToString(),
+                BusinessCode = row["business_code"].ToString(),
+                IsActive = Convert.ToBoolean(row["is_active"]),
+                Gstin = row["gstin"] == DBNull.Value ? null : row["gstin"].ToString(),
+                TanNumber = row["tan_number"] == DBNull.Value ? null : row["tan_number"].ToString(),
+                AddressLine1 = row["address_line1"] == DBNull.Value ? null : row["address_line1"].ToString(),
+                AddressLine2 = row["address_line2"] == DBNull.Value ? null : row["address_line2"].ToString(),
+                City = row["city"] == DBNull.Value ? null : row["city"].ToString(),
+                StateID = row["state_id"] == DBNull.Value ? null : (int?)Convert.ToInt32(row["state_id"]),
+                PinCode = row["pin_code"] == DBNull.Value ? null : row["pin_code"].ToString(),
+                CountryID = row["country_id"] == DBNull.Value ? null : (int?)Convert.ToInt32(row["country_id"]),
+                CreatedByUserID = (Guid)row["created_by_user_id"],
+                CreatedAtUTC = Convert.ToDateTime(row["created_at_utc"]),
+                UpdatedByUserID = (Guid)row["updated_by_user_id"],
+                UpdatedAtUTC = Convert.ToDateTime(row["updated_at_utc"])
             };
         }
     }

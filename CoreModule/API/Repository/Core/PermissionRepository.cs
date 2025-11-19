@@ -1,6 +1,6 @@
 using Entities.Core;
 using Infrastructure;
-using Microsoft.Data.SqlClient;
+using Npgsql;
 using Repository.Core.Interface;
 using System;
 using System.Collections.Generic;
@@ -20,7 +20,7 @@ namespace Repository.Core
 
         public async Task<IEnumerable<Permission>> GetAllAsync()
         {
-            var query = "SELECT * FROM core.Permissions";
+            var query = "SELECT * FROM core.permissions";
             var dataTable = await _sqlHelper.ExecuteQueryAsync(query);
             var permissions = new List<Permission>();
 
@@ -34,8 +34,8 @@ namespace Repository.Core
 
         public async Task<Permission> GetByIdAsync(int id)
         {
-            var query = "SELECT * FROM core.Permissions WHERE PermissionID = @PermissionID";
-            var parameters = new[] { new SqlParameter("@PermissionID", id) };
+            var query = "SELECT * FROM core.permissions WHERE permission_id = @PermissionID";
+            var parameters = new[] { new NpgsqlParameter("@PermissionID", id) };
             var dataTable = await _sqlHelper.ExecuteQueryAsync(query, parameters);
 
             return dataTable.Rows.Count > 0 ? MapToPermission(dataTable.Rows[0]) : null;
@@ -44,16 +44,16 @@ namespace Repository.Core
         public async Task<Permission> AddAsync(Permission permission)
         {
             var query = @"
-                INSERT INTO core.Permissions (PermissionKey, Description, MenuItemID, ModuleID)
-                OUTPUT INSERTED.*
-                VALUES (@PermissionKey, @Description, @MenuItemID, @ModuleID);";
+                INSERT INTO core.permissions (permission_key, description, menu_item_id, module_id)
+                VALUES (@PermissionKey, @Description, @MenuItemID, @ModuleID)
+                RETURNING permission_id, permission_key, description, menu_item_id, module_id;";
 
             var parameters = new[]
             {
-                new SqlParameter("@PermissionKey", permission.PermissionKey),
-                new SqlParameter("@Description", permission.Description),
-                new SqlParameter("@MenuItemID", (object)permission.MenuItemID ?? DBNull.Value),
-                new SqlParameter("@ModuleID", permission.ModuleID)
+                new NpgsqlParameter("@PermissionKey", permission.PermissionKey),
+                new NpgsqlParameter("@Description", permission.Description),
+                new NpgsqlParameter("@MenuItemID", (object)permission.MenuItemID ?? DBNull.Value),
+                new NpgsqlParameter("@ModuleID", permission.ModuleID)
             };
 
             var dataTable = await _sqlHelper.ExecuteQueryAsync(query, parameters);
@@ -63,17 +63,17 @@ namespace Repository.Core
         public async Task<bool> UpdateAsync(Permission permission)
         {
             var query = @"
-                UPDATE core.Permissions
-                SET PermissionKey = @PermissionKey, Description = @Description, MenuItemID = @MenuItemID, ModuleID = @ModuleID
-                WHERE PermissionID = @PermissionID;";
+                UPDATE core.permissions
+                SET permission_key = @PermissionKey, description = @Description, menu_item_id = @MenuItemID, module_id = @ModuleID
+                WHERE permission_id = @PermissionID;";
 
             var parameters = new[]
             {
-                new SqlParameter("@PermissionID", permission.PermissionID),
-                new SqlParameter("@PermissionKey", permission.PermissionKey),
-                new SqlParameter("@Description", permission.Description),
-                new SqlParameter("@MenuItemID", (object)permission.MenuItemID ?? DBNull.Value),
-                new SqlParameter("@ModuleID", permission.ModuleID)
+                new NpgsqlParameter("@PermissionID", permission.PermissionID),
+                new NpgsqlParameter("@PermissionKey", permission.PermissionKey),
+                new NpgsqlParameter("@Description", permission.Description),
+                new NpgsqlParameter("@MenuItemID", (object)permission.MenuItemID ?? DBNull.Value),
+                new NpgsqlParameter("@ModuleID", permission.ModuleID)
             };
 
             var result = await _sqlHelper.ExecuteNonQueryAsync(query, parameters);
@@ -82,21 +82,22 @@ namespace Repository.Core
 
         public async Task<bool> DeleteAsync(int id)
         {
-            var query = "DELETE FROM core.Permissions WHERE PermissionID = @PermissionID";
-            var parameters = new[] { new SqlParameter("@PermissionID", id) };
+            var query = "DELETE FROM core.permissions WHERE permission_id = @PermissionID";
+            var parameters = new[] { new NpgsqlParameter("@PermissionID", id) };
             var result = await _sqlHelper.ExecuteNonQueryAsync(query, parameters);
             return result > 0;
         }
 
         private Permission MapToPermission(DataRow row)
         {
+            // Map from PostgreSQL snake_case to C# PascalCase
             return new Permission
             {
-                PermissionID = Convert.ToInt32(row["PermissionID"]),
-                PermissionKey = row["PermissionKey"].ToString(),
-                Description = row["Description"].ToString(),
-                MenuItemID = row["MenuItemID"] != DBNull.Value ? Convert.ToInt32(row["MenuItemID"]) : null,
-                ModuleID = Convert.ToInt32(row["ModuleID"])
+                PermissionID = Convert.ToInt32(row["permission_id"]),
+                PermissionKey = row["permission_key"].ToString(),
+                Description = row["description"].ToString(),
+                MenuItemID = row["menu_item_id"] != DBNull.Value ? Convert.ToInt32(row["menu_item_id"]) : null,
+                ModuleID = Convert.ToInt32(row["module_id"])
             };
         }
     }

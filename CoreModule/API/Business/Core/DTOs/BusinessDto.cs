@@ -13,5 +13,10 @@ namespace BusinessLogic.Core.DTOs
         public string? PinCode { get; set; }
         public int? CountryID { get; set; }
         public bool IsActive { get; set; }
+        // Audit fields
+        public Guid? CreatedByUserID { get; set; }
+        public DateTime? CreatedAtUTC { get; set; }
+        public Guid? UpdatedByUserID { get; set; }
+        public DateTime? UpdatedAtUTC { get; set; }
     }
 }

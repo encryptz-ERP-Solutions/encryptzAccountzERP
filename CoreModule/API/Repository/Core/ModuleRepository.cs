@@ -1,6 +1,6 @@
 using Entities.Core;
 using Infrastructure;
-using Microsoft.Data.SqlClient;
+using Npgsql;
 using Repository.Core.Interface;
 using System;
 using System.Collections.Generic;
@@ -20,7 +20,7 @@ namespace Repository.Core
 
         public async Task<IEnumerable<Module>> GetAllAsync()
         {
-            var query = "SELECT * FROM core.Modules";
+            var query = "SELECT * FROM core.modules";
             var dataTable = await _sqlHelper.ExecuteQueryAsync(query);
             var modules = new List<Module>();
 
@@ -34,8 +34,8 @@ namespace Repository.Core
 
         public async Task<Module> GetByIdAsync(int id)
         {
-            var query = "SELECT * FROM core.Modules WHERE ModuleID = @ModuleID";
-            var parameters = new[] { new SqlParameter("@ModuleID", id) };
+            var query = "SELECT * FROM core.modules WHERE module_id = @ModuleID";
+            var parameters = new[] { new NpgsqlParameter("@ModuleID", id) };
             var dataTable = await _sqlHelper.ExecuteQueryAsync(query, parameters);
 
             return dataTable.Rows.Count > 0 ? MapToModule(dataTable.Rows[0]) : null;
@@ -44,15 +44,15 @@ namespace Repository.Core
         public async Task<Module> AddAsync(Module module)
         {
             var query = @"
-                INSERT INTO core.Modules (ModuleName, IsSystemModule, IsActive)
-                OUTPUT INSERTED.*
-                VALUES (@ModuleName, @IsSystemModule, @IsActive);";
+                INSERT INTO core.modules (module_name, is_system_module, is_active)
+                VALUES (@ModuleName, @IsSystemModule, @IsActive)
+                RETURNING module_id, module_name, is_system_module, is_active;";
 
             var parameters = new[]
             {
-                new SqlParameter("@ModuleName", module.ModuleName),
-                new SqlParameter("@IsSystemModule", module.IsSystemModule),
-                new SqlParameter("@IsActive", module.IsActive)
+                new NpgsqlParameter("@ModuleName", module.ModuleName),
+                new NpgsqlParameter("@IsSystemModule", module.IsSystemModule),
+                new NpgsqlParameter("@IsActive", module.IsActive)
             };
 
             var dataTable = await _sqlHelper.ExecuteQueryAsync(query, parameters);
@@ -62,16 +62,16 @@ namespace Repository.Core
         public async Task<bool> UpdateAsync(Module module)
         {
             var query = @"
-                UPDATE core.Modules
-                SET ModuleName = @ModuleName, IsSystemModule = @IsSystemModule, IsActive = @IsActive
-                WHERE ModuleID = @ModuleID;";
+                UPDATE core.modules
+                SET module_name = @ModuleName, is_system_module = @IsSystemModule, is_active = @IsActive
+                WHERE module_id = @ModuleID;";
 
             var parameters = new[]
             {
-                new SqlParameter("@ModuleID", module.ModuleID),
-                new SqlParameter("@ModuleName", module.ModuleName),
-                new SqlParameter("@IsSystemModule", module.IsSystemModule),
-                new SqlParameter("@IsActive", module.IsActive)
+                new NpgsqlParameter("@ModuleID", module.ModuleID),
+                new NpgsqlParameter("@ModuleName", module.ModuleName),
+                new NpgsqlParameter("@IsSystemModule", module.IsSystemModule),
+                new NpgsqlParameter("@IsActive", module.IsActive)
             };
 
             var result = await _sqlHelper.ExecuteNonQueryAsync(query, parameters);
@@ -80,20 +80,21 @@ namespace Repository.Core
 
         public async Task<bool> DeleteAsync(int id)
         {
-            var query = "DELETE FROM core.Modules WHERE ModuleID = @ModuleID";
-            var parameters = new[] { new SqlParameter("@ModuleID", id) };
+            var query = "DELETE FROM core.modules WHERE module_id = @ModuleID";
+            var parameters = new[] { new NpgsqlParameter("@ModuleID", id) };
             var result = await _sqlHelper.ExecuteNonQueryAsync(query, parameters);
             return result > 0;
         }
 
         private Module MapToModule(DataRow row)
         {
+            // Map from PostgreSQL snake_case to C# PascalCase
             return new Module
             {
-                ModuleID = Convert.ToInt32(row["ModuleID"]),
-                ModuleName = row["ModuleName"].ToString(),
-                IsSystemModule = Convert.ToBoolean(row["IsSystemModule"]),
-                IsActive = Convert.ToBoolean(row["IsActive"])
+                ModuleID = Convert.ToInt32(row["module_id"]),
+                ModuleName = row["module_name"].ToString(),
+                IsSystemModule = Convert.ToBoolean(row["is_system_module"]),
+                IsActive = Convert.ToBoolean(row["is_active"])
             };
         }
     }

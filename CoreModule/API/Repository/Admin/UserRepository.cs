@@ -5,7 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Entities.Admin;
 using Infrastructure;
-using Microsoft.Data.SqlClient;
+using Npgsql;
 using Repository.Admin.Interface;
 
 namespace Repository.Admin
@@ -13,7 +13,7 @@ namespace Repository.Admin
     public class UserRepository : IUserRepository
     {
         private readonly CoreSQLDbHelper _sqlHelper;
-        private const string BaseUserSelectQuery = "SELECT UserID, UserHandle, FullName, Email, HashedPassword, MobileCountryCode, MobileNumber, PanCardNumber_Encrypted, AadharNumber_Encrypted, IsActive, CreatedAtUTC, UpdatedAtUTC FROM core.Users";
+        private const string BaseUserSelectQuery = "SELECT user_id, user_handle, full_name, email, hashed_password, mobile_country_code, mobile_number, pan_card_number_encrypted, aadhar_number_encrypted, is_active, created_at_utc, updated_at_utc FROM core.users";
 
         public UserRepository(CoreSQLDbHelper sqlHelper)
         {
@@ -33,8 +33,8 @@ namespace Repository.Admin
 
         public async Task<User?> GetByIdAsync(Guid id)
         {
-            var query = $"{BaseUserSelectQuery} WHERE UserID = @UserID";
-            var parameters = new[] { new SqlParameter("@UserID", id) };
+            var query = $"{BaseUserSelectQuery} WHERE user_id = @UserID";
+            var parameters = new[] { new NpgsqlParameter("@UserID", id) };
             var dataTable = await _sqlHelper.ExecuteQueryAsync(query, parameters);
 
             if (dataTable.Rows.Count == 0) return null;
@@ -44,8 +44,8 @@ namespace Repository.Admin
 
         public async Task<User?> GetByUserHandleAsync(string userHandle)
         {
-            var query = $"{BaseUserSelectQuery} WHERE UserHandle = @UserHandle";
-            var parameters = new[] { new SqlParameter("@UserHandle", userHandle) };
+            var query = $"{BaseUserSelectQuery} WHERE user_handle = @UserHandle";
+            var parameters = new[] { new NpgsqlParameter("@UserHandle", userHandle) };
             var dataTable = await _sqlHelper.ExecuteQueryAsync(query, parameters);
 
             if (dataTable.Rows.Count == 0) return null;
@@ -55,8 +55,8 @@ namespace Repository.Admin
 
         public async Task<User?> GetByEmailAsync(string email)
         {
-            var query = $"{BaseUserSelectQuery} WHERE Email = @Email";
-            var parameters = new[] { new SqlParameter("@Email", email) };
+            var query = $"{BaseUserSelectQuery} WHERE email = @Email";
+            var parameters = new[] { new NpgsqlParameter("@Email", email) };
             var dataTable = await _sqlHelper.ExecuteQueryAsync(query, parameters);
 
             if (dataTable.Rows.Count == 0) return null;
@@ -67,17 +67,16 @@ namespace Repository.Admin
         public async Task<User> AddAsync(User user)
         {
             var query = @"
-                INSERT INTO core.Users (UserID, UserHandle, FullName, Email, HashedPassword, MobileCountryCode, MobileNumber, PanCardNumber_Encrypted, AadharNumber_Encrypted, IsActive, CreatedAtUTC, UpdatedAtUTC)
-                VALUES (@UserID, @UserHandle, @FullName, @Email, @HashedPassword, @MobileCountryCode, @MobileNumber, @PanCardNumber_Encrypted, @AadharNumber_Encrypted, @IsActive, @CreatedAtUTC, @UpdatedAtUTC);
-
-                SELECT * FROM core.Users WHERE UserID = @UserID;";
+                INSERT INTO core.users (user_id, user_handle, full_name, email, hashed_password, mobile_country_code, mobile_number, pan_card_number_encrypted, aadhar_number_encrypted, is_active, created_at_utc, updated_at_utc)
+                VALUES (@UserID, @UserHandle, @FullName, @Email, @HashedPassword, @MobileCountryCode, @MobileNumber, @PanCardNumber_Encrypted, @AadharNumber_Encrypted, @IsActive, @CreatedAtUTC, @UpdatedAtUTC)
+                RETURNING user_id, user_handle, full_name, email, hashed_password, mobile_country_code, mobile_number, pan_card_number_encrypted, aadhar_number_encrypted, is_active, created_at_utc, updated_at_utc;";
 
             var parameters = GetSqlParameters(user);
             var dataTable = await _sqlHelper.ExecuteQueryAsync(query, parameters);
 
             if (dataTable.Rows.Count == 0)
             {
-                throw new DataException("Failed to add user, SELECT query returned no results.");
+                throw new DataException("Failed to add user, RETURNING query returned no results.");
             }
 
             return MapDataRowToUser(dataTable.Rows[0]);
@@ -86,20 +85,19 @@ namespace Repository.Admin
         public async Task<User> UpdateAsync(User user)
         {
             var query = @"
-                UPDATE core.Users SET
-                    UserHandle = @UserHandle,
-                    FullName = @FullName,
-                    Email = @Email,
-                    HashedPassword = @HashedPassword,
-                    MobileCountryCode = @MobileCountryCode,
-                    MobileNumber = @MobileNumber,
-                    PanCardNumber_Encrypted = @PanCardNumber_Encrypted,
-                    AadharNumber_Encrypted = @AadharNumber_Encrypted,
-                    IsActive = @IsActive,
-                    UpdatedAtUTC = @UpdatedAtUTC
-                WHERE UserID = @UserID;
-
-                SELECT * FROM core.Users WHERE UserID = @UserID;";
+                UPDATE core.users SET
+                    user_handle = @UserHandle,
+                    full_name = @FullName,
+                    email = @Email,
+                    hashed_password = @HashedPassword,
+                    mobile_country_code = @MobileCountryCode,
+                    mobile_number = @MobileNumber,
+                    pan_card_number_encrypted = @PanCardNumber_Encrypted,
+                    aadhar_number_encrypted = @AadharNumber_Encrypted,
+                    is_active = @IsActive,
+                    updated_at_utc = @UpdatedAtUTC
+                WHERE user_id = @UserID
+                RETURNING user_id, user_handle, full_name, email, hashed_password, mobile_country_code, mobile_number, pan_card_number_encrypted, aadhar_number_encrypted, is_active, created_at_utc, updated_at_utc;";
 
             var parameters = GetSqlParameters(user);
             var dataTable = await _sqlHelper.ExecuteQueryAsync(query, parameters);
@@ -114,50 +112,51 @@ namespace Repository.Admin
 
         public async Task<bool> DeleteAsync(Guid id)
         {
-            var query = "DELETE FROM core.Users WHERE UserID = @UserID";
-            var parameters = new[] { new SqlParameter("@UserID", id) };
+            var query = "DELETE FROM core.users WHERE user_id = @UserID";
+            var parameters = new[] { new NpgsqlParameter("@UserID", id) };
             int rowsAffected = await _sqlHelper.ExecuteNonQueryAsync(query, parameters);
             return rowsAffected > 0;
         }
 
         private static User MapDataRowToUser(DataRow row)
         {
+            // Map from PostgreSQL snake_case to C# PascalCase
             return new User
             {
-                UserID = row.Field<Guid>("UserID"),
-                UserHandle = row.Field<string>("UserHandle") ?? string.Empty,
-                FullName = row.Field<string>("FullName") ?? string.Empty,
-                Email = row.Field<string?>("Email"),
-                HashedPassword = row.Field<string?>("HashedPassword"),
-                MobileCountryCode = row.Field<string?>("MobileCountryCode"),
-                MobileNumber = row.Field<string?>("MobileNumber"),
-                PanCardNumber_Encrypted = row.Field<byte[]?>("PanCardNumber_Encrypted"),
-                AadharNumber_Encrypted = row.Field<byte[]?>("AadharNumber_Encrypted"),
-                IsActive = row.Field<bool>("IsActive"),
-                CreatedAtUTC = row.Field<DateTime>("CreatedAtUTC"),
-                UpdatedAtUTC = row.Field<DateTime?>("UpdatedAtUTC")
+                UserID = row.Field<Guid>("user_id"),
+                UserHandle = row.Field<string>("user_handle") ?? string.Empty,
+                FullName = row.Field<string>("full_name") ?? string.Empty,
+                Email = row.Field<string?>("email"),
+                HashedPassword = row.Field<string?>("hashed_password"),
+                MobileCountryCode = row.Field<string?>("mobile_country_code"),
+                MobileNumber = row.Field<string?>("mobile_number"),
+                PanCardNumber_Encrypted = row.Field<byte[]?>("pan_card_number_encrypted"),
+                AadharNumber_Encrypted = row.Field<byte[]?>("aadhar_number_encrypted"),
+                IsActive = row.Field<bool>("is_active"),
+                CreatedAtUTC = row.Field<DateTime>("created_at_utc"),
+                UpdatedAtUTC = row.Field<DateTime?>("updated_at_utc")
             };
         }
 
-        private static SqlParameter[] GetSqlParameters(User user)
+        private static NpgsqlParameter[] GetSqlParameters(User user)
         {
             // Convert HashedPassword string to byte array for varbinary storage
             
 
             return new[]
             {
-                new SqlParameter("@UserID", user.UserID),
-                new SqlParameter("@UserHandle", user.UserHandle),
-                new SqlParameter("@FullName", user.FullName),
-                new SqlParameter("@Email", (object)user.Email ?? DBNull.Value),
-                new SqlParameter("@HashedPassword", user.HashedPassword),
-                new SqlParameter("@MobileCountryCode", (object)user.MobileCountryCode ?? DBNull.Value),
-                new SqlParameter("@MobileNumber", (object)user.MobileNumber ?? DBNull.Value),
-                new SqlParameter("@PanCardNumber_Encrypted", (object)user.PanCardNumber_Encrypted ?? DBNull.Value),
-                new SqlParameter("@AadharNumber_Encrypted", (object)user.AadharNumber_Encrypted ?? DBNull.Value),
-                new SqlParameter("@IsActive", user.IsActive),
-                new SqlParameter("@CreatedAtUTC", user.CreatedAtUTC),
-                new SqlParameter("@UpdatedAtUTC", (object)user.UpdatedAtUTC ?? DBNull.Value)
+                new NpgsqlParameter("@UserID", user.UserID),
+                new NpgsqlParameter("@UserHandle", user.UserHandle),
+                new NpgsqlParameter("@FullName", user.FullName),
+                new NpgsqlParameter("@Email", (object)user.Email ?? DBNull.Value),
+                new NpgsqlParameter("@HashedPassword", user.HashedPassword),
+                new NpgsqlParameter("@MobileCountryCode", (object)user.MobileCountryCode ?? DBNull.Value),
+                new NpgsqlParameter("@MobileNumber", (object)user.MobileNumber ?? DBNull.Value),
+                new NpgsqlParameter("@PanCardNumber_Encrypted", (object)user.PanCardNumber_Encrypted ?? DBNull.Value),
+                new NpgsqlParameter("@AadharNumber_Encrypted", (object)user.AadharNumber_Encrypted ?? DBNull.Value),
+                new NpgsqlParameter("@IsActive", user.IsActive),
+                new NpgsqlParameter("@CreatedAtUTC", user.CreatedAtUTC),
+                new NpgsqlParameter("@UpdatedAtUTC", (object)user.UpdatedAtUTC ?? DBNull.Value)
             };
         }
     }

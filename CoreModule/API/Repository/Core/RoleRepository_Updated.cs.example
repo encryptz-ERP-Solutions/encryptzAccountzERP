@@ -1,0 +1,164 @@
+using Entities.Core;
+using Infrastructure;
+using Npgsql;
+using Repository.Core.Interface;
+using System;
+using System.Collections.Generic;
+using System.Data;
+using System.Threading.Tasks;
+
+namespace Repository.Core
+{
+    /// <summary>
+    /// Example updated RoleRepository with PostgreSQL and audit support.
+    /// Key changes:
+    /// 1. Use NpgsqlConnection instead of SqlConnection
+    /// 2. Use @parameter syntax (works with both Npgsql and Dapper)
+    /// 3. Set created_by_user_id and created_at_utc on INSERT
+    /// 4. Set updated_by_user_id and updated_at_utc on UPDATE
+    /// 5. Return audit fields in SELECT queries
+    /// </summary>
+    public class RoleRepository : IRoleRepository
+    {
+        private readonly IDbConnectionFactory _connectionFactory;
+
+        public RoleRepository(IDbConnectionFactory connectionFactory)
+        {
+            _connectionFactory = connectionFactory;
+        }
+
+        public async Task<IEnumerable<Role>> GetAllAsync()
+        {
+            var query = @"
+                SELECT 
+                    role_id, role_name, description, is_system_role,
+                    created_by_user_id, created_at_utc, updated_by_user_id, updated_at_utc
+                FROM core.roles
+                ORDER BY role_name;";
+
+            using var connection = _connectionFactory.CreateConnection();
+            await connection.OpenAsync();
+            
+            using var command = new NpgsqlCommand(query, (NpgsqlConnection)connection);
+            using var reader = await command.ExecuteReaderAsync();
+            
+            var roles = new List<Role>();
+            while (await reader.ReadAsync())
+            {
+                roles.Add(MapToRole(reader));
+            }
+            
+            return roles;
+        }
+
+        public async Task<Role> GetByIdAsync(int id)
+        {
+            var query = @"
+                SELECT 
+                    role_id, role_name, description, is_system_role,
+                    created_by_user_id, created_at_utc, updated_by_user_id, updated_at_utc
+                FROM core.roles 
+                WHERE role_id = @role_id;";
+
+            using var connection = _connectionFactory.CreateConnection();
+            await connection.OpenAsync();
+            
+            using var command = new NpgsqlCommand(query, (NpgsqlConnection)connection);
+            command.Parameters.AddWithValue("@role_id", id);
+            
+            using var reader = await command.ExecuteReaderAsync();
+            if (await reader.ReadAsync())
+            {
+                return MapToRole(reader);
+            }
+            
+            return null;
+        }
+
+        public async Task<Role> AddAsync(Role role, Guid? createdByUserId)
+        {
+            var query = @"
+                INSERT INTO core.roles 
+                    (role_name, description, is_system_role, created_by_user_id, created_at_utc)
+                VALUES 
+                    (@role_name, @description, @is_system_role, @created_by_user_id, NOW() AT TIME ZONE 'UTC')
+                RETURNING 
+                    role_id, role_name, description, is_system_role,
+                    created_by_user_id, created_at_utc, updated_by_user_id, updated_at_utc;";
+
+            using var connection = _connectionFactory.CreateConnection();
+            await connection.OpenAsync();
+            
+            using var command = new NpgsqlCommand(query, (NpgsqlConnection)connection);
+            command.Parameters.AddWithValue("@role_name", role.RoleName);
+            command.Parameters.AddWithValue("@description", (object)role.Description ?? DBNull.Value);
+            command.Parameters.AddWithValue("@is_system_role", role.IsSystemRole);
+            command.Parameters.AddWithValue("@created_by_user_id", createdByUserId.HasValue ? (object)createdByUserId.Value : DBNull.Value);
+            
+            using var reader = await command.ExecuteReaderAsync();
+            if (await reader.ReadAsync())
+            {
+                return MapToRole(reader);
+            }
+            
+            throw new InvalidOperationException("Failed to create role");
+        }
+
+        public async Task<bool> UpdateAsync(Role role, Guid? updatedByUserId)
+        {
+            var query = @"
+                UPDATE core.roles
+                SET 
+                    role_name = @role_name, 
+                    description = @description, 
+                    is_system_role = @is_system_role,
+                    updated_by_user_id = @updated_by_user_id,
+                    updated_at_utc = NOW() AT TIME ZONE 'UTC'
+                WHERE role_id = @role_id;";
+
+            using var connection = _connectionFactory.CreateConnection();
+            await connection.OpenAsync();
+            
+            using var command = new NpgsqlCommand(query, (NpgsqlConnection)connection);
+            command.Parameters.AddWithValue("@role_id", role.RoleID);
+            command.Parameters.AddWithValue("@role_name", role.RoleName);
+            command.Parameters.AddWithValue("@description", (object)role.Description ?? DBNull.Value);
+            command.Parameters.AddWithValue("@is_system_role", role.IsSystemRole);
+            command.Parameters.AddWithValue("@updated_by_user_id", updatedByUserId.HasValue ? (object)updatedByUserId.Value : DBNull.Value);
+            
+            var rowsAffected = await command.ExecuteNonQueryAsync();
+            return rowsAffected > 0;
+        }
+
+        public async Task<bool> DeleteAsync(int id)
+        {
+            var query = "DELETE FROM core.roles WHERE role_id = @role_id;";
+            
+            using var connection = _connectionFactory.CreateConnection();
+            await connection.OpenAsync();
+            
+            using var command = new NpgsqlCommand(query, (NpgsqlConnection)connection);
+            command.Parameters.AddWithValue("@role_id", id);
+            
+            var rowsAffected = await command.ExecuteNonQueryAsync();
+            return rowsAffected > 0;
+        }
+
+        private Role MapToRole(NpgsqlDataReader reader)
+        {
+            return new Role
+            {
+                RoleID = reader.GetInt32("role_id"),
+                RoleName = reader.GetString("role_name"),
+                Description = reader.IsDBNull("description") ? null : reader.GetString("description"),
+                IsSystemRole = reader.GetBoolean("is_system_role")
+                // Note: Add audit fields to Role entity if needed
+                // CreatedByUserID = reader.IsDBNull("created_by_user_id") ? null : reader.GetGuid("created_by_user_id"),
+                // CreatedAtUTC = reader.GetDateTime("created_at_utc"),
+                // UpdatedByUserID = reader.IsDBNull("updated_by_user_id") ? null : reader.GetGuid("updated_by_user_id"),
+                // UpdatedAtUTC = reader.IsDBNull("updated_at_utc") ? null : reader.GetDateTime("updated_at_utc")
+            };
+        }
+    }
+}
+
