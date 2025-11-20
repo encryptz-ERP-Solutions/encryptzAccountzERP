@@ -18,6 +18,7 @@ using Microsoft.Extensions.Options;
 using Repository.Accounts;
 using BusinessLogic.Accounts;
 using System;
+using BusinessLogic.Core.Services.Auth;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -113,6 +114,10 @@ builder.Services.AddScoped<IAuditRepository, AuditRepository>();
 builder.Services.AddScoped<IAuditService, AuditService>();
 builder.Services.AddScoped<IUserBusinessRepository, UserBusinessRepository>();
 builder.Services.AddScoped<IUserBusinessService, UserBusinessService>();
+
+// Register authentication services
+builder.Services.AddScoped<IRefreshTokenRepository, RefreshTokenRepository>();
+builder.Services.AddScoped<IAuthService, BusinessLogic.Core.Services.Auth.AuthService>();
 
 builder.Services.AddScoped<ExceptionHandler>();
 
