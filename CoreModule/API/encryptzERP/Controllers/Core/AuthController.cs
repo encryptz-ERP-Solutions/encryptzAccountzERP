@@ -1,4 +1,5 @@
 using System;
+using System.Linq;
 using System.Threading.Tasks;
 using BusinessLogic.Core.DTOs.Auth;
 using BusinessLogic.Core.Services.Auth;
@@ -214,6 +215,40 @@ namespace encryptzERP.Controllers.Core
             {
                 _exceptionHandler.LogError(ex);
                 return StatusCode(500, new { message = "An error occurred during token revocation." });
+            }
+        }
+
+        /// <summary>
+        /// Get current authenticated user information
+        /// </summary>
+        /// <returns>Current user details</returns>
+        [HttpGet("users/me")]
+        [Authorize]
+        public async Task<IActionResult> GetCurrentUser()
+        {
+            try
+            {
+                // Get user ID from claims
+                var userIdClaim = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
+                if (string.IsNullOrEmpty(userIdClaim) || !Guid.TryParse(userIdClaim, out var userId))
+                {
+                    return Unauthorized(new { message = "Invalid user token." });
+                }
+
+                // Get user claims
+                var claims = await _authService.GetUserClaimsAsync(userId);
+                
+                return Ok(new
+                {
+                    userId = userId.ToString(),
+                    userHandle = claims.FirstOrDefault(c => c.Type == System.Security.Claims.ClaimTypes.Name)?.Value,
+                    email = claims.FirstOrDefault(c => c.Type == System.Security.Claims.ClaimTypes.Email)?.Value
+                });
+            }
+            catch (Exception ex)
+            {
+                _exceptionHandler.LogError(ex);
+                return StatusCode(500, new { message = "An error occurred while retrieving user information." });
             }
         }
 

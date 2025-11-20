@@ -1,0 +1,494 @@
+{
+	"info": {
+		"_postman_id": "auth-collection-v1",
+		"name": "EncryptzERP - Authentication API",
+		"description": "Comprehensive Postman collection for testing all authentication endpoints including register, login, refresh, logout, and protected endpoints.",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "1. Register New User",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"// Test that registration was successful",
+							"pm.test(\"Status code is 200\", function () {",
+							"    pm.response.to.have.status(200);",
+							"});",
+							"",
+							"// Parse response",
+							"var jsonData = pm.response.json();",
+							"",
+							"// Test that access token is present",
+							"pm.test(\"Access token is present\", function () {",
+							"    pm.expect(jsonData.accessToken).to.be.a('string');",
+							"    pm.expect(jsonData.accessToken.length).to.be.above(0);",
+							"});",
+							"",
+							"// Test that user info is present",
+							"pm.test(\"User info is present\", function () {",
+							"    pm.expect(jsonData.userId).to.be.a('string');",
+							"    pm.expect(jsonData.userHandle).to.be.a('string');",
+							"});",
+							"",
+							"// Save access token for subsequent requests",
+							"if (jsonData.accessToken) {",
+							"    pm.environment.set(\"accessToken\", jsonData.accessToken);",
+							"    pm.environment.set(\"userId\", jsonData.userId);",
+							"    pm.environment.set(\"userHandle\", jsonData.userHandle);",
+							"}",
+							"",
+							"// Check that refresh token cookie was set",
+							"pm.test(\"Refresh token cookie is set\", function () {",
+							"    pm.expect(pm.cookies.has('refreshToken')).to.be.true;",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				},
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							"// Generate unique user credentials for this test run",
+							"const uniqueId = Date.now().toString(36) + Math.random().toString(36).substr(2, 5);",
+							"pm.environment.set(\"testUserHandle\", \"testuser_\" + uniqueId);",
+							"pm.environment.set(\"testEmail\", \"test_\" + uniqueId + \"@example.com\");",
+							"pm.environment.set(\"testPassword\", \"Test@1234\");"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"userHandle\": \"{{testUserHandle}}\",\n  \"fullName\": \"Test User\",\n  \"email\": \"{{testEmail}}\",\n  \"password\": \"{{testPassword}}\",\n  \"mobileCountryCode\": \"+1\",\n  \"mobileNumber\": \"5551234567\"\n}"
+				},
+				"url": {
+					"raw": "{{baseUrl}}/api/v1/auth/register",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"api",
+						"v1",
+						"auth",
+						"register"
+					]
+				},
+				"description": "Register a new user account. Returns access token and sets refresh token in HTTP-only cookie."
+			},
+			"response": []
+		},
+		{
+			"name": "2. Login",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 200\", function () {",
+							"    pm.response.to.have.status(200);",
+							"});",
+							"",
+							"var jsonData = pm.response.json();",
+							"",
+							"pm.test(\"Access token is present\", function () {",
+							"    pm.expect(jsonData.accessToken).to.be.a('string');",
+							"    pm.expect(jsonData.accessToken.length).to.be.above(0);",
+							"});",
+							"",
+							"// Update access token",
+							"if (jsonData.accessToken) {",
+							"    pm.environment.set(\"accessToken\", jsonData.accessToken);",
+							"}",
+							"",
+							"pm.test(\"Refresh token cookie is set\", function () {",
+							"    pm.expect(pm.cookies.has('refreshToken')).to.be.true;",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"emailOrUserHandle\": \"{{testEmail}}\",\n  \"password\": \"{{testPassword}}\"\n}"
+				},
+				"url": {
+					"raw": "{{baseUrl}}/api/v1/auth/login",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"api",
+						"v1",
+						"auth",
+						"login"
+					]
+				},
+				"description": "Login with email/username and password. Returns access token and sets refresh token in cookie."
+			},
+			"response": []
+		},
+		{
+			"name": "3. Get Current User (Protected)",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 200\", function () {",
+							"    pm.response.to.have.status(200);",
+							"});",
+							"",
+							"var jsonData = pm.response.json();",
+							"",
+							"pm.test(\"User data is returned\", function () {",
+							"    pm.expect(jsonData.userId).to.be.a('string');",
+							"    pm.expect(jsonData.userHandle).to.be.a('string');",
+							"    pm.expect(jsonData.email).to.be.a('string');",
+							"});",
+							"",
+							"pm.test(\"User handle matches\", function () {",
+							"    pm.expect(jsonData.userHandle).to.eql(pm.environment.get(\"testUserHandle\"));",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{accessToken}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{baseUrl}}/api/v1/auth/users/me",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"api",
+						"v1",
+						"auth",
+						"users",
+						"me"
+					]
+				},
+				"description": "Protected endpoint that returns current authenticated user information. Requires valid JWT access token."
+			},
+			"response": []
+		},
+		{
+			"name": "4. Refresh Token",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 200\", function () {",
+							"    pm.response.to.have.status(200);",
+							"});",
+							"",
+							"var jsonData = pm.response.json();",
+							"",
+							"pm.test(\"New access token is present\", function () {",
+							"    pm.expect(jsonData.accessToken).to.be.a('string');",
+							"    pm.expect(jsonData.accessToken.length).to.be.above(0);",
+							"});",
+							"",
+							"// Save new access token",
+							"if (jsonData.accessToken) {",
+							"    pm.environment.set(\"accessToken\", jsonData.accessToken);",
+							"}",
+							"",
+							"pm.test(\"New refresh token cookie is set\", function () {",
+							"    pm.expect(pm.cookies.has('refreshToken')).to.be.true;",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{}"
+				},
+				"url": {
+					"raw": "{{baseUrl}}/api/v1/auth/refresh",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"api",
+						"v1",
+						"auth",
+						"refresh"
+					]
+				},
+				"description": "Refresh access token using the refresh token from cookie. Old refresh token is automatically revoked (token rotation)."
+			},
+			"response": []
+		},
+		{
+			"name": "5. Logout",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 200\", function () {",
+							"    pm.response.to.have.status(200);",
+							"});",
+							"",
+							"var jsonData = pm.response.json();",
+							"",
+							"pm.test(\"Logout message is present\", function () {",
+							"    pm.expect(jsonData.message).to.include('Logged out');",
+							"});",
+							"",
+							"// Clear tokens from environment",
+							"pm.environment.unset(\"accessToken\");"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{accessToken}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "POST",
+				"header": [],
+				"url": {
+					"raw": "{{baseUrl}}/api/v1/auth/logout",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"api",
+						"v1",
+						"auth",
+						"logout"
+					]
+				},
+				"description": "Logout and revoke all user's refresh tokens. Requires authentication."
+			},
+			"response": []
+		},
+		{
+			"name": "6. Login with Invalid Password (Negative Test)",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 401 Unauthorized\", function () {",
+							"    pm.response.to.have.status(401);",
+							"});",
+							"",
+							"var jsonData = pm.response.json();",
+							"",
+							"pm.test(\"Error message is present\", function () {",
+							"    pm.expect(jsonData.message).to.be.a('string');",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"emailOrUserHandle\": \"{{testEmail}}\",\n  \"password\": \"WrongPassword123!\"\n}"
+				},
+				"url": {
+					"raw": "{{baseUrl}}/api/v1/auth/login",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"api",
+						"v1",
+						"auth",
+						"login"
+					]
+				},
+				"description": "Negative test: Attempt login with invalid password should return 401 Unauthorized."
+			},
+			"response": []
+		},
+		{
+			"name": "7. Register with Weak Password (Negative Test)",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 400 Bad Request\", function () {",
+							"    pm.response.to.have.status(400);",
+							"});",
+							"",
+							"var jsonData = pm.response.json();",
+							"",
+							"pm.test(\"Error message is present\", function () {",
+							"    pm.expect(jsonData.message).to.be.a('string');",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				},
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							"const uniqueId = Date.now().toString(36) + Math.random().toString(36).substr(2, 5);",
+							"pm.environment.set(\"weakPasswordUserHandle\", \"weakuser_\" + uniqueId);",
+							"pm.environment.set(\"weakPasswordEmail\", \"weak_\" + uniqueId + \"@example.com\");"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"userHandle\": \"{{weakPasswordUserHandle}}\",\n  \"fullName\": \"Weak Password User\",\n  \"email\": \"{{weakPasswordEmail}}\",\n  \"password\": \"weak\"\n}"
+				},
+				"url": {
+					"raw": "{{baseUrl}}/api/v1/auth/register",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"api",
+						"v1",
+						"auth",
+						"register"
+					]
+				},
+				"description": "Negative test: Attempt to register with weak password should return 400 Bad Request."
+			},
+			"response": []
+		},
+		{
+			"name": "8. Access Protected Endpoint Without Token (Negative Test)",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 401 Unauthorized\", function () {",
+							"    pm.response.to.have.status(401);",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{baseUrl}}/api/v1/auth/users/me",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"api",
+						"v1",
+						"auth",
+						"users",
+						"me"
+					]
+				},
+				"description": "Negative test: Attempt to access protected endpoint without authentication should return 401."
+			},
+			"response": []
+		}
+	],
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		}
+	],
+	"variable": [
+		{
+			"key": "baseUrl",
+			"value": "https://localhost:7001",
+			"type": "string"
+		}
+	]
+}
+
