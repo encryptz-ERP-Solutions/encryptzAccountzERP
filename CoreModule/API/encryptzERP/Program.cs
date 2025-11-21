@@ -115,6 +115,9 @@ builder.Services.AddScoped<IAuditService, AuditService>();
 builder.Services.AddScoped<IUserBusinessRepository, UserBusinessRepository>();
 builder.Services.AddScoped<IUserBusinessService, UserBusinessService>();
 
+// Register dashboard service
+builder.Services.AddScoped<IDashboardService, DashboardService>();
+
 // Register authentication services
 builder.Services.AddScoped<IRefreshTokenRepository, RefreshTokenRepository>();
 builder.Services.AddScoped<IAuthService, BusinessLogic.Core.Services.Auth.AuthService>();
