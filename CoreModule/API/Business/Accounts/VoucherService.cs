@@ -13,15 +13,18 @@ namespace BusinessLogic.Accounts
     {
         private readonly IVoucherRepository _voucherRepository;
         private readonly IChartOfAccountRepository _chartOfAccountRepository;
+        private readonly ILedgerService _ledgerService;
         private readonly IMapper _mapper;
 
         public VoucherService(
             IVoucherRepository voucherRepository,
             IChartOfAccountRepository chartOfAccountRepository,
+            ILedgerService ledgerService,
             IMapper mapper)
         {
             _voucherRepository = voucherRepository;
             _chartOfAccountRepository = chartOfAccountRepository;
+            _ledgerService = ledgerService;
             _mapper = mapper;
         }
 
@@ -234,16 +237,31 @@ namespace BusinessLogic.Accounts
             // Validate voucher before posting
             ValidateVoucherForPosting(voucher);
 
-            // Post voucher (this is a stub - full ledger generation will be in Step 10)
+            // Post voucher (update status to 'posted')
             var success = await _voucherRepository.PostVoucherAsync(voucherId, postedBy);
 
             if (success)
             {
-                // TODO: In Step 10, generate ledger entries here
+                // Generate ledger entries from the posted voucher
+                var ledgerResult = await _ledgerService.PostVoucherToLedgerAsync(voucherId, postedBy);
+                
+                if (!ledgerResult.Success)
+                {
+                    // If ledger posting fails, return error but voucher remains in posted status
+                    // Admin can review and repost or fix the issue
+                    return new PostVoucherResponseDto
+                    {
+                        Success = false,
+                        Message = $"Voucher posted but ledger generation failed: {ledgerResult.Message}",
+                        VoucherID = voucherId,
+                        PostedAt = DateTime.UtcNow
+                    };
+                }
+
                 return new PostVoucherResponseDto
                 {
                     Success = true,
-                    Message = "Voucher posted successfully. Ledger generation pending (Step 10).",
+                    Message = $"Voucher posted successfully. {ledgerResult.EntriesCreated} ledger entries created.",
                     VoucherID = voucherId,
                     PostedAt = DateTime.UtcNow
                 };
