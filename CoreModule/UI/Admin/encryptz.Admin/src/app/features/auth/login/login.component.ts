@@ -1,6 +1,6 @@
 import { ChangeDetectorRef, Component, ElementRef, QueryList, ViewChildren } from '@angular/core';
 import { FormBuilder, FormControl, FormGroup, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
-import { Router } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { MatInputModule } from '@angular/material/input';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatCardModule } from '@angular/material/card';
@@ -9,7 +9,7 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { SlickCarouselModule } from 'ngx-slick-carousel';
 import { CommonService } from '../../../shared/services/common.service';
-import { AuthService } from '../auth.service';
+import { AuthService } from '../../../core/services/auth.service';
 
 @Component({
   selector: 'app-login',
@@ -60,25 +60,32 @@ export class LoginComponent {
     pauseOnDotsHover: false
   };
 
+  private returnUrl: string = '/dashboard';
+
   constructor(
     private router: Router,
+    private route: ActivatedRoute,
     private common: CommonService,
     private fb: FormBuilder,
     private authService: AuthService,
     private cd: ChangeDetectorRef
-  ) { }
+  ) {
+    // Get return URL from route parameters or default to dashboard
+    this.returnUrl = this.route.snapshot.queryParams['returnUrl'] || '/dashboard';
+  }
 
   onLogin() {
     if (this.email.valid && this.password.valid) {
       let payload = {
-        "loginIdentifier": this.email.value,
-        "password": this.password.value,
+        loginIdentifier: this.email.value || '',
+        password: this.password.value || '',
       }
 
       this.authService.login(payload).subscribe({
         next: (res: any) => {
           if (res.isSuccess) {
-            this.router.navigate(['/dashboard'])
+            // Navigate to return URL or dashboard
+            this.router.navigate([this.returnUrl]);
             this.common.showSnackbar('Logged In Successfully', 'SUCCESS', 3000);
           } else {
             const errorMessage = res?.message || 'Login failed. Please try again.';
@@ -137,7 +144,8 @@ export class LoginComponent {
       this.authService.verifyOTP(payload).subscribe({
         next: (res: any) => {
           if (res.isSuccess) {
-            this.router.navigate(['/dashboard'])
+            // Navigate to return URL or dashboard
+            this.router.navigate([this.returnUrl]);
             this.common.showSnackbar('Logged In Successfully', 'SUCCESS', 3000);
           } else {
             const errorMessage = res?.message || 'OTP verification failed. Please try again.';
@@ -197,8 +205,9 @@ export class LoginComponent {
       this.authService.resetPassword(payload).subscribe({
         next: (res: any) => {
           if (res.status) {
-            this.router.navigate(['/dashboard'])
-            this.common.showSnackbar('Logged In Successfully', 'SUCCESS', 3000);
+            // Navigate to return URL or dashboard
+            this.router.navigate([this.returnUrl]);
+            this.common.showSnackbar('Password Reset Successfully', 'SUCCESS', 3000);
           } else {
             const errorMessage = res?.message || 'Password reset failed. Please try again.';
             this.common.showSnackbar(errorMessage, 'ERROR', 3000);
