@@ -95,6 +95,8 @@ builder.Services.AddScoped<IAccountTypeService, AccountTypeService>();
 builder.Services.AddScoped<IChartOfAccountService, ChartOfAccountService>();
 builder.Services.AddScoped<ITransactionRepository, TransactionRepository>();
 builder.Services.AddScoped<ITransactionService, TransactionService>();
+builder.Services.AddScoped<IVoucherRepository, VoucherRepository>();
+builder.Services.AddScoped<IVoucherService, VoucherService>();
 
 // Register new repository layer
 builder.Services.AddScoped<ISubscriptionPlanRepository, SubscriptionPlanRepository>();
