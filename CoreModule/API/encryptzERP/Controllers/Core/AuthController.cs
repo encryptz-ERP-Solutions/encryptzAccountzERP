@@ -52,7 +52,11 @@ namespace encryptzERP.Controllers.Core
                     accessToken = response.AccessToken,
                     expiresAt = response.AccessTokenExpiresAt,
                     userId = response.UserId,
-                    userHandle = response.UserHandle
+                    userHandle = response.UserHandle,
+                    isProfileComplete = response.IsProfileComplete,
+                    isSystemAdmin = response.IsSystemAdmin,
+                    refreshToken = response.RefreshToken,
+                    refreshTokenExpiresAt = response.RefreshTokenExpiresAt
                 });
             }
             catch (InvalidOperationException ex)
@@ -94,7 +98,11 @@ namespace encryptzERP.Controllers.Core
                     accessToken = response.AccessToken,
                     expiresAt = response.AccessTokenExpiresAt,
                     userId = response.UserId,
-                    userHandle = response.UserHandle
+                    userHandle = response.UserHandle,
+                    isProfileComplete = response.IsProfileComplete,
+                    isSystemAdmin = response.IsSystemAdmin,
+                    refreshToken = response.RefreshToken,
+                    refreshTokenExpiresAt = response.RefreshTokenExpiresAt
                 });
             }
             catch (UnauthorizedAccessException ex)
@@ -139,7 +147,11 @@ namespace encryptzERP.Controllers.Core
                     accessToken = response.AccessToken,
                     expiresAt = response.AccessTokenExpiresAt,
                     userId = response.UserId,
-                    userHandle = response.UserHandle
+                    userHandle = response.UserHandle,
+                    isProfileComplete = response.IsProfileComplete,
+                    isSystemAdmin = response.IsSystemAdmin,
+                    refreshToken = response.RefreshToken,
+                    refreshTokenExpiresAt = response.RefreshTokenExpiresAt
                 });
             }
             catch (UnauthorizedAccessException ex)
@@ -259,13 +271,16 @@ namespace encryptzERP.Controllers.Core
         /// </summary>
         private void SetRefreshTokenCookie(string refreshToken, DateTime expiresAt)
         {
+            var isHttps = Request.IsHttps;
+            var sameSiteMode = isHttps ? SameSiteMode.None : SameSiteMode.Lax;
+
             var cookieOptions = new CookieOptions
             {
                 HttpOnly = true,
-                Secure = true, // Set to true in production (HTTPS only)
-                SameSite = SameSiteMode.Strict,
+                Secure = isHttps,
+                SameSite = sameSiteMode,
                 Expires = expiresAt,
-                Path = "/api/v1/auth" // Limit cookie scope to auth endpoints
+                Path = "/api/v1/auth"
             };
 
             Response.Cookies.Append(RefreshTokenCookieName, refreshToken, cookieOptions);

@@ -1,7 +1,7 @@
-import { HttpInterceptorFn, HttpErrorResponse, HttpRequest, HttpHandlerFn } from '@angular/common/http';
+import { HttpInterceptorFn, HttpErrorResponse, HttpRequest, HttpHandlerFn, HttpEvent, HttpResponse } from '@angular/common/http';
 import { inject } from '@angular/core';
 import { Router } from '@angular/router';
-import { catchError, finalize, switchMap, filter, take, throwError } from 'rxjs';
+import { catchError, finalize, switchMap, filter, take, throwError, of } from 'rxjs';
 import { CommonService } from '../../shared/services/common.service';
 import { AuthService } from '../services/auth.service';
 
@@ -16,19 +16,31 @@ export const authInterceptor: HttpInterceptorFn = (req, next) => {
   const commonService = inject(CommonService);
   const router = inject(Router);
 
-  // Don't add auth header to auth endpoints (login, refresh, etc.)
-  const isAuthEndpoint = req.url.includes('/auth/login') || 
-                         req.url.includes('/auth/refresh') ||
-                         req.url.includes('/auth/logout');
+  // Don't add auth header to auth endpoints (login, refresh) - but logout needs auth token
+  const isPublicAuthEndpoint = req.url.includes('/auth/login') || 
+                               req.url.includes('/auth/refresh');
+  const isLogoutEndpoint = req.url.includes('/auth/logout');
 
   const shouldShowLoader = !req.headers.has('no-loader');
   if (shouldShowLoader) {
     commonService.loaderState(true);
   }
 
-  // Clone request and add auth header if not an auth endpoint
+  // Clone request and add auth header
   let authReq = req;
-  if (!isAuthEndpoint) {
+  if (isLogoutEndpoint) {
+    // Logout endpoint requires authentication, so add token
+    const token = authService.getAccessToken();
+    if (token) {
+      authReq = addTokenToRequest(req, token);
+    } else {
+      // No token available, just clone request
+      authReq = req.clone({
+        headers: req.headers.delete('no-loader')
+      });
+    }
+  } else if (!isPublicAuthEndpoint) {
+    // For all other endpoints, add token if available
     const token = authService.getAccessToken();
     if (token) {
       authReq = addTokenToRequest(req, token);
@@ -39,7 +51,7 @@ export const authInterceptor: HttpInterceptorFn = (req, next) => {
       });
     }
   } else {
-    // For auth endpoints, just remove the no-loader header
+    // For public auth endpoints (login, refresh), just remove the no-loader header
     authReq = req.clone({
       headers: req.headers.delete('no-loader')
     });
@@ -48,8 +60,22 @@ export const authInterceptor: HttpInterceptorFn = (req, next) => {
   return next(authReq).pipe(
     catchError((error: HttpErrorResponse) => {
       // Handle 401 Unauthorized errors
-      if (error.status === 401 && !isAuthEndpoint) {
+      // Don't retry logout on 401 - just let it fail gracefully
+      if (error.status === 401 && !isPublicAuthEndpoint && !isLogoutEndpoint) {
         return handle401Error(authReq, next, authService, router);
+      }
+      
+      // For logout 401 errors, clear session and redirect (don't throw error)
+      if (error.status === 401 && isLogoutEndpoint) {
+        authService.clearSession();
+        router.navigate(['/']);
+        // Return a successful response to prevent error propagation
+        const successResponse: HttpEvent<unknown> = new HttpResponse({ 
+          status: 200, 
+          statusText: 'OK',
+          body: { message: 'Logged out successfully' } 
+        });
+        return of(successResponse);
       }
       
       // For other errors, just pass them through
@@ -92,13 +118,14 @@ function handle401Error(
 
     return authService.refresh().pipe(
       switchMap((response) => {
-        if (response.isSuccess && response.response?.token) {
+        const token = response?.accessToken;
+        if (token) {
           // Refresh successful, update subject and retry original request
           authService.setRefreshing(false);
-          authService.setRefreshTokenSubject(response.response.token);
+          authService.setRefreshTokenSubject(token);
           
           // Retry original request with new token
-          const retryReq = addTokenToRequest(request, response.response.token);
+          const retryReq = addTokenToRequest(request, token);
           return next(retryReq);
         } else {
           // Refresh failed, redirect to login

@@ -68,6 +68,9 @@
 .content-area {
     margin-left: 200px;
     transition: margin-left 0.3s ease;
+    padding: 24px;
+    background: #f4f6fb;
+    min-height: 100vh;
 }
 
 .custom-sidebar.collapsed+.content-area {
@@ -78,4 +81,61 @@
     .content-area {
         margin-left: 0;
     }
+}
+
+.workspace-header {
+    margin-left: 200px;
+    transition: margin-left .3s ease;
+    background: #fff;
+    padding: 16px 24px;
+    border-bottom: 1px solid #e5e9f2;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    position: sticky;
+    top: 0;
+    z-index: 10;
+
+    .header-label {
+        text-transform: uppercase;
+        letter-spacing: .2em;
+        font-size: .65rem;
+        color: #8ba4c1;
+        margin-bottom: .25rem;
+    }
+
+    .header-value {
+        font-size: 1.1rem;
+        font-weight: 600;
+    }
+
+    .header-sub {
+        font-size: .85rem;
+        color: #6b7796;
+    }
+
+    .module-chip-wrap {
+        text-align: center;
+
+        mat-chip {
+            margin-top: .25rem;
+        }
+    }
+}
+
+.custom-sidebar.collapsed ~ .workspace-header {
+  margin-left: 28px;
+}
+
+.custom-sidebar.hide-collapsed ~ .workspace-header {
+  margin-left: 0;
+}
+
+@media (max-width: 991.99px) {
+  .workspace-header {
+    margin-left: 0;
+    flex-direction: column;
+    align-items: flex-start;
+  }
 }

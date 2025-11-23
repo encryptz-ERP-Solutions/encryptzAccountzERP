@@ -1,0 +1,71 @@
+<div mat-dialog-title class="dialog-title">
+  {{ isCreate ? 'Create new account' : 'Update account' }}
+</div>
+
+<mat-dialog-content [formGroup]="form" class="dialog-body">
+  <mat-form-field appearance="outline">
+    <mat-label>Account Code</mat-label>
+    <input matInput placeholder="e.g., 1001" formControlName="accountCode" [readonly]="!isCreate">
+    <mat-hint *ngIf="!isCreate">Code cannot be changed</mat-hint>
+    <mat-error *ngIf="form.get('accountCode')?.hasError('required')">
+      Account code is required
+    </mat-error>
+    <mat-error *ngIf="form.get('accountCode')?.hasError('maxlength')">
+      Maximum 20 characters
+    </mat-error>
+  </mat-form-field>
+
+  <mat-form-field appearance="outline">
+    <mat-label>Account Name</mat-label>
+    <input matInput placeholder="Account name" formControlName="accountName">
+    <mat-error *ngIf="form.get('accountName')?.hasError('required')">
+      Account name is required
+    </mat-error>
+    <mat-error *ngIf="form.get('accountName')?.hasError('maxlength')">
+      Maximum 200 characters
+    </mat-error>
+  </mat-form-field>
+
+  <mat-form-field appearance="outline">
+    <mat-label>Account Type</mat-label>
+    <mat-select formControlName="accountTypeID" [disabled]="!isCreate">
+      <mat-option *ngFor="let type of accountTypes" [value]="type.accountTypeID">
+        {{ type.accountTypeName }}
+      </mat-option>
+    </mat-select>
+    <mat-hint *ngIf="!isCreate">Type cannot be changed</mat-hint>
+    <mat-error *ngIf="form.get('accountTypeID')?.hasError('required')">
+      Account type is required
+    </mat-error>
+  </mat-form-field>
+
+  <mat-form-field appearance="outline">
+    <mat-label>Parent Account</mat-label>
+    <mat-select formControlName="parentAccountID">
+      <mat-option [value]="null">None (Top Level)</mat-option>
+      <mat-option *ngFor="let account of parentAccounts" [value]="account.accountID">
+        {{ account.accountCode }} - {{ account.accountName }}
+      </mat-option>
+    </mat-select>
+  </mat-form-field>
+
+  <mat-form-field appearance="outline">
+    <mat-label>Description</mat-label>
+    <textarea matInput placeholder="Optional description" formControlName="description" rows="3"></textarea>
+    <mat-error *ngIf="form.get('description')?.hasError('maxlength')">
+      Maximum 500 characters
+    </mat-error>
+  </mat-form-field>
+
+  <mat-slide-toggle formControlName="isActive" *ngIf="!isCreate">
+    Active
+  </mat-slide-toggle>
+</mat-dialog-content>
+
+<mat-dialog-actions align="end" class="dialog-actions">
+  <button mat-stroked-button (click)="close()" [disabled]="submitting">Cancel</button>
+  <button mat-flat-button color="primary" (click)="save()" [disabled]="submitting || form.invalid">
+    {{ submitting ? 'Saving...' : (isCreate ? 'Create' : 'Update') }}
+  </button>
+</mat-dialog-actions>
+

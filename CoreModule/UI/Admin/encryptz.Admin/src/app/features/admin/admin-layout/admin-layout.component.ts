@@ -6,9 +6,13 @@ import { MatCardModule } from '@angular/material/card';
 import { MatDividerModule } from '@angular/material/divider';
 import { MatIconModule } from '@angular/material/icon';
 import { MatSidenavModule } from '@angular/material/sidenav';
+import { MatMenuModule } from '@angular/material/menu';
+import { MatTooltipModule } from '@angular/material/tooltip';
 import { ActivatedRoute, NavigationEnd, Router, RouterOutlet } from '@angular/router';
 import { SideBarComponent } from "./side-bar/side-bar.component";
 import { filter, map, Observable, startWith, switchMap } from 'rxjs';
+import { AuthService } from '../../../core/services/auth.service';
+import { CommonService } from '../../../shared/services/common.service';
 
 @Component({
   selector: 'app-admin-layout',
@@ -20,6 +24,8 @@ import { filter, map, Observable, startWith, switchMap } from 'rxjs';
     MatIconModule,
     MatDividerModule,
     MatSidenavModule,
+    MatMenuModule,
+    MatTooltipModule,
     SideBarComponent
 ],
   templateUrl: './admin-layout.component.html',
@@ -37,7 +43,9 @@ export class AdminLayoutComponent {
     private breakpointObserver: BreakpointObserver,
     private router: Router,
     private activatedRoute: ActivatedRoute,
-    public location : Location
+    public location : Location,
+    private authService: AuthService,
+    private commonService: CommonService
   ) {
     this.breakpointObserver.observe(['(max-width: 767.99px)']).subscribe(result => {
       if (result.matches) {
@@ -82,4 +90,20 @@ export class AdminLayoutComponent {
     this.isSidebarExpanded = event
   }
 
+  logout(): void {
+    this.authService.logout().subscribe({
+      next: () => {
+        this.commonService.showSnackbar('Logged out successfully', 'SUCCESS', 2000);
+        this.router.navigate(['/']);
+      },
+      error: () => {
+        // Even if logout fails, clear session and redirect
+        this.router.navigate(['/']);
+      }
+    });
+  }
+
+  get currentUser() {
+    return this.authService.getUser();
+  }
 }

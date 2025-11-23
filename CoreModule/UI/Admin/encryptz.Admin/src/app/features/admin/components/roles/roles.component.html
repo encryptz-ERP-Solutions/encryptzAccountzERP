@@ -1,0 +1,135 @@
+<section class="roles">
+  <header class="list-header">
+    <div>
+      <h2 class="mont600 f-sz18 mb-0">Roles</h2>
+      <p class="muted">Control who can access admin capabilities</p>
+    </div>
+    <button mat-flat-button color="primary" (click)="openRoleDialog()">
+      <mat-icon class="icon-14 mrR-6">add</mat-icon>
+      Create role
+    </button>
+  </header>
+
+  <mat-card>
+    <div class="table-controls">
+      <mat-form-field appearance="outline" class="search-field">
+        <mat-label>Search roles</mat-label>
+        <input matInput [formControl]="filterControl" placeholder="Search by name or description">
+        <mat-icon matPrefix>search</mat-icon>
+      </mat-form-field>
+      <button mat-icon-button matTooltip="Refresh" (click)="refresh()" [disabled]="loading">
+        <mat-icon>refresh</mat-icon>
+      </button>
+    </div>
+
+    <mat-progress-bar *ngIf="loading" mode="indeterminate"></mat-progress-bar>
+
+    <div *ngIf="error && !loading" class="error-message">
+      <mat-icon>error_outline</mat-icon>
+      <span>{{ error }}</span>
+    </div>
+
+    <div *ngIf="!loading && !error && !hasRoles" class="empty-state">
+      <mat-icon>admin_panel_settings</mat-icon>
+      <h3>No roles found</h3>
+      <p>Get started by creating your first role</p>
+      <button mat-flat-button color="primary" (click)="openRoleDialog()">
+        <mat-icon>add</mat-icon>
+        Create role
+      </button>
+    </div>
+
+    <div *ngIf="!loading && !error && hasRoles" class="table-container">
+      <table mat-table [dataSource]="dataSource" matSort class="roles-table">
+        <ng-container matColumnDef="roleName">
+          <th mat-header-cell *matHeaderCellDef mat-sort-header> Role </th>
+          <td mat-cell *matCellDef="let element">{{ element.roleName }}</td>
+        </ng-container>
+
+        <ng-container matColumnDef="description">
+          <th mat-header-cell *matHeaderCellDef mat-sort-header> Description </th>
+          <td mat-cell *matCellDef="let element">{{ element.description || '—' }}</td>
+        </ng-container>
+
+        <ng-container matColumnDef="system">
+          <th mat-header-cell *matHeaderCellDef> System </th>
+          <td mat-cell *matCellDef="let element">
+            <mat-slide-toggle [checked]="element.isSystemRole" disabled></mat-slide-toggle>
+          </td>
+        </ng-container>
+
+        <ng-container matColumnDef="actions">
+          <th mat-header-cell *matHeaderCellDef class="text-right"></th>
+          <td mat-cell *matCellDef="let element" class="text-right">
+            <button mat-icon-button matTooltip="Manage permissions" (click)="openPermissionDialog(element)">
+              <mat-icon>security</mat-icon>
+            </button>
+            <button mat-icon-button color="primary" matTooltip="Edit role" (click)="openRoleDialog(element)">
+              <mat-icon>edit</mat-icon>
+            </button>
+            <button mat-icon-button color="warn" matTooltip="Delete role" (click)="deleteRole(element)" [disabled]="element.isSystemRole">
+              <mat-icon>delete</mat-icon>
+            </button>
+          </td>
+        </ng-container>
+
+        <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+        <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+        <tr class="mat-row" *matNoDataRow>
+          <td class="mat-cell" [attr.colspan]="displayedColumns.length">
+            <div class="no-results">
+              No roles match your search criteria
+            </div>
+          </td>
+        </tr>
+      </table>
+      <div class="encryptz-pagination mt-2">
+        <mat-paginator [pageSize]="10" [pageSizeOptions]="[5, 10, 25, 50]"></mat-paginator>
+      </div>
+    </div>
+  </mat-card>
+</section>
+
+<ng-template #roleDialog>
+  <h3 mat-dialog-title>{{ editingRole ? 'Edit role' : 'Create role' }}</h3>
+  <mat-dialog-content [formGroup]="roleForm" class="dialog-body">
+    <mat-form-field appearance="outline">
+      <mat-label>Role name</mat-label>
+      <input matInput formControlName="roleName">
+    </mat-form-field>
+
+    <mat-form-field appearance="outline">
+      <mat-label>Description</mat-label>
+      <textarea matInput rows="3" formControlName="description"></textarea>
+    </mat-form-field>
+
+    <div class="toggle-row">
+      <span>System role</span>
+      <mat-slide-toggle formControlName="isSystemRole">System</mat-slide-toggle>
+    </div>
+  </mat-dialog-content>
+  <mat-dialog-actions align="end">
+    <button mat-stroked-button mat-dialog-close color="warn">Cancel</button>
+    <button mat-flat-button color="primary" (click)="saveRole()">Save</button>
+  </mat-dialog-actions>
+</ng-template>
+
+<ng-template #permissionDialog>
+  <h3 mat-dialog-title>Manage permissions · {{ selectedRole?.roleName }}</h3>
+  <mat-dialog-content class="dialog-body permissions-dialog">
+    <div class="permission-list">
+      <div class="permission-item" *ngFor="let permission of permissions">
+        <mat-checkbox
+          [checked]="getPermissionSet(selectedRole?.roleID || 0).has(permission.permissionID)"
+          (change)="togglePermission(permission, $event.checked!)">
+          {{ permission.permissionKey }}
+        </mat-checkbox>
+        <span class="muted">{{ permission.description }}</span>
+      </div>
+    </div>
+  </mat-dialog-content>
+  <mat-dialog-actions align="end">
+    <button mat-flat-button mat-dialog-close color="primary">Done</button>
+  </mat-dialog-actions>
+</ng-template>
+

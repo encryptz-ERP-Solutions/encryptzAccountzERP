@@ -25,6 +25,12 @@ namespace BusinessLogic.Core.Services
             return _mapper.Map<IEnumerable<MenuItemDto>>(menuItems);
         }
 
+        public async Task<IEnumerable<MenuItemDto>> GetMenuItemsByModuleAsync(int moduleId)
+        {
+            var menuItems = await _menuItemRepository.GetByModuleIdAsync(moduleId);
+            return _mapper.Map<IEnumerable<MenuItemDto>>(menuItems);
+        }
+
         public async Task<MenuItemDto> GetMenuItemByIdAsync(int id)
         {
             var menuItem = await _menuItemRepository.GetByIdAsync(id);

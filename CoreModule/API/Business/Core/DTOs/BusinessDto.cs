@@ -6,6 +6,7 @@ namespace BusinessLogic.Core.DTOs
     {
         public Guid BusinessID { get; set; }
         public string BusinessName { get; set; }
+        public string BusinessCode { get; set; } = string.Empty;
         public string? AddressLine1 { get; set; }
         public string? AddressLine2 { get; set; }
         public string? City { get; set; }

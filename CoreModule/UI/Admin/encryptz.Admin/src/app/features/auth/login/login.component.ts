@@ -9,7 +9,7 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { SlickCarouselModule } from 'ngx-slick-carousel';
 import { CommonService } from '../../../shared/services/common.service';
-import { AuthService } from '../../../core/services/auth.service';
+import { AuthService, LoginCredentials } from '../../../core/services/auth.service';
 
 @Component({
   selector: 'app-login',
@@ -76,19 +76,32 @@ export class LoginComponent {
 
   onLogin() {
     if (this.email.valid && this.password.valid) {
-      let payload = {
+      // Map to backend DTO format
+      const payload: any = {
         loginIdentifier: this.email.value || '',
         password: this.password.value || '',
+      };
+
+      // Include full name and PAN card if provided (for users with incomplete profiles)
+      if (this.fullNameOTP.value && this.fullNameOTP.value.trim()) {
+        payload.fullName = this.fullNameOTP.value.trim();
+      }
+      if (this.panOTP.value && this.panOTP.value.trim()) {
+        payload.panCardNumber = this.panOTP.value.trim().toUpperCase();
       }
 
-      this.authService.login(payload).subscribe({
+      // Use the LoginController endpoint for consistency with OTP flow
+      this.authService.loginWithLoginController(payload).subscribe({
         next: (res: any) => {
-          if (res.isSuccess) {
-            // Navigate to return URL or dashboard
+          if (res?.isSuccess && res?.token) {
+            // Token is already set in the session by the service
             this.router.navigate([this.returnUrl]);
             this.common.showSnackbar('Logged In Successfully', 'SUCCESS', 3000);
-          } else {
+          } else if (res?.isSuccess === false) {
             const errorMessage = res?.message || 'Login failed. Please try again.';
+            this.common.showSnackbar(errorMessage, 'ERROR', 3000);
+          } else {
+            const errorMessage = 'Login failed. Please try again.';
             this.common.showSnackbar(errorMessage, 'ERROR', 3000);
           }
         },
@@ -136,19 +149,31 @@ export class LoginComponent {
   verifyOTP() {
     if (this.otpLoginForm.valid) {
       const otp = Object.values(this.otpLoginForm.value).join('');
-      let payload = {
+      let payload: any = {
         "loginIdentifier": this.emailOTP.value,
         "otp": otp
+      };
+
+      // Include full name and PAN card if provided
+      if (this.fullNameOTP.value && this.fullNameOTP.value.trim()) {
+        payload.fullName = this.fullNameOTP.value.trim();
+      }
+      if (this.panOTP.value && this.panOTP.value.trim()) {
+        payload.panCardNumber = this.panOTP.value.trim().toUpperCase();
       }
 
       this.authService.verifyOTP(payload).subscribe({
         next: (res: any) => {
-          if (res.isSuccess) {
+          if (res.isSuccess && res.token) {
+            // Token is already set in the session by the service
             // Navigate to return URL or dashboard
             this.router.navigate([this.returnUrl]);
             this.common.showSnackbar('Logged In Successfully', 'SUCCESS', 3000);
-          } else {
+          } else if (res.isSuccess === false) {
             const errorMessage = res?.message || 'OTP verification failed. Please try again.';
+            this.common.showSnackbar(errorMessage, 'ERROR', 3000);
+          } else {
+            const errorMessage = 'OTP verification failed. Please try again.';
             this.common.showSnackbar(errorMessage, 'ERROR', 3000);
           }
         },

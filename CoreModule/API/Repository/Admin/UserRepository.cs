@@ -72,14 +72,40 @@ namespace Repository.Admin
                 RETURNING user_id, user_handle, full_name, email, hashed_password, mobile_country_code, mobile_number, pan_card_number_encrypted, aadhar_number_encrypted, is_active, created_at_utc, updated_at_utc;";
 
             var parameters = GetSqlParameters(user);
-            var dataTable = await _sqlHelper.ExecuteQueryAsync(query, parameters);
-
-            if (dataTable.Rows.Count == 0)
+            
+            try
             {
-                throw new DataException("Failed to add user, RETURNING query returned no results.");
-            }
+                var dataTable = await _sqlHelper.ExecuteQueryAsync(query, parameters);
 
-            return MapDataRowToUser(dataTable.Rows[0]);
+                if (dataTable.Rows.Count == 0)
+                {
+                    throw new DataException("Failed to add user, RETURNING query returned no results.");
+                }
+
+                return MapDataRowToUser(dataTable.Rows[0]);
+            }
+            catch (PostgresException ex) when (ex.SqlState == "23505") // Unique constraint violation
+            {
+                // Provide more specific error messages based on the constraint name
+                if (ex.ConstraintName?.Contains("pan", StringComparison.OrdinalIgnoreCase) == true)
+                {
+                    throw new InvalidOperationException("A user with this PAN card number already exists.", ex);
+                }
+                else if (ex.ConstraintName?.Contains("email", StringComparison.OrdinalIgnoreCase) == true)
+                {
+                    throw new InvalidOperationException("A user with this email already exists.", ex);
+                }
+                else if (ex.ConstraintName?.Contains("user_handle", StringComparison.OrdinalIgnoreCase) == true)
+                {
+                    throw new InvalidOperationException("A user with this handle already exists.", ex);
+                }
+                else if (ex.ConstraintName?.Contains("mobile", StringComparison.OrdinalIgnoreCase) == true)
+                {
+                    throw new InvalidOperationException("A user with this mobile number already exists.", ex);
+                }
+                
+                throw new InvalidOperationException("A user with this information already exists.", ex);
+            }
         }
 
         public async Task<User> UpdateAsync(User user)
@@ -100,14 +126,40 @@ namespace Repository.Admin
                 RETURNING user_id, user_handle, full_name, email, hashed_password, mobile_country_code, mobile_number, pan_card_number_encrypted, aadhar_number_encrypted, is_active, created_at_utc, updated_at_utc;";
 
             var parameters = GetSqlParameters(user);
-            var dataTable = await _sqlHelper.ExecuteQueryAsync(query, parameters);
-
-            if (dataTable.Rows.Count == 0)
+            
+            try
             {
-                throw new DataException("Failed to update user, user may not exist.");
-            }
+                var dataTable = await _sqlHelper.ExecuteQueryAsync(query, parameters);
 
-            return MapDataRowToUser(dataTable.Rows[0]);
+                if (dataTable.Rows.Count == 0)
+                {
+                    throw new DataException("Failed to update user, user may not exist.");
+                }
+
+                return MapDataRowToUser(dataTable.Rows[0]);
+            }
+            catch (PostgresException ex) when (ex.SqlState == "23505") // Unique constraint violation
+            {
+                // Provide more specific error messages based on the constraint name
+                if (ex.ConstraintName?.Contains("pan", StringComparison.OrdinalIgnoreCase) == true)
+                {
+                    throw new InvalidOperationException("A user with this PAN card number already exists.", ex);
+                }
+                else if (ex.ConstraintName?.Contains("email", StringComparison.OrdinalIgnoreCase) == true)
+                {
+                    throw new InvalidOperationException("A user with this email already exists.", ex);
+                }
+                else if (ex.ConstraintName?.Contains("user_handle", StringComparison.OrdinalIgnoreCase) == true)
+                {
+                    throw new InvalidOperationException("A user with this handle already exists.", ex);
+                }
+                else if (ex.ConstraintName?.Contains("mobile", StringComparison.OrdinalIgnoreCase) == true)
+                {
+                    throw new InvalidOperationException("A user with this mobile number already exists.", ex);
+                }
+                
+                throw new InvalidOperationException("A user with this information already exists.", ex);
+            }
         }
 
         public async Task<bool> DeleteAsync(Guid id)

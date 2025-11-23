@@ -10,6 +10,8 @@ namespace BusinessLogic.Core.DTOs.Auth
         public DateTime RefreshTokenExpiresAt { get; set; }
         public string UserHandle { get; set; } = string.Empty;
         public Guid UserId { get; set; }
+        public bool IsProfileComplete { get; set; }
+        public bool IsSystemAdmin { get; set; }
     }
 }
 

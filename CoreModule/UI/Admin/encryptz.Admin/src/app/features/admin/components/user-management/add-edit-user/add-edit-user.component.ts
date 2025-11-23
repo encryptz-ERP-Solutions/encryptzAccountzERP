@@ -1,130 +1,135 @@
 import { Component, Inject } from '@angular/core';
-import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
+import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MAT_DIALOG_DATA, MatDialogModule, MatDialogRef } from '@angular/material/dialog';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
-import { MatSelectModule } from '@angular/material/select';
-import { UserManagementService } from '../user-management.service';
+import { MatSlideToggleModule } from '@angular/material/slide-toggle';
+import { CommonModule } from '@angular/common';
+import { finalize } from 'rxjs';
+import { AdminDataService } from '../../../../../core/services/admin-data.service';
 import { CommonService } from '../../../../../shared/services/common.service';
+import { AdminUser, CreateAdminUserRequest, UpdateAdminUserRequest } from '../../../../../core/models/admin.models';
 
 @Component({
   selector: 'app-add-edit-user',
+  standalone: true,
   imports: [
+    CommonModule,
     MatDialogModule,
     MatButtonModule,
     MatFormFieldModule,
-    ReactiveFormsModule,
     MatInputModule,
-    MatSelectModule
+    MatSlideToggleModule,
+    ReactiveFormsModule
   ],
   templateUrl: './add-edit-user.component.html',
   styleUrl: './add-edit-user.component.scss'
 })
 export class AddEditUserComponent {
-  userInfoForm !: FormGroup
+  form!: FormGroup;
+  mode: 'create' | 'edit' = 'create';
+  submitting = false;
+
   constructor(
     private dialogRef: MatDialogRef<AddEditUserComponent>,
-    @Inject(MAT_DIALOG_DATA) public data: any,
-    private service: UserManagementService,
+    @Inject(MAT_DIALOG_DATA) public data: { mode: 'create' | 'edit', user?: AdminUser },
+    private fb: FormBuilder,
+    private adminDataService: AdminDataService,
     private commonService: CommonService,
   ) {
-    this.dialogRef.disableClose = true
+    this.dialogRef.disableClose = true;
   }
 
 
   ngOnInit() {
-    this.initForm()
-    if (this.data.type == 2) {
-      debugger
-      this.userInfoForm.patchValue(this.data.info)
+    this.mode = this.data?.mode ?? 'create';
+    this.buildForm();
+
+    if (this.mode === 'edit' && this.data.user) {
+      this.form.patchValue({
+        userHandle: this.data.user.userHandle,
+        fullName: this.data.user.fullName,
+        email: this.data.user.email,
+        mobileCountryCode: this.data.user.mobileCountryCode,
+        mobileNumber: this.data.user.mobileNumber,
+        isActive: this.data.user.isActive
+      });
+      this.form.get('userHandle')?.disable();
     }
   }
 
-  initForm() {
-    this.userInfoForm = new FormGroup({
-      id: new FormControl(''),      
-      userId: new FormControl(''),
-      userName: new FormControl('', Validators.required),
-      userPassword: new FormControl('', Validators.required),
-      panNo: new FormControl('', Validators.required),
-      adharCardNo: new FormControl('', Validators.required),
-      phoneNo: new FormControl('', Validators.required),
-      email: new FormControl('', Validators.required),
-      address: new FormControl('', Validators.required),
-      stateId: new FormControl('', Validators.required),
-      nationId: new FormControl('', Validators.required)
-    })
+  private buildForm(): void {
+    this.form = this.fb.group({
+      userHandle: ['', [Validators.required, Validators.minLength(3)]],
+      fullName: ['', [Validators.required]],
+      email: ['', [Validators.required, Validators.email]],
+      password: ['', this.mode === 'create' ? [Validators.required, Validators.minLength(8)] : []],
+      mobileCountryCode: ['+91'],
+      mobileNumber: [''],
+      isActive: [true]
+    });
   }
 
 
-  saveUser() {
-    if (this.userInfoForm.valid) {
-      let payload = {
-        "userId": this.userInfoForm.get('userId')?.value ?? 0,
-        "userName": this.userInfoForm.get('userName')?.value,
-        "userPassword": this.userInfoForm.get('userPassword')?.value,
-        "email": this.userInfoForm.get('email')?.value,
-        "panNo": this.userInfoForm.get('panNo')?.value,
-        "adharCardNo": this.userInfoForm.get('adharCardNo')?.value,
-        "phoneNo": this.userInfoForm.get('phoneNo')?.value,
-        "address": this.userInfoForm.get('address')?.value,
-        "stateId": this.userInfoForm.get('stateId')?.value,
-        "nationId": this.userInfoForm.get('nationId')?.value,
-        "isActive": true
-      }
-      this.service.createNewUser(payload).subscribe({
-        next: (res: any) => {
-          debugger
-          if (res) {
-            this.commonService.showSnackbar(res.message, 'SUCCESS', 3000)
-            this.dialogRef.close(true)
+  save(): void {
+    if (this.form.invalid) {
+      this.commonService.showSnackbar('Please complete all required fields', 'ERROR', 3000);
+      this.form.markAllAsTouched();
+      return;
+    }
+
+    this.submitting = true;
+    this.commonService.loaderState(true);
+
+    if (this.mode === 'create') {
+      const payload = this.form.getRawValue() as CreateAdminUserRequest;
+      this.adminDataService.createUser(payload)
+        .pipe(finalize(() => this.resetSubmitting()))
+        .subscribe({
+          next: () => {
+            this.commonService.showSnackbar('User created successfully', 'SUCCESS', 3000);
+            this.dialogRef.close(true);
+          },
+          error: err => {
+            this.commonService.showSnackbar(err?.message || 'Unable to create user', 'ERROR', 3000);
           }
-        },
-        error: (err: any) => {
-          this.commonService.showSnackbar(err.message, 'ERROR', 3000)
-        }
-      })
-    }
-    else {
-      const message = "Fill the mandatory fields"
-      this.commonService.showSnackbar(message, 'ERROR', 3000)
+        });
+    } else if (this.data.user) {
+      const payload: UpdateAdminUserRequest = {
+        fullName: this.form.get('fullName')?.value,
+        email: this.form.get('email')?.value,
+        mobileCountryCode: this.form.get('mobileCountryCode')?.value,
+        mobileNumber: this.form.get('mobileNumber')?.value,
+        isActive: this.form.get('isActive')?.value
+      };
+
+      this.adminDataService.updateUser(this.data.user.userID, payload)
+        .pipe(finalize(() => this.resetSubmitting()))
+        .subscribe({
+          next: () => {
+            this.commonService.showSnackbar('User updated successfully', 'SUCCESS', 3000);
+            this.dialogRef.close(true);
+          },
+          error: err => {
+            this.commonService.showSnackbar(err?.message || 'Unable to update user', 'ERROR', 3000);
+          }
+        });
     }
   }
 
-  updateUser() {
-    if (this.userInfoForm.valid) {
-      let payload = {
-        "id": this.userInfoForm.get('id')?.value ?? 0,
-        "userId": this.userInfoForm.get('userId')?.value ??  0,
-        "userName": this.userInfoForm.get('userName')?.value,
-        "userPassword": this.userInfoForm.get('userPassword')?.value,
-        "email": this.userInfoForm.get('email')?.value,
-        "panNo": this.userInfoForm.get('panNo')?.value,
-        "adharCardNo": this.userInfoForm.get('adharCardNo')?.value,
-        "phoneNo": this.userInfoForm.get('phoneNo')?.value,
-        "address": this.userInfoForm.get('address')?.value,
-        "stateId": this.userInfoForm.get('stateId')?.value,
-        "nationId": this.userInfoForm.get('nationId')?.value,
-        "isActive": true
-      }
-      this.service.updateUser(this.userInfoForm.get('id')?.value, payload).subscribe({
-        next: (res: any) => {
-          debugger
-          if (res) {
-            this.commonService.showSnackbar(res.message, 'SUCCESS', 3000)
-            this.dialogRef.close(true)
-          }
-        },
-        error: (err: any) => {
-          this.commonService.showSnackbar(err.message, 'ERROR', 3000)
-        }
-      })
-    }
-    else {
-      const message = "Fill the mandatory fields"
-      this.commonService.showSnackbar(message, 'ERROR', 3000),
-      this.userInfoForm.markAllAsTouched()
+  private resetSubmitting(): void {
+    this.submitting = false;
+    this.commonService.loaderState(false);
+  }
+
+  get isCreate(): boolean {
+    return this.mode === 'create';
+  }
+
+  close(): void {
+    if (!this.submitting) {
+      this.dialogRef.close(false);
     }
   }
 }

@@ -203,15 +203,15 @@ namespace BusinessLogic.Accounts
             var closingBalance = openingBalance + totalDebits - totalCredits;
 
             // Determine balance type based on account type
-            var openingBalanceType = DetermineBalanceType(account.AccountType, openingBalance);
-            var closingBalanceType = DetermineBalanceType(account.AccountType, closingBalance);
+            var openingBalanceType = DetermineBalanceType(account.AccountType.AccountTypeName, openingBalance);
+            var closingBalanceType = DetermineBalanceType(account.AccountType.AccountTypeName, closingBalance);
 
             var statement = new LedgerStatementDto
             {
                 AccountID = accountId,
                 AccountCode = account.AccountCode,
                 AccountName = account.AccountName,
-                AccountType = account.AccountType,
+                AccountType = account.AccountType.AccountTypeName,
                 FromDate = fromDate,
                 ToDate = toDate,
                 OpeningBalance = Math.Abs(openingBalance),
@@ -234,8 +234,8 @@ namespace BusinessLogic.Accounts
                 throw new ArgumentException("Business not found");
 
             // Get all accounts for the business
-            var accounts = await _chartOfAccountRepository.GetAllByBusinessIdAsync(businessId);
-            var activeAccounts = accounts.Where(a => a.IsActive && !a.IsGroup).ToList();
+            var accounts = await _chartOfAccountRepository.GetAllChartOfAccountsAsync(businessId);
+            var activeAccounts = accounts.Where(a => a.IsActive).ToList();
 
             // Get opening balances (as of day before fromDate)
             var openingBalances = await _ledgerRepository.GetAccountBalancesAsync(businessId, fromDate.AddDays(-1));
@@ -288,7 +288,7 @@ namespace BusinessLogic.Accounts
                         AccountID = account.AccountID,
                         AccountCode = account.AccountCode,
                         AccountName = account.AccountName,
-                        AccountType = account.AccountType,
+                        AccountType = account.AccountType.AccountTypeName,
                         OpeningDebit = openingDebit,
                         OpeningCredit = openingCredit,
                         PeriodDebit = periodDebit,
@@ -334,9 +334,9 @@ namespace BusinessLogic.Accounts
                 throw new ArgumentException("Business not found");
 
             // Get all Revenue and Expense accounts
-            var accounts = await _chartOfAccountRepository.GetAllByBusinessIdAsync(businessId);
-            var incomeAccounts = accounts.Where(a => a.IsActive && !a.IsGroup && a.AccountType == "Revenue").ToList();
-            var expenseAccounts = accounts.Where(a => a.IsActive && !a.IsGroup && a.AccountType == "Expense").ToList();
+            var accounts = await _chartOfAccountRepository.GetAllChartOfAccountsAsync(businessId);
+            var incomeAccounts = accounts.Where(a => a.IsActive && a.AccountType.AccountTypeName == "Revenue").ToList();
+            var expenseAccounts = accounts.Where(a => a.IsActive && a.AccountType.AccountTypeName == "Expense").ToList();
 
             // Get period entries
             var periodEntries = await _ledgerRepository.GetByBusinessIdAsync(businessId, fromDate, toDate);

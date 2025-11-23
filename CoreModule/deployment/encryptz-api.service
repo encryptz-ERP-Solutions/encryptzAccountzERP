@@ -1,0 +1,26 @@
+[Unit]
+Description=encryptzERP API Service
+After=network.target postgresql.service
+
+[Service]
+Type=notify
+User=www-data
+Group=www-data
+WorkingDirectory=/opt/encryptzERP/api-publish
+ExecStart=/usr/bin/dotnet /opt/encryptzERP/api-publish/encryptzERP.dll
+Restart=always
+RestartSec=10
+SyslogIdentifier=encryptz-api
+Environment=ASPNETCORE_ENVIRONMENT=Production
+Environment=DOTNET_ROOT=/usr/share/dotnet
+
+# Security settings
+NoNewPrivileges=true
+PrivateTmp=true
+
+# Resource limits (adjust as needed)
+LimitNOFILE=65536
+
+[Install]
+WantedBy=multi-user.target
+

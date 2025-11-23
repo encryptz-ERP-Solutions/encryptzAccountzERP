@@ -15,5 +15,7 @@ namespace Repository.Core.Interface
         Task<IEnumerable<Permission>> GetPermissionsForRoleAsync(int roleId);
         Task<bool> AddPermissionToRoleAsync(int roleId, int permissionId);
         Task<bool> RemovePermissionFromRoleAsync(int roleId, int permissionId);
+        Task<int?> GetRoleIdByNameAsync(string roleName);
+        Task<bool> UserHasAnyRoleAsync(Guid userId, IEnumerable<string> roleNames);
     }
 }

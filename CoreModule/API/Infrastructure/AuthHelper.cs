@@ -1,5 +1,6 @@
 using System;
 using System.Security.Claims;
+using System.IdentityModel.Tokens.Jwt;
 using Microsoft.AspNetCore.Http;
 
 namespace Infrastructure
@@ -23,8 +24,10 @@ namespace Infrastructure
 
             var claims = httpContext.User;
 
-            // Prefer "user_id" claim, fallback to "sub"
-            var userIdClaim = claims.FindFirst("user_id") ?? claims.FindFirst("sub");
+            // Prefer "user_id", then raw "sub", then the mapped NameIdentifier claim
+            var userIdClaim = claims.FindFirst("user_id")
+                ?? claims.FindFirst(JwtRegisteredClaimNames.Sub)
+                ?? claims.FindFirst(ClaimTypes.NameIdentifier);
             
             if (userIdClaim != null && Guid.TryParse(userIdClaim.Value, out var userId))
             {
@@ -44,7 +47,9 @@ namespace Infrastructure
                 return null;
             }
 
-            var userIdClaim = user.FindFirst("user_id") ?? user.FindFirst("sub");
+            var userIdClaim = user.FindFirst("user_id")
+                ?? user.FindFirst(JwtRegisteredClaimNames.Sub)
+                ?? user.FindFirst(ClaimTypes.NameIdentifier);
             
             if (userIdClaim != null && Guid.TryParse(userIdClaim.Value, out var userId))
             {

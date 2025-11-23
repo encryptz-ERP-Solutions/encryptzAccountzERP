@@ -13,6 +13,15 @@ namespace Infrastructure.Extensions
 {
     public static class extension
     {
+        private static readonly string EncryptionKey = "223encryptzSecretCodeForDreamProject445"; // original secret phrase
+        private static readonly byte[] EncryptionKeyBytes;
+
+        static extension()
+        {
+            using var sha256 = SHA256.Create();
+            EncryptionKeyBytes = sha256.ComputeHash(Encoding.UTF8.GetBytes(EncryptionKey));
+        }
+
         // Generic method to convert one object to another
         public static TTarget ConvertToClassObject<TSource, TTarget>(this TSource source)
             where TSource : class
@@ -51,14 +60,13 @@ namespace Infrastructure.Extensions
         }
 
 
-        private static readonly string EncryptionKey = "223encryptzSecretCodeForDreamProject445"; // 16, 24, or 32 characters for AES key
         /// Encrypts a string using AES encryption.
         public static string Encrypt(this string plainText)
         {
             if (string.IsNullOrEmpty(plainText))
                 return string.Empty;
 
-            byte[] keyBytes = Encoding.UTF8.GetBytes(EncryptionKey);
+            byte[] keyBytes = EncryptionKeyBytes;
             byte[] ivBytes = new byte[16]; // AES requires a 16-byte IV, initialized as zeros
 
             using (Aes aes = Aes.Create())
@@ -82,7 +90,7 @@ namespace Infrastructure.Extensions
             if (string.IsNullOrEmpty(encryptedText))
                 return string.Empty;
 
-            byte[] keyBytes = Encoding.UTF8.GetBytes(EncryptionKey);
+            byte[] keyBytes = EncryptionKeyBytes;
             byte[] ivBytes = new byte[16]; // AES requires a 16-byte IV, initialized as zeros
 
             using (Aes aes = Aes.Create())

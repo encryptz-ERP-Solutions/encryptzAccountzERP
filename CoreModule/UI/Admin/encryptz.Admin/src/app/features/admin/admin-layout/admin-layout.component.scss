@@ -29,6 +29,8 @@
 .content-area {
     margin-left: 200px;
     transition: margin-left 0.3s ease;
+    padding: 24px;
+    min-height: 100vh;
 }
 
 .custom-sidebar.collapsed+.content-area {

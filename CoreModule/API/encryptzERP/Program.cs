@@ -18,9 +18,23 @@ using Microsoft.Extensions.Options;
 using Repository.Accounts;
 using BusinessLogic.Accounts;
 using System;
+using System.Threading.Tasks;
 using BusinessLogic.Core.Services.Auth;
+using Microsoft.AspNetCore.HttpOverrides;
 
 var builder = WebApplication.CreateBuilder(args);
+
+// Configure Forwarded Headers for reverse proxy (Nginx)
+// This is CRITICAL for Linux hosting behind a reverse proxy
+builder.Services.Configure<ForwardedHeadersOptions>(options =>
+{
+    options.ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto | ForwardedHeaders.XForwardedHost;
+    // Trust only the reverse proxy (Nginx running on localhost)
+    options.KnownNetworks.Clear();
+    options.KnownProxies.Clear();
+    // If your reverse proxy is on a different server, add it here:
+    // options.KnownProxies.Add(IPAddress.Parse("your-proxy-ip"));
+});
 
 var jwtSettings = builder.Configuration.GetSection("JwtSettings");
 var secretKey = jwtSettings["SecretKey"] ?? throw new InvalidOperationException("JWT SecretKey not found in configuration");
@@ -39,6 +53,18 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
             ValidAudience = jwtSettings["Audience"],
             IssuerSigningKey = new SymmetricSecurityKey(key)
         };
+        // Skip authentication for OPTIONS requests (CORS preflight)
+        options.Events = new Microsoft.AspNetCore.Authentication.JwtBearer.JwtBearerEvents
+        {
+            OnMessageReceived = context =>
+            {
+                if (context.Request.Method == "OPTIONS")
+                {
+                    context.Token = null;
+                }
+                return Task.CompletedTask;
+            }
+        };
     });
 // Add services to the container.
 builder.Services.AddAuthorization(options =>
@@ -47,14 +73,35 @@ builder.Services.AddAuthorization(options =>
         policy.RequireClaim("permission", "CanManageBusinesses"));
 });
 
-// Enable CORS
+// Enable CORS with explicit origins for security
+// Get CORS origins from configuration (appsettings.json or appsettings.Production.json)
+// Falls back to development origins if not configured
+var corsOriginsConfig = builder.Configuration.GetSection("CorsOrigins").Get<string[]>();
+var allowedOrigins = corsOriginsConfig != null && corsOriginsConfig.Length > 0
+    ? corsOriginsConfig
+    : new[]
+    {
+        // Development origins (used when CorsOrigins is not configured)
+        "http://localhost:4200",      // Angular dev server
+        "http://127.0.0.1:4200",      // Angular dev server (alternative)
+        "https://localhost:4200",     // Angular dev server (HTTPS)
+        "http://localhost:5286",      // Swagger/API (for testing)
+        "https://localhost:7037",      // API HTTPS endpoint
+        "http://72.60.206.241:5007", // Production UI server
+        "https://72.60.206.241",  // Production UI server HTTPS  
+        "http://72.60.206.241"
+    };
+
 builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowEncryptzCorsPolicy",
-        builder => builder
-            .AllowAnyOrigin()  // You can replace with .WithOrigins("http://localhost:4200") for more control
-            .AllowAnyMethod()
-            .AllowAnyHeader());
+        policy => policy
+            .WithOrigins(allowedOrigins)
+            .AllowAnyMethod()  // This includes OPTIONS
+            .AllowAnyHeader()   // This includes all headers like Authorization, Content-Type, etc.
+            .AllowCredentials()  // Required for cookies/refresh tokens
+            .WithExposedHeaders("Authorization", "Content-Type", "Accept", "Origin") // Expose headers to client
+            .SetPreflightMaxAge(TimeSpan.FromSeconds(86400))); // Cache preflight for 24 hours
 });
 
 
@@ -82,6 +129,7 @@ builder.Services.AddScoped<IModuleRepository, ModuleRepository>();
 builder.Services.AddScoped<IModuleService, ModuleService>();
 builder.Services.AddScoped<IMenuItemRepository, MenuItemRepository>();
 builder.Services.AddScoped<IMenuItemService, MenuItemService>();
+builder.Services.AddScoped<IAdminDashboardService, AdminDashboardService>();
 builder.Services.AddScoped<IPermissionRepository, PermissionRepository>();
 builder.Services.AddScoped<IPermissionService, PermissionService>();
 builder.Services.AddScoped<IRoleService, RoleService>();
@@ -89,6 +137,7 @@ builder.Services.AddScoped<IRolePermissionRepository, RolePermissionRepository>(
 builder.Services.AddScoped<IUserBusinessRoleRepository, UserBusinessRoleRepository>();
 builder.Services.AddScoped<IRolePermissionService, RolePermissionService>();
 builder.Services.AddScoped<IUserBusinessRoleService, UserBusinessRoleService>();
+builder.Services.AddScoped<IUserProfileService, UserProfileService>();
 builder.Services.AddScoped<IAccountTypeRepository, AccountTypeRepository>();
 builder.Services.AddScoped<IChartOfAccountRepository, ChartOfAccountRepository>();
 builder.Services.AddScoped<IAccountTypeService, AccountTypeService>();
@@ -116,6 +165,7 @@ builder.Services.AddScoped<IDbConnectionFactory, NpgsqlConnectionFactory>();
 // Register new audit and user-business services
 builder.Services.AddScoped<IAuditRepository, AuditRepository>();
 builder.Services.AddScoped<IAuditService, AuditService>();
+builder.Services.AddScoped<IAuditLogService, AuditLogService>();
 builder.Services.AddScoped<IUserBusinessRepository, UserBusinessRepository>();
 builder.Services.AddScoped<IUserBusinessService, UserBusinessService>();
 
@@ -132,6 +182,11 @@ builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(options =>
 {
     options.SwaggerDoc("v1", new OpenApiInfo { Title = "ERP API", Version = "v1" });
+    
+    // FIX: Use full type name to avoid schema ID collisions when multiple DTOs have the same class name
+    // This resolves conflicts like BusinessLogic.Core.DTOs.LoginRequestDto vs BusinessLogic.Core.DTOs.Auth.LoginRequestDto
+    options.CustomSchemaIds(type => type.FullName?.Replace("+", "."));
+    
     options.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
     {
         Name = "Authorization",
@@ -158,6 +213,13 @@ builder.Services.AddSwaggerGen(options =>
     });
 });
 var app = builder.Build();
+
+// Configure the HTTP request pipeline.
+
+// CRITICAL: Use Forwarded Headers BEFORE other middleware
+// This must be first to properly handle requests from reverse proxy
+app.UseForwardedHeaders();
+
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
@@ -165,14 +227,64 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
 }
 
-app.UseHttpsRedirection();
+// CRITICAL: Explicit OPTIONS handling BEFORE routing to ensure CORS preflight works
+// This middleware handles OPTIONS requests early and validates the origin
+app.Use(async (context, next) =>
+{
+    if (context.Request.Method == "OPTIONS")
+    {
+        var origin = context.Request.Headers["Origin"].ToString();
+        
+        // Get allowed origins from configuration (same logic as CORS policy)
+        var corsOriginsConfig = app.Configuration.GetSection("CorsOrigins").Get<string[]>();
+        var allowedOriginsList = corsOriginsConfig != null && corsOriginsConfig.Length > 0
+            ? corsOriginsConfig
+            : new[]
+            {
+                "http://localhost:4200",
+                "http://127.0.0.1:4200",
+                "https://localhost:4200",
+                "http://localhost:5286",
+                "https://localhost:7037",
+                "http://72.60.206.241:5007",
+                "https://72.60.206.241",
+                "http://72.60.206.241"
+            };
+        
+        // Check if origin is in allowed list
+        if (!string.IsNullOrEmpty(origin) && allowedOriginsList.Contains(origin))
+        {
+            context.Response.Headers["Access-Control-Allow-Origin"] = origin;
+            context.Response.Headers["Access-Control-Allow-Methods"] = "GET, POST, PUT, DELETE, PATCH, OPTIONS";
+            context.Response.Headers["Access-Control-Allow-Headers"] = "Content-Type, Authorization, X-Requested-With, Accept, Origin";
+            context.Response.Headers["Access-Control-Allow-Credentials"] = "true";
+            context.Response.Headers["Access-Control-Max-Age"] = "86400";
+            context.Response.StatusCode = 204;
+            return;
+        }
+        else
+        {
+            // Origin not allowed - let CORS middleware handle it
+            await next();
+            return;
+        }
+    }
+    await next();
+});
 
-// Add CORS before authorization
+// CRITICAL: Routing must be configured BEFORE CORS
+app.UseRouting();
+
+// CRITICAL: CORS must be configured BEFORE authentication and authorization
+// This ensures preflight OPTIONS requests are handled correctly
+// CORS middleware will automatically handle OPTIONS requests and add the required headers
 app.UseCors("AllowEncryptzCorsPolicy");
 
+// Ensure authentication doesn't interfere with OPTIONS requests
 app.UseAuthentication();
 app.UseAuthorization();
 
+// Map controllers
 app.MapControllers();
 
 app.Run();

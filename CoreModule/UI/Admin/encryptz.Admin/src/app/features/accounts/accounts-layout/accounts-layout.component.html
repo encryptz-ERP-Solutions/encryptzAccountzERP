@@ -77,6 +77,34 @@
     <app-accounts-side-bar [isExpand]="isSidebarExpanded" (isOpenSideNav)="checkExpandNav($event)" />
 </div>
 
+<div class="workspace-header">
+    <div>
+        <div class="header-label">Business</div>
+        <div class="header-value">{{ selectedBusiness?.businessName || 'No business selected' }}</div>
+        <div class="header-sub" *ngIf="selectedBusiness?.businessCode">
+            {{ selectedBusiness?.businessCode }}
+        </div>
+    </div>
+    <div class="module-chip-wrap">
+        <div class="header-label">Module</div>
+        <mat-chip color="primary" selected>Accounts</mat-chip>
+    </div>
+    <div class="d-flex align-items-center gap-2">
+        <button mat-stroked-button color="primary" (click)="navigateBack()">
+            Change business
+        </button>
+        <button mat-icon-button [matMenuTriggerFor]="userMenu" matTooltip="User menu">
+            <mat-icon>account_circle</mat-icon>
+        </button>
+        <mat-menu #userMenu="matMenu">
+            <button mat-menu-item (click)="logout()">
+                <mat-icon>logout</mat-icon>
+                <span>Logout</span>
+            </button>
+        </mat-menu>
+    </div>
+</div>
+
 <div class="content-area">
     <router-outlet></router-outlet>
 </div>

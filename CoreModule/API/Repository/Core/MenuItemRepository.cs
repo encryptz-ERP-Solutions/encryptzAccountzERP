@@ -32,6 +32,26 @@ namespace Repository.Core
             return menuItems;
         }
 
+        public async Task<IEnumerable<MenuItem>> GetByModuleIdAsync(int moduleId)
+        {
+            var query = @"
+                SELECT * 
+                FROM core.menu_items 
+                WHERE module_id = @ModuleID
+                ORDER BY display_order";
+
+            var parameters = new[] { new NpgsqlParameter("@ModuleID", moduleId) };
+            var dataTable = await _sqlHelper.ExecuteQueryAsync(query, parameters);
+            var menuItems = new List<MenuItem>();
+
+            foreach (DataRow row in dataTable.Rows)
+            {
+                menuItems.Add(MapToMenuItem(row));
+            }
+
+            return menuItems;
+        }
+
         public async Task<MenuItem> GetByIdAsync(int id)
         {
             var query = "SELECT * FROM core.menu_items WHERE menu_item_id = @MenuItemID";

@@ -17,7 +17,7 @@
 -- **SECURITY WARNING**: Change this password immediately in production!
 -- This is for development and testing purposes only.
 
-INSERT INTO users (
+INSERT INTO core.users (
     user_id,
     email,
     email_verified,
@@ -57,7 +57,7 @@ DO UPDATE SET
     updated_at = NOW();
 
 -- Assign Admin role to the default admin user
-INSERT INTO user_roles (user_id, role_id, assigned_at, is_active)
+INSERT INTO core.user_roles (user_id, role_id, assigned_at, is_active)
 VALUES (
     '33333333-3333-3333-3333-000000000001'::uuid,
     '22222222-2222-2222-2222-000000000001'::uuid,  -- Admin role from previous seed
@@ -71,7 +71,7 @@ ON CONFLICT (user_id, role_id) DO NOTHING;
 -- =====================================================
 
 -- Insert sample business
-INSERT INTO businesses (
+INSERT INTO core.businesses (
     business_id,
     business_name,
     business_type,
@@ -130,7 +130,7 @@ DO UPDATE SET
     updated_by = EXCLUDED.created_by;
 
 -- Link admin user to the sample business as owner
-INSERT INTO business_users (
+INSERT INTO core.business_users (
     business_id,
     user_id,
     is_owner,
@@ -159,7 +159,7 @@ ON CONFLICT (business_id, user_id) DO NOTHING;
 -- =====================================================
 
 -- Insert a default subscription plan
-INSERT INTO subscription_plans (
+INSERT INTO core.subscription_plans (
     plan_id,
     plan_name,
     plan_code,
@@ -199,7 +199,7 @@ DO UPDATE SET
     updated_at = NOW();
 
 -- Assign subscription to the sample business
-INSERT INTO subscriptions (
+INSERT INTO core.subscriptions (
     subscription_id,
     business_id,
     plan_id,
@@ -244,7 +244,7 @@ DO UPDATE SET
 -- =====================================================
 
 -- Insert 10 sample COA entries representing different account types
-INSERT INTO chart_of_accounts (
+INSERT INTO Acct.chart_of_accounts (
     account_id,
     business_id,
     account_code,
@@ -331,7 +331,7 @@ DO UPDATE SET
 -- =====================================================
 
 -- Insert common GST tax codes
-INSERT INTO tax_codes (
+INSERT INTO Acct.tax_codes (
     tax_code_id,
     business_id,
     tax_code,
@@ -367,7 +367,7 @@ DO UPDATE SET
 -- =====================================================
 
 -- Voucher 1: Opening Journal Entry
-INSERT INTO vouchers (
+INSERT INTO Acct.vouchers (
     voucher_id,
     business_id,
     voucher_number,
@@ -412,7 +412,7 @@ VALUES (
 ON CONFLICT (business_id, voucher_number, voucher_type) DO NOTHING;
 
 -- Voucher 2: Sales Invoice
-INSERT INTO vouchers (
+INSERT INTO Acct.vouchers (
     voucher_id,
     business_id,
     voucher_number,
@@ -463,7 +463,7 @@ VALUES (
 ON CONFLICT (business_id, voucher_number, voucher_type) DO NOTHING;
 
 -- Voucher 3: Payment Voucher
-INSERT INTO vouchers (
+INSERT INTO Acct.vouchers (
     voucher_id,
     business_id,
     voucher_number,
@@ -516,7 +516,7 @@ ON CONFLICT (business_id, voucher_number, voucher_type) DO NOTHING;
 -- =====================================================
 
 -- Lines for Voucher 1 (Opening Journal Entry)
-INSERT INTO voucher_lines (
+INSERT INTO Acct.voucher_lines (
     line_id,
     voucher_id,
     line_number,
@@ -559,7 +559,7 @@ VALUES
 ON CONFLICT (voucher_id, line_number) DO NOTHING;
 
 -- Lines for Voucher 2 (Sales Invoice)
-INSERT INTO voucher_lines (
+INSERT INTO Acct.voucher_lines (
     line_id,
     voucher_id,
     line_number,
@@ -591,7 +591,7 @@ VALUES
 ON CONFLICT (voucher_id, line_number) DO NOTHING;
 
 -- Lines for Voucher 3 (Payment)
-INSERT INTO voucher_lines (
+INSERT INTO Acct.voucher_lines (
     line_id,
     voucher_id,
     line_number,
@@ -618,7 +618,7 @@ ON CONFLICT (voucher_id, line_number) DO NOTHING;
 -- =====================================================
 
 -- Ledger entries for Voucher 1 (Opening Journal)
-INSERT INTO ledger_entries (
+INSERT INTO Acct.ledger_entries (
     business_id, voucher_id, line_id, entry_date, account_id,
     debit_amount, credit_amount, base_debit_amount, base_credit_amount,
     is_opening_balance, narration
@@ -642,7 +642,7 @@ WHERE v.voucher_id = '88888888-8888-8888-8888-000000000001'::uuid
 ON CONFLICT DO NOTHING;
 
 -- Ledger entries for Voucher 2 (Sales Invoice)
-INSERT INTO ledger_entries (
+INSERT INTO Acct.ledger_entries (
     business_id, voucher_id, line_id, entry_date, account_id,
     debit_amount, credit_amount, base_debit_amount, base_credit_amount,
     narration
@@ -665,7 +665,7 @@ WHERE v.voucher_id = '88888888-8888-8888-8888-000000000002'::uuid
 ON CONFLICT DO NOTHING;
 
 -- Ledger entries for Voucher 3 (Payment)
-INSERT INTO ledger_entries (
+INSERT INTO Acct.ledger_entries (
     business_id, voucher_id, line_id, entry_date, account_id,
     debit_amount, credit_amount, base_debit_amount, base_credit_amount,
     narration
@@ -700,14 +700,14 @@ DECLARE
     voucher_line_count INTEGER;
     ledger_count INTEGER;
 BEGIN
-    SELECT COUNT(*) INTO user_count FROM users WHERE email = 'admin@encryptz.com';
-    SELECT COUNT(*) INTO business_count FROM businesses WHERE business_id = '44444444-4444-4444-4444-000000000001'::uuid;
-    SELECT COUNT(*) INTO coa_count FROM chart_of_accounts WHERE business_id = '44444444-4444-4444-4444-000000000001'::uuid;
-    SELECT COUNT(*) INTO voucher_count FROM vouchers WHERE business_id = '44444444-4444-4444-4444-000000000001'::uuid;
-    SELECT COUNT(*) INTO voucher_line_count FROM voucher_lines vl 
-        JOIN vouchers v ON vl.voucher_id = v.voucher_id 
+    SELECT COUNT(*) INTO user_count FROM core.users WHERE email = 'admin@encryptz.com';
+    SELECT COUNT(*) INTO business_count FROM core.businesses WHERE business_id = '44444444-4444-4444-4444-000000000001'::uuid;
+    SELECT COUNT(*) INTO coa_count FROM Acct.chart_of_accounts WHERE business_id = '44444444-4444-4444-4444-000000000001'::uuid;
+    SELECT COUNT(*) INTO voucher_count FROM vAcct.ouchers WHERE business_id = '44444444-4444-4444-4444-000000000001'::uuid;
+    SELECT COUNT(*) INTO voucher_line_count FROM Acct.voucher_lines vl 
+        JOIN Acct.vouchers v ON vl.voucher_id = v.voucher_id 
         WHERE v.business_id = '44444444-4444-4444-4444-000000000001'::uuid;
-    SELECT COUNT(*) INTO ledger_count FROM ledger_entries WHERE business_id = '44444444-4444-4444-4444-000000000001'::uuid;
+    SELECT COUNT(*) INTO ledger_count FROM Acct.ledger_entries WHERE business_id = '44444444-4444-4444-4444-000000000001'::uuid;
     
     RAISE NOTICE 'Sample data seed completed successfully:';
     RAISE NOTICE '  - Admin Users: %', user_count;

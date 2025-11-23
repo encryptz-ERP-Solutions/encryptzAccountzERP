@@ -10,6 +10,8 @@ namespace BusinessLogic.Core.DTOs
         public bool IsDefault { get; set; }
         public DateTime CreatedAtUTC { get; set; }
         public DateTime? UpdatedAtUTC { get; set; }
+        public string? BusinessName { get; set; }
+        public string? BusinessCode { get; set; }
     }
 
     public class CreateUserBusinessRequest

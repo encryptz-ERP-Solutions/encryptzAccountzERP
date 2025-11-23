@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { BehaviorSubject, Observable, throwError, of } from 'rxjs';
-import { tap, catchError, map } from 'rxjs/operators';
+import { tap, catchError } from 'rxjs/operators';
 import { Router } from '@angular/router';
 import { environment } from '../../../environments/environment';
 
@@ -10,33 +10,34 @@ export interface User {
   userId: string;
   email: string;
   userName: string;
+  userHandle?: string;
   role: string;
   businessId?: string;
   permissions?: string[];
   exp?: number;
+  isSystemAdmin?: boolean;
+  isProfileComplete?: boolean;
 }
 
 export interface LoginCredentials {
-  loginIdentifier: string;
+  emailOrUserHandle: string;
   password: string;
+  fullName?: string;
+  panCardNumber?: string;
 }
 
-export interface LoginResponse {
-  isSuccess: boolean;
-  message: string;
-  response?: {
-    token: string;
-    user?: User;
-    // Refresh token will be in httpOnly cookie set by backend
-  };
+export interface AuthTokensResponse {
+  accessToken: string;
+  expiresAt: string;
+  userId: string;
+  userHandle: string;
+  isProfileComplete: boolean;
+  isSystemAdmin: boolean;
+  refreshToken?: string | null;
+  refreshTokenExpiresAt?: string | null;
 }
 
-export interface RefreshResponse {
-  isSuccess: boolean;
-  response?: {
-    token: string;
-  };
-}
+export type RefreshResponse = AuthTokensResponse;
 
 @Injectable({
   providedIn: 'root'
@@ -54,11 +55,17 @@ export class AuthService {
   
   private isRefreshing = false;
   private refreshTokenSubject: BehaviorSubject<string | null> = new BehaviorSubject<string | null>(null);
+  private refreshTokenValue: string | null = null;
+  private refreshTokenExpiresAt: string | null = null;
+
+  private readonly refreshTokenStorageKey = 'encryptz_refresh_token';
+  private readonly refreshTokenExpiryStorageKey = 'encryptz_refresh_token_expires_at';
 
   constructor(
     private http: HttpClient,
     private router: Router
   ) {
+    this.restorePersistedRefreshToken();
     // Try to restore session on init (in case page was refreshed)
     this.initializeSession();
   }
@@ -68,6 +75,10 @@ export class AuthService {
    * This handles page refresh scenarios
    */
   private initializeSession(): void {
+    if (!this.refreshTokenValue) {
+      return;
+    }
+
     // Try to refresh token on app startup (works if httpOnly cookie exists)
     this.refresh().subscribe({
       next: () => {
@@ -84,15 +95,18 @@ export class AuthService {
    * Login with credentials
    * Backend should set httpOnly cookie with refresh token
    */
-  login(credentials: LoginCredentials): Observable<LoginResponse> {
-    return this.http.post<LoginResponse>(
+  login(credentials: LoginCredentials): Observable<AuthTokensResponse> {
+    return this.http.post<AuthTokensResponse>(
       `${environment.apiUrl}api/v1/auth/login`,
       credentials,
       { withCredentials: true } // Important: allows cookies to be sent/received
     ).pipe(
       tap(response => {
-        if (response.isSuccess && response.response?.token) {
-          this.setSession(response.response.token);
+        if (response?.accessToken) {
+          this.setSession(response.accessToken);
+        }
+        if (response?.refreshToken) {
+          this.setRefreshTokenValue(response.refreshToken, response.refreshTokenExpiresAt ?? null);
         }
       }),
       catchError(error => {
@@ -125,14 +139,22 @@ export class AuthService {
    * This is called automatically on 401 responses
    */
   refresh(): Observable<RefreshResponse> {
+    const payload: { refreshToken?: string } = {};
+    if (this.refreshTokenValue) {
+      payload.refreshToken = this.refreshTokenValue;
+    }
+
     return this.http.post<RefreshResponse>(
       `${environment.apiUrl}api/v1/auth/refresh`,
-      {},
-      { withCredentials: true } // Important: sends httpOnly cookie
+      payload,
+      { withCredentials: true } // Important: sends httpOnly cookie / fallback to body
     ).pipe(
       tap(response => {
-        if (response.isSuccess && response.response?.token) {
-          this.setAccessToken(response.response.token);
+        if (response?.accessToken) {
+          this.setAccessToken(response.accessToken);
+        }
+        if (response?.refreshToken) {
+          this.setRefreshTokenValue(response.refreshToken, response.refreshTokenExpiresAt ?? null);
         }
       }),
       catchError(error => {
@@ -197,6 +219,14 @@ export class AuthService {
       : false;
   }
 
+  isSystemAdmin(): boolean {
+    return !!this.getUser()?.isSystemAdmin;
+  }
+
+  isProfileComplete(): boolean {
+    return !!this.getUser()?.isProfileComplete;
+  }
+
   /**
    * Set access token and decode user info
    */
@@ -219,12 +249,13 @@ export class AuthService {
   /**
    * Clear session data
    */
-  private clearSession(): void {
+  clearSession(): void {
     this.accessToken = null;
     this.currentUserSubject.next(null);
     this.isLoggedInSubject.next(false);
     this.isRefreshing = false;
     this.refreshTokenSubject.next(null);
+    this.setRefreshTokenValue(null);
   }
 
   /**
@@ -240,11 +271,14 @@ export class AuthService {
       return {
         userId: decoded.sub || decoded.userId || decoded.id,
         email: decoded.email,
-        userName: decoded.name || decoded.userName || decoded.unique_name,
+        userName: decoded.name || decoded.userName || decoded.unique_name || decoded.userHandle,
+        userHandle: decoded.name || decoded.userHandle,
         role: decoded.role || decoded['http://schemas.microsoft.com/ws/2008/06/identity/claims/role'],
         businessId: decoded.businessId,
         permissions: decoded.permissions || [],
-        exp: decoded.exp
+        exp: decoded.exp,
+        isSystemAdmin: decoded['is_admin'] === 'true',
+        isProfileComplete: decoded['profile_complete'] !== 'false'
       };
     } catch (error) {
       console.error('Error decoding token:', error);
@@ -285,9 +319,26 @@ export class AuthService {
     return this.http.post(`${environment.apiUrl}api/Login/verify-otp`, body, { withCredentials: true })
       .pipe(
         tap((res: any) => {
-          if (res.isSuccess && res.response?.token) {
+          if (res.isSuccess && res.token) {
+            this.setSession(res.token);
+          } else if (res.isSuccess && res.response?.token) {
             this.setSession(res.response.token);
           }
+        })
+      );
+  }
+
+  loginWithLoginController(body: any): Observable<any> {
+    return this.http.post(`${environment.apiUrl}api/Login/login`, body, { withCredentials: true })
+      .pipe(
+        tap((res: any) => {
+          if (res.isSuccess && res.token) {
+            this.setSession(res.token);
+          }
+        }),
+        catchError(error => {
+          console.error('Login error:', error);
+          return throwError(() => error);
         })
       );
   }
@@ -331,5 +382,40 @@ export class AuthService {
    */
   setRefreshTokenSubject(token: string | null): void {
     this.refreshTokenSubject.next(token);
+  }
+
+  private setRefreshTokenValue(token: string | null, expiresAt: string | null = null): void {
+    this.refreshTokenValue = token;
+    this.refreshTokenSubject.next(token);
+    this.refreshTokenExpiresAt = expiresAt;
+
+    try {
+      if (token) {
+        localStorage.setItem(this.refreshTokenStorageKey, token);
+        if (expiresAt) {
+          localStorage.setItem(this.refreshTokenExpiryStorageKey, expiresAt);
+        } else {
+          localStorage.removeItem(this.refreshTokenExpiryStorageKey);
+        }
+      } else {
+        localStorage.removeItem(this.refreshTokenStorageKey);
+        localStorage.removeItem(this.refreshTokenExpiryStorageKey);
+      }
+    } catch (error) {
+      console.warn('Unable to persist refresh token', error);
+    }
+  }
+
+  private restorePersistedRefreshToken(): void {
+    try {
+      this.refreshTokenValue = localStorage.getItem(this.refreshTokenStorageKey);
+      this.refreshTokenExpiresAt = localStorage.getItem(this.refreshTokenExpiryStorageKey);
+      if (this.refreshTokenValue) {
+        this.refreshTokenSubject.next(this.refreshTokenValue);
+      }
+    } catch {
+      this.refreshTokenValue = null;
+      this.refreshTokenExpiresAt = null;
+    }
   }
 }

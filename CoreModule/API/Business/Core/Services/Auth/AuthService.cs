@@ -6,12 +6,16 @@ using System.Security.Cryptography;
 using System.Text;
 using System.Threading.Tasks;
 using BusinessLogic.Admin.Services;
+using BusinessLogic.Core.DTOs;
 using BusinessLogic.Core.DTOs.Auth;
+using BusinessLogic.Core.Interface;
 using Entities.Admin;
 using Entities.Core;
 using Microsoft.Extensions.Configuration;
 using Repository.Admin.Interface;
 using Repository.Core.Interface;
+using Shared.Core;
+using AuthDtos = BusinessLogic.Core.DTOs.Auth;
 
 namespace BusinessLogic.Core.Services.Auth
 {
@@ -21,20 +25,33 @@ namespace BusinessLogic.Core.Services.Auth
         private readonly IRefreshTokenRepository _refreshTokenRepository;
         private readonly TokenService _tokenService;
         private readonly IConfiguration _configuration;
+        private readonly IRoleRepository _roleRepository;
+        private readonly IBusinessService _businessService;
+        private readonly IUserBusinessService _userBusinessService;
+        private readonly IUserBusinessRoleService _userBusinessRoleService;
+        private static readonly string[] AdminRoleNames = new[] { "Admin", "Business Owner" };
 
         public AuthService(
             IUserRepository userRepository,
             IRefreshTokenRepository refreshTokenRepository,
             TokenService tokenService,
-            IConfiguration configuration)
+            IConfiguration configuration,
+            IRoleRepository roleRepository,
+            IBusinessService businessService,
+            IUserBusinessService userBusinessService,
+            IUserBusinessRoleService userBusinessRoleService)
         {
             _userRepository = userRepository;
             _refreshTokenRepository = refreshTokenRepository;
             _tokenService = tokenService;
             _configuration = configuration;
+            _roleRepository = roleRepository;
+            _businessService = businessService;
+            _userBusinessService = userBusinessService;
+            _userBusinessRoleService = userBusinessRoleService;
         }
 
-        public async Task<AuthResponseDto> RegisterAsync(RegisterRequestDto request, string? ipAddress = null)
+        public async Task<AuthResponseDto> RegisterAsync(AuthDtos.RegisterRequestDto request, string? ipAddress = null)
         {
             // Validate password
             if (!ValidatePassword(request.Password, out var errors))
@@ -56,6 +73,10 @@ namespace BusinessLogic.Core.Services.Auth
             }
 
             // Create new user
+            // Generate unique PAN card number to avoid duplicate key violations
+            // This is a placeholder - actual PAN should be encrypted and provided by the user
+            var uniquePanBytes = Guid.NewGuid().ToByteArray();
+            
             var user = new User
             {
                 UserID = Guid.NewGuid(),
@@ -65,6 +86,8 @@ namespace BusinessLogic.Core.Services.Auth
                 HashedPassword = PasswordHasher.HashPassword(request.Password),
                 MobileCountryCode = request.MobileCountryCode,
                 MobileNumber = request.MobileNumber,
+                PanCardNumber_Encrypted = uniquePanBytes, // Use unique bytes to avoid duplicate hash constraint violation
+                AadharNumber_Encrypted = null,
                 IsActive = true,
                 CreatedAtUTC = DateTime.UtcNow
             };
@@ -75,7 +98,7 @@ namespace BusinessLogic.Core.Services.Auth
             return await GenerateAuthResponseAsync(createdUser, ipAddress);
         }
 
-        public async Task<AuthResponseDto> LoginAsync(LoginRequestDto request, string? ipAddress = null)
+        public async Task<AuthResponseDto> LoginAsync(AuthDtos.LoginRequestDto request, string? ipAddress = null)
         {
             // Find user by email or user handle
             User? user = null;
@@ -241,12 +264,18 @@ namespace BusinessLogic.Core.Services.Auth
 
         private async Task<AuthResponseDto> GenerateAuthResponseAsync(User user, string? ipAddress)
         {
-            // Generate access token using existing TokenService
+            await EnsureDefaultBusinessAsync(user);
+
+            var permissions = await _roleRepository.GetUserPermissionsAcrossBusinessesAsync(user.UserID);
+            var isProfileComplete = IsProfileComplete(user);
+            var isSystemAdmin = await _roleRepository.UserHasAnyRoleAsync(user.UserID, AdminRoleNames);
+            var additionalClaims = BuildAdditionalClaims(isSystemAdmin, isProfileComplete);
+
             var (accessToken, accessTokenExpiry) = _tokenService.GenerateAccessToken(
                 user.UserID.ToString(),
                 user.UserHandle,
-                null // You can add permissions here if needed
-            );
+                permissions,
+                additionalClaims);
 
             // Generate refresh token
             var refreshToken = _tokenService.GenerateRefreshToken();
@@ -277,7 +306,89 @@ namespace BusinessLogic.Core.Services.Auth
                 AccessTokenExpiresAt = accessTokenExpiry,
                 RefreshTokenExpiresAt = refreshTokenExpiry,
                 UserHandle = user.UserHandle,
-                UserId = user.UserID
+                UserId = user.UserID,
+                IsProfileComplete = isProfileComplete,
+                IsSystemAdmin = isSystemAdmin
+            };
+        }
+
+        private async Task EnsureDefaultBusinessAsync(User user)
+        {
+            var links = await _userBusinessService.GetByUserIdAsync(user.UserID);
+            if (links.Any())
+            {
+                return;
+            }
+
+            var businessDto = new BusinessDto
+            {
+                BusinessName = GenerateBusinessName(user),
+                BusinessCode = GenerateBusinessCode(user),
+                IsActive = true
+            };
+
+            var business = await _businessService.AddBusinessAsync(businessDto, user.UserID);
+
+            await _userBusinessService.CreateAsync(new CreateUserBusinessRequest
+            {
+                UserID = user.UserID,
+                BusinessID = business.BusinessID,
+                IsDefault = true
+            }, user.UserID);
+
+            var ownerRoleId = await _roleRepository.GetRoleIdByNameAsync("Business Owner")
+                ?? await _roleRepository.GetRoleIdByNameAsync("Admin");
+
+            if (ownerRoleId.HasValue)
+            {
+                await _userBusinessRoleService.AddAsync(new UserBusinessRoleDto
+                {
+                    UserID = user.UserID,
+                    BusinessID = business.BusinessID,
+                    RoleID = ownerRoleId.Value
+                });
+            }
+        }
+
+        private static string GenerateBusinessName(User user)
+        {
+            if (!string.IsNullOrWhiteSpace(user.FullName))
+            {
+                return $"{user.FullName}'s Workspace";
+            }
+
+            return $"{user.UserHandle}'s Workspace";
+        }
+
+        private static string GenerateBusinessCode(User user)
+        {
+            var baseCode = string.IsNullOrWhiteSpace(user.UserHandle)
+                ? "AUTO"
+                : new string(user.UserHandle.Where(char.IsLetterOrDigit).ToArray());
+
+            if (string.IsNullOrWhiteSpace(baseCode))
+            {
+                baseCode = "AUTO";
+            }
+
+            baseCode = baseCode.ToUpperInvariant();
+            var suffix = Guid.NewGuid().ToString("N")[..6].ToUpperInvariant();
+            return $"{baseCode}-{suffix}";
+        }
+
+        private static bool IsProfileComplete(User user)
+        {
+            return !string.IsNullOrWhiteSpace(user.FullName) &&
+                   user.PanCardNumber_Encrypted != null &&
+                   user.PanCardNumber_Encrypted.Length > 0;
+        }
+
+        private static Dictionary<string, string> BuildAdditionalClaims(bool isSystemAdmin, bool isProfileComplete)
+        {
+            return new Dictionary<string, string>
+            {
+                { "is_admin", isSystemAdmin ? "true" : "false" },
+                { "profile_complete", isProfileComplete ? "true" : "false" }
             };
         }
 

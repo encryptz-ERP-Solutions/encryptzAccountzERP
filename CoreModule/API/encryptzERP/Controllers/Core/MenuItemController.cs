@@ -38,6 +38,21 @@ namespace encryptzERP.Controllers.Core
             }
         }
 
+        [HttpGet("module/{moduleId:int}")]
+        public async Task<ActionResult<IEnumerable<MenuItemDto>>> GetByModule(int moduleId)
+        {
+            try
+            {
+                var result = await _menuItemService.GetMenuItemsByModuleAsync(moduleId);
+                return Ok(result);
+            }
+            catch (Exception ex)
+            {
+                _exceptionHandler.LogError(ex);
+                return StatusCode(500, "An internal error occurred.");
+            }
+        }
+
         [HttpGet("{id}")]
         public async Task<ActionResult<MenuItemDto>> GetById(int id)
         {

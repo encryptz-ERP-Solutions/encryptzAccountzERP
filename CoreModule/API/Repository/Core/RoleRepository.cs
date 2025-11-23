@@ -2,6 +2,7 @@ using Entities.Core;
 using Infrastructure;
 using Npgsql;
 using Repository.Core.Interface;
+using NpgsqlTypes;
 using System;
 using System.Collections.Generic;
 using System.Data;
@@ -157,6 +158,43 @@ namespace Repository.Core
             };
             var result = await _sqlHelper.ExecuteNonQueryAsync(query, parameters);
             return result > 0;
+        }
+
+        public async Task<int?> GetRoleIdByNameAsync(string roleName)
+        {
+            var query = "SELECT role_id FROM core.roles WHERE LOWER(role_name) = LOWER(@RoleName) LIMIT 1;";
+            var parameters = new[] { new NpgsqlParameter("@RoleName", roleName) };
+            var result = await _sqlHelper.ExecuteScalarAsync(query, parameters);
+            return result == null ? (int?)null : Convert.ToInt32(result);
+        }
+
+        public async Task<bool> UserHasAnyRoleAsync(Guid userId, IEnumerable<string> roleNames)
+        {
+            var roleList = roleNames?.ToList();
+            if (roleList == null || roleList.Count == 0)
+            {
+                return false;
+            }
+
+            var query = @"
+                SELECT 1
+                FROM core.user_business_roles ubr
+                JOIN core.roles r ON r.role_id = ubr.role_id
+                WHERE ubr.user_id = @UserID
+                  AND LOWER(r.role_name) = ANY(@RoleNames)
+                LIMIT 1;";
+
+            var parameters = new[]
+            {
+                new NpgsqlParameter("@UserID", userId),
+                new NpgsqlParameter("@RoleNames", roleList.ConvertAll(r => r.ToLower()).ToArray())
+                {
+                    NpgsqlDbType = NpgsqlDbType.Array | NpgsqlDbType.Text
+                }
+            };
+
+            var result = await _sqlHelper.ExecuteScalarAsync(query, parameters);
+            return result != null;
         }
 
 

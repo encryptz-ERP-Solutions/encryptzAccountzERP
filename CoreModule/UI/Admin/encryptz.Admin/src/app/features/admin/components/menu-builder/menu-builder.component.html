@@ -1,0 +1,135 @@
+<section class="menu-builder">
+  <header class="list-header">
+    <div>
+      <h2 class="mont600 f-sz18 mb-0">Menu Builder</h2>
+      <p class="muted">Manage navigation menus for modules</p>
+    </div>
+    <div class="header-actions">
+      <mat-form-field appearance="outline" class="module-selector">
+        <mat-label>Module</mat-label>
+        <mat-select [(ngModel)]="selectedModuleId" (selectionChange)="onModuleChange()" [disabled]="loadingModules">
+          <mat-option *ngFor="let module of modules" [value]="module.moduleID">
+            {{ module.moduleName }}
+            <span class="module-badge" *ngIf="module.isSystemModule">System</span>
+          </mat-option>
+        </mat-select>
+      </mat-form-field>
+      <button mat-flat-button color="primary" (click)="openDialog(undefined)" [disabled]="!selectedModuleId || loading">
+      <mat-icon class="icon-14 mrR-6">add</mat-icon>
+        Add menu item
+    </button>
+    </div>
+  </header>
+
+  <mat-card *ngIf="selectedModuleId">
+    <div *ngIf="loading" class="loading-container">
+      <mat-progress-spinner mode="indeterminate" diameter="40"></mat-progress-spinner>
+      <p>Loading menu items...</p>
+    </div>
+    <div *ngIf="!loading && (!dataSource.data || dataSource.data.length === 0)" class="empty-state">
+      <mat-icon class="empty-icon">menu</mat-icon>
+      <p>No menu items found for this module.</p>
+      <p class="debug-info" style="font-size: 11px; color: #999; margin-top: 8px;">
+        Module ID: {{ selectedModuleId }} | Items loaded: {{ flatMenu.length }}
+      </p>
+      <button mat-stroked-button color="primary" (click)="openDialog(undefined)">
+        <mat-icon class="icon-14 mrR-6">add</mat-icon>
+        Create first menu item
+      </button>
+    </div>
+    <mat-tree *ngIf="!loading && dataSource.data && dataSource.data.length > 0" [dataSource]="dataSource" [treeControl]="treeControl" class="menu-tree">
+      <mat-tree-node *matTreeNodeDef="let node" matTreeNodePadding>
+        <div class="node-row">
+          <div class="node-info">
+            <mat-icon class="icon-14 mrR-6">{{ node.iconClass || 'menu' }}</mat-icon>
+            <div>
+              <div class="node-title">{{ node.menuText }}</div>
+              <div class="node-meta">{{ node.menuURL || 'No route' }}</div>
+            </div>
+          </div>
+          <div class="node-actions">
+            <button mat-icon-button matTooltip="Add child menu" (click)="openDialog(node.menuItemID)">
+              <mat-icon>add</mat-icon>
+            </button>
+            <button mat-icon-button color="primary" matTooltip="Edit menu item" (click)="openDialog(node.parentMenuItemID ?? null, node)">
+              <mat-icon>edit</mat-icon>
+            </button>
+            <button mat-icon-button color="warn" matTooltip="Delete menu item" (click)="deleteMenu(node)">
+              <mat-icon>delete</mat-icon>
+            </button>
+          </div>
+        </div>
+      </mat-tree-node>
+
+      <mat-tree-node *matTreeNodeDef="let node; when: hasChild" matTreeNodePadding>
+        <div class="node-row expandable">
+          <button mat-icon-button matTreeNodeToggle>
+            <mat-icon>
+              {{ treeControl.isExpanded(node) ? 'expand_less' : 'expand_more' }}
+            </mat-icon>
+          </button>
+          <div class="node-info">
+            <mat-icon class="icon-14 mrR-6">{{ node.iconClass || 'folder' }}</mat-icon>
+            <div>
+              <div class="node-title">{{ node.menuText }}</div>
+              <div class="node-meta">{{ node.menuURL || 'Group' }}</div>
+            </div>
+          </div>
+          <div class="node-actions">
+            <button mat-icon-button matTooltip="Add child menu" (click)="openDialog(node.menuItemID)">
+              <mat-icon>add</mat-icon>
+            </button>
+            <button mat-icon-button color="primary" matTooltip="Edit menu item" (click)="openDialog(node.parentMenuItemID ?? null, node)">
+              <mat-icon>edit</mat-icon>
+            </button>
+            <button mat-icon-button color="warn" matTooltip="Delete menu item" (click)="deleteMenu(node)">
+              <mat-icon>delete</mat-icon>
+            </button>
+          </div>
+        </div>
+      </mat-tree-node>
+    </mat-tree>
+  </mat-card>
+
+  <mat-card *ngIf="!selectedModuleId" class="no-module-selected">
+    <div class="empty-state">
+      <mat-icon class="empty-icon">widgets</mat-icon>
+      <p>Please select a module to manage its menu items.</p>
+    </div>
+  </mat-card>
+</section>
+
+<ng-template #menuDialog>
+  <h3 mat-dialog-title>{{ editingMenu ? 'Edit menu item' : 'Create menu item' }}</h3>
+  <mat-dialog-content class="dialog-body" [formGroup]="menuForm">
+    <mat-form-field appearance="outline">
+      <mat-label>Label</mat-label>
+      <input matInput formControlName="menuText">
+    </mat-form-field>
+
+    <mat-form-field appearance="outline">
+      <mat-label>Route (optional)</mat-label>
+      <input matInput formControlName="menuURL" placeholder="/admin/...">
+    </mat-form-field>
+
+    <mat-form-field appearance="outline">
+      <mat-label>Icon</mat-label>
+      <input matInput formControlName="iconClass" placeholder="material icon name">
+    </mat-form-field>
+
+    <mat-form-field appearance="outline">
+      <mat-label>Display order</mat-label>
+      <input matInput type="number" formControlName="displayOrder">
+    </mat-form-field>
+
+    <div class="toggle-row">
+      <span>Active</span>
+      <mat-slide-toggle formControlName="isActive"></mat-slide-toggle>
+    </div>
+  </mat-dialog-content>
+  <mat-dialog-actions align="end">
+    <button mat-stroked-button mat-dialog-close color="warn">Cancel</button>
+    <button mat-flat-button color="primary" (click)="saveMenu()">Save</button>
+  </mat-dialog-actions>
+</ng-template>
+

@@ -1,5 +1,6 @@
 using System;
 using System.Data;
+using System.Threading.Tasks;
 using Npgsql;
 using Microsoft.Extensions.Configuration;
 
@@ -33,6 +34,11 @@ namespace Infrastructure
         {
             _transaction?.Rollback();
             _connection?.Close();
+        }
+
+        public NpgsqlConnection GetConnection()
+        {
+            return new NpgsqlConnection(_connectionString);
         }
 
         public int ExecuteNonQuery(string query, NpgsqlParameter[] parameters = null)
@@ -93,6 +99,22 @@ namespace Infrastructure
                     await connection.OpenAsync();
                     return await command.ExecuteNonQueryAsync();
                 }
+            }
+        }
+
+        public async Task<object?> ExecuteScalarAsync(string query, NpgsqlParameter[] parameters = null)
+        {
+            using (var connection = new NpgsqlConnection(_connectionString))
+            using (var command = new NpgsqlCommand(query, connection))
+            {
+                command.CommandType = CommandType.Text;
+                if (parameters != null)
+                {
+                    command.Parameters.AddRange(parameters);
+                }
+
+                await connection.OpenAsync();
+                return await command.ExecuteScalarAsync();
             }
         }
     }
