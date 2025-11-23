@@ -1,7 +1,8 @@
 using Entities.Core;
 using Infrastructure;
-using Microsoft.Data.SqlClient;
+using Npgsql;
 using Repository.Core.Interface;
+using NpgsqlTypes;
 using System;
 using System.Collections.Generic;
 using System.Data;
@@ -21,22 +22,22 @@ namespace Repository.Core
         public async Task<Dictionary<Guid, IEnumerable<string>>> GetUserPermissionsAcrossBusinessesAsync(Guid userId)
         {
             var query = @"
-                SELECT DISTINCT ubr.BusinessID, p.PermissionKey
-                FROM core.Users u
-                JOIN core.UserBusinessRoles ubr ON u.UserID = ubr.UserID
-                JOIN core.Roles r ON ubr.RoleID = r.RoleID
-                JOIN core.RolePermissions rp ON r.RoleID = rp.RoleID
-                JOIN core.Permissions p ON rp.PermissionID = p.PermissionID
-                WHERE u.UserID = @UserID;";
+                SELECT DISTINCT ubr.business_id, p.permission_key
+                FROM core.users u
+                JOIN core.user_business_roles ubr ON u.user_id = ubr.user_id
+                JOIN core.roles r ON ubr.role_id = r.role_id
+                JOIN core.role_permissions rp ON r.role_id = rp.role_id
+                JOIN core.permissions p ON rp.permission_id = p.permission_id
+                WHERE u.user_id = @UserID;";
 
-            var parameters = new[] { new SqlParameter("@UserID", userId) };
+            var parameters = new[] { new NpgsqlParameter("@UserID", userId) };
             var dataTable = await _sqlHelper.ExecuteQueryAsync(query, parameters);
             var permissionsByBusiness = new Dictionary<Guid, List<string>>();
 
             foreach (DataRow row in dataTable.Rows)
             {
-                var businessId = (Guid)row["BusinessID"];
-                var permissionKey = row["PermissionKey"].ToString();
+                var businessId = (Guid)row["business_id"];
+                var permissionKey = row["permission_key"].ToString();
 
                 if (!permissionsByBusiness.TryGetValue(businessId, out var permissions))
                 {
@@ -51,7 +52,7 @@ namespace Repository.Core
 
         public async Task<IEnumerable<Role>> GetAllAsync()
         {
-            var query = "SELECT * FROM core.Roles";
+            var query = "SELECT * FROM core.roles";
             var dataTable = await _sqlHelper.ExecuteQueryAsync(query);
             var roles = new List<Role>();
 
@@ -65,8 +66,8 @@ namespace Repository.Core
 
         public async Task<Role> GetByIdAsync(int id)
         {
-            var query = "SELECT * FROM core.Roles WHERE RoleID = @RoleID";
-            var parameters = new[] { new SqlParameter("@RoleID", id) };
+            var query = "SELECT * FROM core.roles WHERE role_id = @RoleID";
+            var parameters = new[] { new NpgsqlParameter("@RoleID", id) };
             var dataTable = await _sqlHelper.ExecuteQueryAsync(query, parameters);
 
             return dataTable.Rows.Count > 0 ? MapToRole(dataTable.Rows[0]) : null;
@@ -75,15 +76,15 @@ namespace Repository.Core
         public async Task<Role> AddAsync(Role role)
         {
             var query = @"
-                INSERT INTO core.Roles (RoleName, Description, IsSystemRole)
-                OUTPUT INSERTED.*
-                VALUES (@RoleName, @Description, @IsSystemRole);";
+                INSERT INTO core.roles (role_name, description, is_system_role)
+                VALUES (@RoleName, @Description, @IsSystemRole)
+                RETURNING role_id, role_name, description, is_system_role;";
 
             var parameters = new[]
             {
-                new SqlParameter("@RoleName", role.RoleName),
-                new SqlParameter("@Description", (object)role.Description ?? DBNull.Value),
-                new SqlParameter("@IsSystemRole", role.IsSystemRole)
+                new NpgsqlParameter("@RoleName", role.RoleName),
+                new NpgsqlParameter("@Description", (object)role.Description ?? DBNull.Value),
+                new NpgsqlParameter("@IsSystemRole", role.IsSystemRole)
             };
 
             var dataTable = await _sqlHelper.ExecuteQueryAsync(query, parameters);
@@ -93,16 +94,16 @@ namespace Repository.Core
         public async Task<bool> UpdateAsync(Role role)
         {
             var query = @"
-                UPDATE core.Roles
-                SET RoleName = @RoleName, Description = @Description, IsSystemRole = @IsSystemRole
-                WHERE RoleID = @RoleID;";
+                UPDATE core.roles
+                SET role_name = @RoleName, description = @Description, is_system_role = @IsSystemRole
+                WHERE role_id = @RoleID;";
 
             var parameters = new[]
             {
-                new SqlParameter("@RoleID", role.RoleID),
-                new SqlParameter("@RoleName", role.RoleName),
-                new SqlParameter("@Description", (object)role.Description ?? DBNull.Value),
-                new SqlParameter("@IsSystemRole", role.IsSystemRole)
+                new NpgsqlParameter("@RoleID", role.RoleID),
+                new NpgsqlParameter("@RoleName", role.RoleName),
+                new NpgsqlParameter("@Description", (object)role.Description ?? DBNull.Value),
+                new NpgsqlParameter("@IsSystemRole", role.IsSystemRole)
             };
 
             var result = await _sqlHelper.ExecuteNonQueryAsync(query, parameters);
@@ -111,8 +112,8 @@ namespace Repository.Core
 
         public async Task<bool> DeleteAsync(int id)
         {
-            var query = "DELETE FROM core.Roles WHERE RoleID = @RoleID";
-            var parameters = new[] { new SqlParameter("@RoleID", id) };
+            var query = "DELETE FROM core.roles WHERE role_id = @RoleID";
+            var parameters = new[] { new NpgsqlParameter("@RoleID", id) };
             var result = await _sqlHelper.ExecuteNonQueryAsync(query, parameters);
             return result > 0;
         }
@@ -120,10 +121,10 @@ namespace Repository.Core
         {
             var query = @"
                 SELECT p.*
-                FROM core.Permissions p
-                JOIN core.RolePermissions rp ON p.PermissionID = rp.PermissionID
-                WHERE rp.RoleID = @RoleID;";
-            var parameters = new[] { new SqlParameter("@RoleID", roleId) };
+                FROM core.permissions p
+                JOIN core.role_permissions rp ON p.permission_id = rp.permission_id
+                WHERE rp.role_id = @RoleID;";
+            var parameters = new[] { new NpgsqlParameter("@RoleID", roleId) };
             var dataTable = await _sqlHelper.ExecuteQueryAsync(query, parameters);
             var permissions = new List<Permission>();
 
@@ -137,11 +138,11 @@ namespace Repository.Core
 
         public async Task<bool> AddPermissionToRoleAsync(int roleId, int permissionId)
         {
-            var query = "INSERT INTO core.RolePermissions (RoleID, PermissionID) VALUES (@RoleID, @PermissionID)";
+            var query = "INSERT INTO core.role_permissions (role_id, permission_id) VALUES (@RoleID, @PermissionID)";
             var parameters = new[]
             {
-                new SqlParameter("@RoleID", roleId),
-                new SqlParameter("@PermissionID", permissionId)
+                new NpgsqlParameter("@RoleID", roleId),
+                new NpgsqlParameter("@PermissionID", permissionId)
             };
             var result = await _sqlHelper.ExecuteNonQueryAsync(query, parameters);
             return result > 0;
@@ -149,37 +150,76 @@ namespace Repository.Core
 
         public async Task<bool> RemovePermissionFromRoleAsync(int roleId, int permissionId)
         {
-            var query = "DELETE FROM core.RolePermissions WHERE RoleID = @RoleID AND PermissionID = @PermissionID";
+            var query = "DELETE FROM core.role_permissions WHERE role_id = @RoleID AND permission_id = @PermissionID";
             var parameters = new[]
             {
-                new SqlParameter("@RoleID", roleId),
-                new SqlParameter("@PermissionID", permissionId)
+                new NpgsqlParameter("@RoleID", roleId),
+                new NpgsqlParameter("@PermissionID", permissionId)
             };
             var result = await _sqlHelper.ExecuteNonQueryAsync(query, parameters);
             return result > 0;
         }
 
+        public async Task<int?> GetRoleIdByNameAsync(string roleName)
+        {
+            var query = "SELECT role_id FROM core.roles WHERE LOWER(role_name) = LOWER(@RoleName) LIMIT 1;";
+            var parameters = new[] { new NpgsqlParameter("@RoleName", roleName) };
+            var result = await _sqlHelper.ExecuteScalarAsync(query, parameters);
+            return result == null ? (int?)null : Convert.ToInt32(result);
+        }
+
+        public async Task<bool> UserHasAnyRoleAsync(Guid userId, IEnumerable<string> roleNames)
+        {
+            var roleList = roleNames?.ToList();
+            if (roleList == null || roleList.Count == 0)
+            {
+                return false;
+            }
+
+            var query = @"
+                SELECT 1
+                FROM core.user_business_roles ubr
+                JOIN core.roles r ON r.role_id = ubr.role_id
+                WHERE ubr.user_id = @UserID
+                  AND LOWER(r.role_name) = ANY(@RoleNames)
+                LIMIT 1;";
+
+            var parameters = new[]
+            {
+                new NpgsqlParameter("@UserID", userId),
+                new NpgsqlParameter("@RoleNames", roleList.ConvertAll(r => r.ToLower()).ToArray())
+                {
+                    NpgsqlDbType = NpgsqlDbType.Array | NpgsqlDbType.Text
+                }
+            };
+
+            var result = await _sqlHelper.ExecuteScalarAsync(query, parameters);
+            return result != null;
+        }
+
 
         private Role MapToRole(DataRow row)
         {
+            // Map from PostgreSQL snake_case to C# PascalCase
             return new Role
             {
-                RoleID = Convert.ToInt32(row["RoleID"]),
-                RoleName = row["RoleName"].ToString(),
-                Description = row["Description"] != DBNull.Value ? row["Description"].ToString() : null,
-                IsSystemRole = Convert.ToBoolean(row["IsSystemRole"])
+                RoleID = Convert.ToInt32(row["role_id"]),
+                RoleName = row["role_name"].ToString(),
+                Description = row["description"] != DBNull.Value ? row["description"].ToString() : null,
+                IsSystemRole = Convert.ToBoolean(row["is_system_role"])
             };
         }
 
         private Permission MapToPermission(DataRow row)
         {
+            // Map from PostgreSQL snake_case to C# PascalCase
             return new Permission
             {
-                PermissionID = Convert.ToInt32(row["PermissionID"]),
-                PermissionKey = row["PermissionKey"].ToString(),
-                Description = row["Description"].ToString(),
-                MenuItemID = row["MenuItemID"] == DBNull.Value ? null : (int?)Convert.ToInt32(row["MenuItemID"]),
-                ModuleID = Convert.ToInt32(row["ModuleID"])
+                PermissionID = Convert.ToInt32(row["permission_id"]),
+                PermissionKey = row["permission_key"].ToString(),
+                Description = row["description"].ToString(),
+                MenuItemID = row["menu_item_id"] == DBNull.Value ? null : (int?)Convert.ToInt32(row["menu_item_id"]),
+                ModuleID = Convert.ToInt32(row["module_id"])
             };
         }
     }

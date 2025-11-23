@@ -4,7 +4,7 @@ using System.Data;
 using System.Threading.Tasks;
 using Entities.Accounts;
 using Infrastructure;
-using Microsoft.Data.SqlClient;
+using Npgsql;
 
 namespace Repository.Accounts
 {
@@ -19,36 +19,36 @@ namespace Repository.Accounts
 
         public async Task AddChartOfAccountAsync(ChartOfAccount chartOfAccount)
         {
-            var query = @"INSERT INTO Acct.ChartOfAccounts
-                        (AccountID, BusinessID, AccountTypeID, ParentAccountID, AccountCode, AccountName, Description, IsActive, IsSystemAccount, CreatedAtUTC)
+            var query = @"INSERT INTO acct.chart_of_accounts
+                        (account_id, business_id, account_type_id, parent_account_id, account_code, account_name, description, is_active, is_system_account, created_at_utc)
                         VALUES (@AccountID, @BusinessID, @AccountTypeID, @ParentAccountID, @AccountCode, @AccountName, @Description, @IsActive, @IsSystemAccount, @CreatedAtUTC)";
             var parameters = new[]
             {
-                new SqlParameter("@AccountID", chartOfAccount.AccountID),
-                new SqlParameter("@BusinessID", chartOfAccount.BusinessID),
-                new SqlParameter("@AccountTypeID", chartOfAccount.AccountTypeID),
-                new SqlParameter("@ParentAccountID", (object)chartOfAccount.ParentAccountID ?? DBNull.Value),
-                new SqlParameter("@AccountCode", chartOfAccount.AccountCode),
-                new SqlParameter("@AccountName", chartOfAccount.AccountName),
-                new SqlParameter("@Description", (object)chartOfAccount.Description ?? DBNull.Value),
-                new SqlParameter("@IsActive", chartOfAccount.IsActive),
-                new SqlParameter("@IsSystemAccount", chartOfAccount.IsSystemAccount),
-                new SqlParameter("@CreatedAtUTC", chartOfAccount.CreatedAtUTC)
+                new NpgsqlParameter("@AccountID", chartOfAccount.AccountID),
+                new NpgsqlParameter("@BusinessID", chartOfAccount.BusinessID),
+                new NpgsqlParameter("@AccountTypeID", chartOfAccount.AccountTypeID),
+                new NpgsqlParameter("@ParentAccountID", (object)chartOfAccount.ParentAccountID ?? DBNull.Value),
+                new NpgsqlParameter("@AccountCode", chartOfAccount.AccountCode),
+                new NpgsqlParameter("@AccountName", chartOfAccount.AccountName),
+                new NpgsqlParameter("@Description", (object)chartOfAccount.Description ?? DBNull.Value),
+                new NpgsqlParameter("@IsActive", chartOfAccount.IsActive),
+                new NpgsqlParameter("@IsSystemAccount", chartOfAccount.IsSystemAccount),
+                new NpgsqlParameter("@CreatedAtUTC", chartOfAccount.CreatedAtUTC)
             };
             await _sqlHelper.ExecuteNonQueryAsync(query, parameters);
         }
 
         public async Task DeleteChartOfAccountAsync(Guid id)
         {
-            var query = "DELETE FROM Acct.ChartOfAccounts WHERE AccountID = @AccountID";
-            var parameters = new[] { new SqlParameter("@AccountID", id) };
+            var query = "DELETE FROM acct.chart_of_accounts WHERE account_id = @AccountID";
+            var parameters = new[] { new NpgsqlParameter("@AccountID", id) };
             await _sqlHelper.ExecuteNonQueryAsync(query, parameters);
         }
 
         public async Task<IEnumerable<ChartOfAccount>> GetAllChartOfAccountsAsync(Guid businessId)
         {
-            var query = "SELECT * FROM Acct.ChartOfAccounts WHERE BusinessID = @BusinessID";
-            var parameters = new[] { new SqlParameter("@BusinessID", businessId) };
+            var query = "SELECT * FROM acct.chart_of_accounts WHERE business_id = @BusinessID ORDER BY account_code";
+            var parameters = new[] { new NpgsqlParameter("@BusinessID", businessId) };
             var dataTable = await _sqlHelper.ExecuteQueryAsync(query, parameters);
             var chartOfAccounts = new List<ChartOfAccount>();
             foreach (DataRow row in dataTable.Rows)
@@ -60,8 +60,8 @@ namespace Repository.Accounts
 
         public async Task<ChartOfAccount> GetChartOfAccountByIdAsync(Guid id)
         {
-            var query = "SELECT * FROM Acct.ChartOfAccounts WHERE AccountID = @AccountID";
-            var parameters = new[] { new SqlParameter("@AccountID", id) };
+            var query = "SELECT * FROM acct.chart_of_accounts WHERE account_id = @AccountID";
+            var parameters = new[] { new NpgsqlParameter("@AccountID", id) };
             var dataTable = await _sqlHelper.ExecuteQueryAsync(query, parameters);
             if (dataTable.Rows.Count == 0) return null;
 
@@ -70,16 +70,16 @@ namespace Repository.Accounts
 
         public async Task UpdateChartOfAccountAsync(ChartOfAccount chartOfAccount)
         {
-            var query = @"UPDATE Acct.ChartOfAccounts
-                        SET AccountName = @AccountName, Description = @Description, IsActive = @IsActive, UpdatedAtUTC = @UpdatedAtUTC
-                        WHERE AccountID = @AccountID";
+            var query = @"UPDATE acct.chart_of_accounts
+                        SET account_name = @AccountName, description = @Description, is_active = @IsActive, updated_at_utc = @UpdatedAtUTC
+                        WHERE account_id = @AccountID";
             var parameters = new[]
             {
-                new SqlParameter("@AccountID", chartOfAccount.AccountID),
-                new SqlParameter("@AccountName", chartOfAccount.AccountName),
-                new SqlParameter("@Description", (object)chartOfAccount.Description ?? DBNull.Value),
-                new SqlParameter("@IsActive", chartOfAccount.IsActive),
-                new SqlParameter("@UpdatedAtUTC", chartOfAccount.UpdatedAtUTC)
+                new NpgsqlParameter("@AccountID", chartOfAccount.AccountID),
+                new NpgsqlParameter("@AccountName", chartOfAccount.AccountName),
+                new NpgsqlParameter("@Description", (object)chartOfAccount.Description ?? DBNull.Value),
+                new NpgsqlParameter("@IsActive", chartOfAccount.IsActive),
+                new NpgsqlParameter("@UpdatedAtUTC", chartOfAccount.UpdatedAtUTC)
             };
             await _sqlHelper.ExecuteNonQueryAsync(query, parameters);
         }
@@ -88,17 +88,17 @@ namespace Repository.Accounts
         {
             return new ChartOfAccount
             {
-                AccountID = (Guid)row["AccountID"],
-                BusinessID = (Guid)row["BusinessID"],
-                AccountTypeID = (int)row["AccountTypeID"],
-                ParentAccountID = row["ParentAccountID"] as Guid?,
-                AccountCode = (string)row["AccountCode"],
-                AccountName = (string)row["AccountName"],
-                Description = row["Description"] as string,
-                IsActive = (bool)row["IsActive"],
-                IsSystemAccount = (bool)row["IsSystemAccount"],
-                CreatedAtUTC = (DateTime)row["CreatedAtUTC"],
-                UpdatedAtUTC = row["UpdatedAtUTC"] as DateTime?
+                AccountID = (Guid)row["account_id"],
+                BusinessID = (Guid)row["business_id"],
+                AccountTypeID = (int)row["account_type_id"],
+                ParentAccountID = row["parent_account_id"] == DBNull.Value ? null : (Guid?)row["parent_account_id"],
+                AccountCode = (string)row["account_code"],
+                AccountName = (string)row["account_name"],
+                Description = row["description"] == DBNull.Value ? null : (string)row["description"],
+                IsActive = (bool)row["is_active"],
+                IsSystemAccount = (bool)row["is_system_account"],
+                CreatedAtUTC = (DateTime)row["created_at_utc"],
+                UpdatedAtUTC = row["updated_at_utc"] == DBNull.Value ? null : (DateTime?)row["updated_at_utc"]
             };
         }
     }

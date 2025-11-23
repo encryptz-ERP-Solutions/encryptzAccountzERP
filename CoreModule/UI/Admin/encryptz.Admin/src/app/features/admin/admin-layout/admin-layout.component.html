@@ -14,6 +14,20 @@
         </button>
         <div class="mont600 f-sz11 screen-title-name">{{ screenTitle | uppercase }}</div>
         <span class="menu-spacer"></span>
+        <div class="d-flex align-items-center gap-2">
+            <div class="user-info" *ngIf="currentUser">
+                <span class="mont400 f-sz11">{{ currentUser.userName || currentUser.userHandle }}</span>
+            </div>
+            <button mat-icon-button [matMenuTriggerFor]="userMenu" matTooltip="User menu">
+                <mat-icon>account_circle</mat-icon>
+            </button>
+            <mat-menu #userMenu="matMenu">
+                <button mat-menu-item (click)="logout()">
+                    <mat-icon>logout</mat-icon>
+                    <span>Logout</span>
+                </button>
+            </mat-menu>
+        </div>
     </div>
 
     <div class="p-2 screen-wrap">

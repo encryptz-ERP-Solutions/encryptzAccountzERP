@@ -38,7 +38,11 @@ namespace BusinessLogic.Core.Services
             business.CreatedByUserID = createdByUserId;
             business.UpdatedByUserID = createdByUserId;
             business.BusinessID = Guid.NewGuid();
-            business.BusinessCode = "TEMP"; // Placeholder - this should ideally be generated or validated
+
+            if (string.IsNullOrWhiteSpace(business.BusinessCode))
+            {
+                business.BusinessCode = $"AUTO-{Guid.NewGuid():N}".Substring(0, 12).ToUpperInvariant();
+            }
             var newBusiness = await _businessRepository.AddAsync(business);
             return _mapper.Map<BusinessDto>(newBusiness);
         }

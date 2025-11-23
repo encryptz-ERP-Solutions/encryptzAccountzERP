@@ -1,1 +1,142 @@
-<p>chartofaccounts works!</p>
+<section class="chart-of-accounts">
+  <header class="list-header">
+    <div>
+      <h2 class="mont600 f-sz18 mb-0">Chart of Accounts</h2>
+      <p class="muted">Manage your business accounts and ledger hierarchy</p>
+    </div>
+    <div class="actions">
+      <mat-form-field appearance="outline" class="filter-field">
+        <mat-icon matPrefix>search</mat-icon>
+        <input matInput placeholder="Search accounts" [formControl]="filterControl">
+      </mat-form-field>
+      <button mat-icon-button matTooltip="Expand All" (click)="expandAll()" [disabled]="loading || !hasAccounts">
+        <mat-icon>unfold_more</mat-icon>
+      </button>
+      <button mat-icon-button matTooltip="Collapse All" (click)="collapseAll()" [disabled]="loading || !hasAccounts">
+        <mat-icon>unfold_less</mat-icon>
+      </button>
+      <button mat-icon-button matTooltip="Refresh" (click)="refresh()" [disabled]="loading">
+        <mat-icon>refresh</mat-icon>
+      </button>
+      <button mat-flat-button color="primary" (click)="openCreateDialog()">
+        <mat-icon class="icon-14 mrR-6">add</mat-icon>
+        Create account
+      </button>
+    </div>
+  </header>
+
+  <mat-progress-bar *ngIf="loading" mode="indeterminate"></mat-progress-bar>
+
+  <mat-card>
+    <div class="tree-container">
+      <mat-tree [dataSource]="dataSource" [treeControl]="treeControl" class="accounts-tree">
+        <!-- Expandable tree node template (nodes with children) - MUST use mat-nested-tree-node -->
+        <mat-nested-tree-node *matTreeNodeDef="let node; when: hasChild" matTreeNodePadding>
+          <div class="tree-node-wrapper">
+            <button mat-icon-button matTreeNodeToggle
+                    [attr.aria-label]="'Toggle ' + node.account.accountName">
+              <mat-icon class="mat-icon-rtl-mirror">
+                {{treeControl.isExpanded(node) ? 'expand_more' : 'chevron_right'}}
+              </mat-icon>
+            </button>
+            <div class="tree-node-content">
+              <div class="account-info">
+                <div class="account-code-name">
+                  <span class="account-code" [class.system-account]="node.account.isSystemAccount">
+                    {{ node.account.accountCode }}
+                  </span>
+                  <span class="account-name" [class.system-account]="node.account.isSystemAccount">
+                    {{ node.account.accountName }}
+                  </span>
+                  <mat-chip *ngIf="node.account.isSystemAccount" color="accent" selected class="system-chip">
+                    System
+                  </mat-chip>
+                </div>
+                <div class="account-meta">
+                  <span class="account-type">{{ getAccountTypeName(node.account) }}</span>
+                  <mat-chip [color]="node.account.isActive ? 'primary' : undefined" class="status-chip">
+                    {{ node.account.isActive ? 'Active' : 'Inactive' }}
+                  </mat-chip>
+                </div>
+              </div>
+              <div class="account-actions">
+                <button mat-icon-button matTooltip="Edit account" color="primary" 
+                  (click)="openEditDialog(node.account)"
+                  [disabled]="node.account.isSystemAccount">
+                  <mat-icon>edit</mat-icon>
+                </button>
+                <button mat-icon-button matTooltip="Delete account" color="warn" 
+                  (click)="deleteAccount(node.account)"
+                  [disabled]="node.account.isSystemAccount">
+                  <mat-icon>delete</mat-icon>
+                </button>
+              </div>
+            </div>
+          </div>
+          <!-- Children container - Material Tree will render children here when expanded -->
+          <div [class.tree-node-children-hidden]="!treeControl.isExpanded(node)" class="tree-node-children">
+            <ng-container matTreeNodeOutlet></ng-container>
+          </div>
+        </mat-nested-tree-node>
+
+        <!-- Tree node template (leaf nodes) -->
+        <mat-tree-node *matTreeNodeDef="let node" matTreeNodePadding>
+          <button mat-icon-button disabled></button>
+          <div class="tree-node-content">
+            <div class="account-info">
+              <div class="account-code-name">
+                <span class="account-code" [class.system-account]="node.account.isSystemAccount">
+                  {{ node.account.accountCode }}
+                </span>
+                <span class="account-name" [class.system-account]="node.account.isSystemAccount">
+                  {{ node.account.accountName }}
+                </span>
+                <mat-chip *ngIf="node.account.isSystemAccount" color="accent" selected class="system-chip">
+                  System
+                </mat-chip>
+              </div>
+              <div class="account-meta">
+                <span class="account-type">{{ getAccountTypeName(node.account) }}</span>
+                <mat-chip [color]="node.account.isActive ? 'primary' : undefined" class="status-chip">
+                  {{ node.account.isActive ? 'Active' : 'Inactive' }}
+                </mat-chip>
+              </div>
+            </div>
+            <div class="account-actions">
+              <button mat-icon-button matTooltip="Edit account" color="primary" 
+                (click)="openEditDialog(node.account)"
+                [disabled]="node.account.isSystemAccount">
+                <mat-icon>edit</mat-icon>
+              </button>
+              <button mat-icon-button matTooltip="Delete account" color="warn" 
+                (click)="deleteAccount(node.account)"
+                [disabled]="node.account.isSystemAccount">
+                <mat-icon>delete</mat-icon>
+              </button>
+            </div>
+          </div>
+        </mat-tree-node>
+      </mat-tree>
+    </div>
+
+    <ng-container *ngIf="!loading && !hasAccounts && !error">
+      <div class="empty-state">
+        <mat-icon>account_tree</mat-icon>
+        <div>
+          <div class="title">No accounts yet</div>
+          <p class="muted">Create your first account to get started with the chart of accounts.</p>
+        </div>
+      </div>
+    </ng-container>
+
+    <ng-container *ngIf="error && !loading">
+      <div class="empty-state">
+        <mat-icon>error_outline</mat-icon>
+        <div>
+          <div class="title">Error</div>
+          <p class="muted">{{ error }}</p>
+        </div>
+      </div>
+    </ng-container>
+  </mat-card>
+</section>

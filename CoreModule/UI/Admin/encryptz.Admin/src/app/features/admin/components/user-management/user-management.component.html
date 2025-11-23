@@ -1,87 +1,99 @@
-<div class="wd-100">
-    <div class="d-flex justify-content-end mb-2">
-        <button mat-flat-button class="mont500 mat-btn-30 f-sz10" color="primary" (click)="addEditUser(1)">Create New User</button>
-    </div>
+<section class="user-management">
+<header class="list-header">
+        <div>
+            <h2 class="mont600 f-sz18 mb-0">Users</h2>
+            <p class="muted">Manage admins and platform level accounts</p>
+        </div>
+        <div class="actions">
+            <mat-form-field appearance="outline" class="filter-field">
+                <mat-icon matPrefix>search</mat-icon>
+                <input matInput placeholder="Search users" [formControl]="filterControl">
+            </mat-form-field>
+        <button mat-icon-button matTooltip="Refresh" (click)="refresh()" [disabled]="loading">
+            <mat-icon>refresh</mat-icon>
+        </button>
+            <button mat-flat-button color="primary" (click)="openCreateDialog()">
+                <mat-icon class="icon-14 mrR-6">add</mat-icon>
+                Create user
+            </button>
+        </div>
+    </header>
 
-    <mat-card class="table-default p-2">
-        <table>
-            <thead>
-                <tr>
-                    <th class="mont600 f-sz10 text-left wd-60px">
-                        <div class="default-th-bg pd-5">User Id</div>
-                    </th>
-                    <th class="mont600 f-sz10 text-left">
-                        <div class="default-th-bg pd-5">User Name</div>
-                    </th>
-                    <!-- <th class="mont600 f-sz10 text-left wd-70px">
-                        <div class="default-th-bg pd-5">Gender</div>
-                    </th> -->
-                    <th class="mont600 f-sz10 text-left">
-                        <div class="default-th-bg pd-5">Address</div>
-                    </th>
-                    <th class="mont600 f-sz10 text-left">
-                        <div class="default-th-bg pd-5">PAN No</div>
-                    </th>
-                    <th class="mont600 f-sz10 text-left">
-                        <div class="default-th-bg pd-5">Aadhar No</div>
-                    </th>
-                    <th class="mont600 f-sz10 text-left wd-140px">
-                        <div class="default-th-bg pd-5">Phone Number</div>
-                    </th>
-                    <th class="mont600 f-sz10 text-left">
-                        <div class="default-th-bg pd-5">Email</div>
-                    </th>
-                    <th class="mont600 f-sz10 text-left wd-70px">
-                        <div class="default-th-bg pd-5">Action</div>
-                    </th>
-                </tr>
-            </thead>
-            <tbody>
-                @for(user of userList; track $index){
-                <tr>
-                    <td class="mont400 f-sz10 text-left pd-5 wd-60px">{{user.userId}}</td>
-                    <td class="mont400 f-sz10 text-left pd-5">{{user.userName}} </td>
-                    <td class="mont400 f-sz10 text-left pd-5">{{user.address}}</td>
-                    <td class="mont400 f-sz10 text-left pd-5">{{user.panNo}}</td>
-                    <td class="mont400 f-sz10 text-left pd-5">{{user.adharCardNo}}</td>
-                    <td class="mont400 f-sz10 text-left pd-5 wd-140px">{{user.phoneNo}}</td>
-                    <td class="mont400 f-sz10 text-left pd-5 wd-140px">{{user.email}}</td>
-                    <td class="mont400 f-sz10 text-left pd-5 wd-70px">
-                        <div class="d-flex">
-                            <button matMiniFab class="shadow-n mini-fab-btn-18 mrR-2" color="primary" (click)="addEditUser(2, user)">
-                                <mat-icon class="icon-10 material-symbols-outlined">edit</mat-icon>
-                            </button>
-                            <button matMiniFab class="shadow-n mini-fab-btn-18 mini-fab-btn-delete" color="" (click)="deleteUser(user)">
-                                <mat-icon color="warn" class="icon-10 material-symbols-outlined">delete</mat-icon>
-                            </button>
-                        </div>
-                    </td>
-                </tr>
-                }
-                <!-- <tr>
-                    <td class="mont400 f-sz10 text-left pd-5 pdT-8 pdB-8 wd-60px">0001</td>
-                    <td class="mont400 f-sz10 text-left pd-5 pdT-8 pdB-8">Zayed Mohammed </td>
-                    <td class="mont400 f-sz10 text-left pd-5 pdT-8 pdB-8 wd-70px">Male</td>
-                    <td class="mont400 f-sz10 text-left pd-5 pdT-8 pdB-8">Pisharath Parambil</td>
-                    <td class="mont400 f-sz10 text-left pd-5 pdT-8 pdB-8">zeydmohammed1999gmail.com</td>
-                    <td class="mont400 f-sz10 text-left pd-5 pdT-8 pdB-8 wd-140px">+91 8789565467</td>
-                    <td class="mont400 f-sz10 text-left pd-5 pdT-8 pdB-8 wd-70px">
-                        <div class="d-flex">
-                            <button matMiniFab class="shadow-n mini-fab-btn-18 mrR-2" color="primary">
-                                <mat-icon class="icon-10 material-symbols-outlined">edit</mat-icon>
-                            </button>
-                            <button matMiniFab class="shadow-n mini-fab-btn-18 mini-fab-btn-delete" color="">
-                                <mat-icon color="warn" class="icon-10 material-symbols-outlined">delete</mat-icon>
-                            </button>
-                        </div>
-                    </td>
-                </tr> -->
-            </tbody>
+<mat-progress-bar *ngIf="loading" mode="indeterminate"></mat-progress-bar>
+
+    <mat-card>
+    <table mat-table [dataSource]="dataSource" matSort matSortActive="created" matSortDirection="desc"
+        class="user-table">
+
+            <ng-container matColumnDef="userHandle">
+            <th mat-header-cell *matHeaderCellDef mat-sort-header> Handle </th>
+                <td mat-cell *matCellDef="let element"> {{ element.userHandle }} </td>
+            </ng-container>
+
+            <ng-container matColumnDef="fullName">
+            <th mat-header-cell *matHeaderCellDef mat-sort-header> Name </th>
+                <td mat-cell *matCellDef="let element"> {{ element.fullName }} </td>
+            </ng-container>
+
+            <ng-container matColumnDef="email">
+            <th mat-header-cell *matHeaderCellDef>Email </th>
+                <td mat-cell *matCellDef="let element"> {{ element.email || '—' }} </td>
+            </ng-container>
+
+            <ng-container matColumnDef="phone">
+            <th mat-header-cell *matHeaderCellDef> Phone </th>
+                <td mat-cell *matCellDef="let element">
+                    {{ element.mobileCountryCode || '' }} {{ element.mobileNumber || '—' }}
+                </td>
+            </ng-container>
+
+            <ng-container matColumnDef="created">
+            <th mat-header-cell *matHeaderCellDef mat-sort-header> Created </th>
+                <td mat-cell *matCellDef="let element">{{ element.createdAtUTC | date:'mediumDate' }}</td>
+            </ng-container>
+
+            <ng-container matColumnDef="status">
+                <th mat-header-cell *matHeaderCellDef> Status </th>
+                <td mat-cell *matCellDef="let element">
+                <mat-chip [color]="element.isActive ? 'primary' : undefined">
+                    {{ element.isActive ? 'Active' : 'Disabled' }}
+                </mat-chip>
+                </td>
+            </ng-container>
+
+            <ng-container matColumnDef="actions">
+                <th mat-header-cell *matHeaderCellDef class="text-right"> </th>
+                <td mat-cell *matCellDef="let element" class="text-right">
+                    <button mat-icon-button matTooltip="Edit user" color="primary" (click)="openEditDialog(element)">
+                        <mat-icon>edit</mat-icon>
+                    </button>
+                    <button mat-icon-button matTooltip="Delete user" color="warn" (click)="deleteUser(element)">
+                        <mat-icon>delete</mat-icon>
+                    </button>
+                </td>
+            </ng-container>
+
+            <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+            <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+        <tr class="mat-row" *matNoDataRow>
+            <td class="empty-state" [attr.colspan]="displayedColumns.length">
+                {{ error || 'No users match the current filter.' }}
+            </td>
+        </tr>
         </table>
 
-        <div class="encryptz-pagination mt-2">
-            <mat-paginator [length]="100" [pageSize]="10" [pageSizeOptions]="[5, 10, 25, 100]" class="mont400 f-sz10">
-            </mat-paginator>
+    <ng-container *ngIf="!loading && !hasUsers && !error">
+        <div class="empty-state">
+            <mat-icon>people_alt</mat-icon>
+            <div>
+                <div class="title">No users yet</div>
+                <p class="muted">Create the first admin user to get started.</p>
+            </div>
         </div>
+    </ng-container>
+
+    <div class="encryptz-pagination mt-2" *ngIf="hasUsers">
+        <mat-paginator [pageSize]="10" [pageSizeOptions]="[5, 10, 25, 100]"></mat-paginator>
+    </div>
     </mat-card>
-</div>
+</section>

@@ -1,32 +1,41 @@
-using System.Security.Cryptography;
-using System.Text;
+using Microsoft.AspNetCore.Identity;
 
 namespace BusinessLogic.Admin.Services
 {
+    /// <summary>
+    /// Secure password hasher using ASP.NET Core Identity's PasswordHasher
+    /// which uses PBKDF2 with HMAC-SHA256, 128-bit salt, 256-bit subkey, 10000 iterations
+    /// </summary>
     public static class PasswordHasher
     {
-        // This is a simple placeholder implementation.
-        // For a real application, use a strong, well-vetted library like BCrypt.Net or ASP.NET Core Identity's password hasher.
+        private static readonly PasswordHasher<object> _hasher = new PasswordHasher<object>();
+
+        /// <summary>
+        /// Hashes a password using PBKDF2 with secure defaults
+        /// </summary>
         public static string HashPassword(string password)
         {
-            using (var sha256 = SHA256.Create())
+            if (string.IsNullOrWhiteSpace(password))
             {
-                var hashedBytes = sha256.ComputeHash(Encoding.UTF8.GetBytes(password));
-                return "sha256_" + BitConverter.ToString(hashedBytes).Replace("-", "").ToLowerInvariant();
+                throw new ArgumentException("Password cannot be null or empty", nameof(password));
             }
+
+            return _hasher.HashPassword(null!, password);
         }
 
+        /// <summary>
+        /// Verifies a password against a hashed password
+        /// </summary>
         public static bool VerifyPassword(string password, string hashedPassword)
         {
-            if (!hashedPassword.StartsWith("sha256_"))
+            if (string.IsNullOrWhiteSpace(password) || string.IsNullOrWhiteSpace(hashedPassword))
             {
-                // For this simple example, we only support our own hash format.
-                // A real implementation would handle legacy formats or different algorithms.
                 return false;
             }
 
-            var expectedHash = HashPassword(password);
-            return expectedHash == hashedPassword;
+            var result = _hasher.VerifyHashedPassword(null!, hashedPassword, password);
+            return result == PasswordVerificationResult.Success || 
+                   result == PasswordVerificationResult.SuccessRehashNeeded;
         }
     }
 }

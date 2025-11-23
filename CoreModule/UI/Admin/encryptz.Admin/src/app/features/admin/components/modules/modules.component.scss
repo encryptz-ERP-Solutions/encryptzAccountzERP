@@ -1,0 +1,41 @@
+@use 'sass:math';
+
+.modules {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.list-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.muted {
+  margin: 0;
+  color: var(--mat-sys-outline);
+  font-size: 13px;
+}
+
+table {
+  width: 100%;
+}
+
+.text-right {
+  text-align: right;
+}
+
+.dialog-body {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  min-width: 360px;
+}
+
+.toggle-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+

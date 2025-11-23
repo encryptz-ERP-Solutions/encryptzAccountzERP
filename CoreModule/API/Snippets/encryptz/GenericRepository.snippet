@@ -40,7 +40,7 @@ using System.Threading.Tasks;
 using Data.Core;
 using Entities.Admin;
 using Infrastructure.Extensions;
-using Microsoft.Data.SqlClient;
+using Npgsql;
 using Repository.Admin.Interface;
 
 namespace Repository.Admin
@@ -71,7 +71,7 @@ namespace Repository.Admin
         public async Task DeleteAsync(long id)
         {
             var query = "DELETE FROM $TableName$ WHERE $ParamId$ = @Id";
-            var parameters = new[] { new SqlParameter("@Id", id) };
+            var parameters = new[] { new NpgsqlParameter("@Id", id) };
             _sqlHelper.ExecuteNonQuery(query, parameters);
             await Task.CompletedTask;
         }
@@ -86,7 +86,7 @@ namespace Repository.Admin
         public async Task<$Entity$> GetByIdAsync(long id)
         {
             var query = "SELECT * FROM $TableName$ WHERE $ParamId$ = @Id";
-            var parameters = new[] { new SqlParameter("@Id", id) };
+            var parameters = new[] { new NpgsqlParameter("@Id", id) };
             var dataTable = _sqlHelper.ExecuteQuery(query, parameters);
 
             if (dataTable.Rows.Count == 0) return null;
@@ -118,21 +118,21 @@ namespace Repository.Admin
             return data.Rows[0].ToObjectFromDR<$Entity$>();
         }
 
-        private static SqlParameter[] GetSqlParameters($Entity$ $entity$)
+        private static NpgsqlParameter[] GetSqlParameters($Entity$ $entity$)
         {
             return new[]
             {
-                new SqlParameter("@id", $entity$.id),
-                new SqlParameter("@userId", $entity$.userId),
-                new SqlParameter("@userName", $entity$.userName),
-                new SqlParameter("@userPassword", $entity$.userPassword ?? (object)DBNull.Value),
-                new SqlParameter("@panNo", $entity$.panNo ?? (object)DBNull.Value),
-                new SqlParameter("@adharCardNo", $entity$.adharCardNo ?? (object)DBNull.Value),
-                new SqlParameter("@phoneNo", $entity$.phoneNo ?? (object)DBNull.Value),
-                new SqlParameter("@address", $entity$.address ?? (object)DBNull.Value),
-                new SqlParameter("@stateId", $entity$.stateId ?? (object)DBNull.Value),
-                new SqlParameter("@nationId", $entity$.nationId ?? (object)DBNull.Value),
-                new SqlParameter("@isActive", $entity$.isActive)
+                new NpgsqlParameter("@id", $entity$.id),
+                new NpgsqlParameter("@userId", $entity$.userId),
+                new NpgsqlParameter("@userName", $entity$.userName),
+                new NpgsqlParameter("@userPassword", $entity$.userPassword ?? (object)DBNull.Value),
+                new NpgsqlParameter("@panNo", $entity$.panNo ?? (object)DBNull.Value),
+                new NpgsqlParameter("@adharCardNo", $entity$.adharCardNo ?? (object)DBNull.Value),
+                new NpgsqlParameter("@phoneNo", $entity$.phoneNo ?? (object)DBNull.Value),
+                new NpgsqlParameter("@address", $entity$.address ?? (object)DBNull.Value),
+                new NpgsqlParameter("@stateId", $entity$.stateId ?? (object)DBNull.Value),
+                new NpgsqlParameter("@nationId", $entity$.nationId ?? (object)DBNull.Value),
+                new NpgsqlParameter("@isActive", $entity$.isActive)
             };
         }
     }

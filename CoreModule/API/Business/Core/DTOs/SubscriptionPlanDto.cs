@@ -1,5 +1,19 @@
+using System;
+
 namespace Business.Core.DTOs
 {
+    public enum SubscriptionStatus
+    {
+        Active,
+        Inactive,
+        Suspended,
+        Cancelled,
+        Expired,
+        Trial,
+        Pending,
+        PastDue
+    }
+
     public class SubscriptionPlanDto
     {
         public int PlanID { get; set; }
@@ -10,5 +24,10 @@ namespace Business.Core.DTOs
         public int MaxBusinesses { get; set; }
         public bool IsPubliclyVisible { get; set; }
         public bool IsActive { get; set; }
+        // Audit fields
+        public Guid? CreatedByUserID { get; set; }
+        public DateTime? CreatedAtUTC { get; set; }
+        public Guid? UpdatedByUserID { get; set; }
+        public DateTime? UpdatedAtUTC { get; set; }
     }
 }

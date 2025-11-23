@@ -1,6 +1,6 @@
 using Entities.Core;
 using Infrastructure;
-using Microsoft.Data.SqlClient;
+using Npgsql;
 using Repository.Core.Interface;
 using System;
 using System.Collections.Generic;
@@ -20,8 +20,28 @@ namespace Repository.Core
 
         public async Task<IEnumerable<MenuItem>> GetAllAsync()
         {
-            var query = "SELECT * FROM core.MenuItems";
+            var query = "SELECT * FROM core.menu_items ORDER BY display_order";
             var dataTable = await _sqlHelper.ExecuteQueryAsync(query);
+            var menuItems = new List<MenuItem>();
+
+            foreach (DataRow row in dataTable.Rows)
+            {
+                menuItems.Add(MapToMenuItem(row));
+            }
+
+            return menuItems;
+        }
+
+        public async Task<IEnumerable<MenuItem>> GetByModuleIdAsync(int moduleId)
+        {
+            var query = @"
+                SELECT * 
+                FROM core.menu_items 
+                WHERE module_id = @ModuleID
+                ORDER BY display_order";
+
+            var parameters = new[] { new NpgsqlParameter("@ModuleID", moduleId) };
+            var dataTable = await _sqlHelper.ExecuteQueryAsync(query, parameters);
             var menuItems = new List<MenuItem>();
 
             foreach (DataRow row in dataTable.Rows)
@@ -34,8 +54,8 @@ namespace Repository.Core
 
         public async Task<MenuItem> GetByIdAsync(int id)
         {
-            var query = "SELECT * FROM core.MenuItems WHERE MenuItemID = @MenuItemID";
-            var parameters = new[] { new SqlParameter("@MenuItemID", id) };
+            var query = "SELECT * FROM core.menu_items WHERE menu_item_id = @MenuItemID";
+            var parameters = new[] { new NpgsqlParameter("@MenuItemID", id) };
             var dataTable = await _sqlHelper.ExecuteQueryAsync(query, parameters);
 
             return dataTable.Rows.Count > 0 ? MapToMenuItem(dataTable.Rows[0]) : null;
@@ -44,19 +64,19 @@ namespace Repository.Core
         public async Task<MenuItem> AddAsync(MenuItem menuItem)
         {
             var query = @"
-                INSERT INTO core.MenuItems (ModuleID, ParentMenuItemID, MenuText, MenuURL, IconClass, DisplayOrder, IsActive)
-                OUTPUT INSERTED.*
-                VALUES (@ModuleID, @ParentMenuItemID, @MenuText, @MenuURL, @IconClass, @DisplayOrder, @IsActive);";
+                INSERT INTO core.menu_items (module_id, parent_menu_item_id, menu_text, menu_url, icon_class, display_order, is_active)
+                VALUES (@ModuleID, @ParentMenuItemID, @MenuText, @MenuURL, @IconClass, @DisplayOrder, @IsActive)
+                RETURNING menu_item_id, module_id, parent_menu_item_id, menu_text, menu_url, icon_class, display_order, is_active;";
 
             var parameters = new[]
             {
-                new SqlParameter("@ModuleID", menuItem.ModuleID),
-                new SqlParameter("@ParentMenuItemID", (object)menuItem.ParentMenuItemID ?? DBNull.Value),
-                new SqlParameter("@MenuText", menuItem.MenuText),
-                new SqlParameter("@MenuURL", (object)menuItem.MenuURL ?? DBNull.Value),
-                new SqlParameter("@IconClass", (object)menuItem.IconClass ?? DBNull.Value),
-                new SqlParameter("@DisplayOrder", menuItem.DisplayOrder),
-                new SqlParameter("@IsActive", menuItem.IsActive)
+                new NpgsqlParameter("@ModuleID", menuItem.ModuleID),
+                new NpgsqlParameter("@ParentMenuItemID", (object)menuItem.ParentMenuItemID ?? DBNull.Value),
+                new NpgsqlParameter("@MenuText", menuItem.MenuText),
+                new NpgsqlParameter("@MenuURL", (object)menuItem.MenuURL ?? DBNull.Value),
+                new NpgsqlParameter("@IconClass", (object)menuItem.IconClass ?? DBNull.Value),
+                new NpgsqlParameter("@DisplayOrder", menuItem.DisplayOrder),
+                new NpgsqlParameter("@IsActive", menuItem.IsActive)
             };
 
             var dataTable = await _sqlHelper.ExecuteQueryAsync(query, parameters);
@@ -66,21 +86,21 @@ namespace Repository.Core
         public async Task<bool> UpdateAsync(MenuItem menuItem)
         {
             var query = @"
-                UPDATE core.MenuItems
-                SET ModuleID = @ModuleID, ParentMenuItemID = @ParentMenuItemID, MenuText = @MenuText,
-                    MenuURL = @MenuURL, IconClass = @IconClass, DisplayOrder = @DisplayOrder, IsActive = @IsActive
-                WHERE MenuItemID = @MenuItemID;";
+                UPDATE core.menu_items
+                SET module_id = @ModuleID, parent_menu_item_id = @ParentMenuItemID, menu_text = @MenuText,
+                    menu_url = @MenuURL, icon_class = @IconClass, display_order = @DisplayOrder, is_active = @IsActive
+                WHERE menu_item_id = @MenuItemID;";
 
             var parameters = new[]
             {
-                new SqlParameter("@MenuItemID", menuItem.MenuItemID),
-                new SqlParameter("@ModuleID", menuItem.ModuleID),
-                new SqlParameter("@ParentMenuItemID", (object)menuItem.ParentMenuItemID ?? DBNull.Value),
-                new SqlParameter("@MenuText", menuItem.MenuText),
-                new SqlParameter("@MenuURL", (object)menuItem.MenuURL ?? DBNull.Value),
-                new SqlParameter("@IconClass", (object)menuItem.IconClass ?? DBNull.Value),
-                new SqlParameter("@DisplayOrder", menuItem.DisplayOrder),
-                new SqlParameter("@IsActive", menuItem.IsActive)
+                new NpgsqlParameter("@MenuItemID", menuItem.MenuItemID),
+                new NpgsqlParameter("@ModuleID", menuItem.ModuleID),
+                new NpgsqlParameter("@ParentMenuItemID", (object)menuItem.ParentMenuItemID ?? DBNull.Value),
+                new NpgsqlParameter("@MenuText", menuItem.MenuText),
+                new NpgsqlParameter("@MenuURL", (object)menuItem.MenuURL ?? DBNull.Value),
+                new NpgsqlParameter("@IconClass", (object)menuItem.IconClass ?? DBNull.Value),
+                new NpgsqlParameter("@DisplayOrder", menuItem.DisplayOrder),
+                new NpgsqlParameter("@IsActive", menuItem.IsActive)
             };
 
             var result = await _sqlHelper.ExecuteNonQueryAsync(query, parameters);
@@ -89,8 +109,8 @@ namespace Repository.Core
 
         public async Task<bool> DeleteAsync(int id)
         {
-            var query = "DELETE FROM core.MenuItems WHERE MenuItemID = @MenuItemID";
-            var parameters = new[] { new SqlParameter("@MenuItemID", id) };
+            var query = "DELETE FROM core.menu_items WHERE menu_item_id = @MenuItemID";
+            var parameters = new[] { new NpgsqlParameter("@MenuItemID", id) };
             var result = await _sqlHelper.ExecuteNonQueryAsync(query, parameters);
             return result > 0;
         }
@@ -99,14 +119,14 @@ namespace Repository.Core
         {
             return new MenuItem
             {
-                MenuItemID = Convert.ToInt32(row["MenuItemID"]),
-                ModuleID = Convert.ToInt32(row["ModuleID"]),
-                ParentMenuItemID = row["ParentMenuItemID"] == DBNull.Value ? null : (int?)Convert.ToInt32(row["ParentMenuItemID"]),
-                MenuText = row["MenuText"].ToString(),
-                MenuURL = row["MenuURL"] == DBNull.Value ? null : row["MenuURL"].ToString(),
-                IconClass = row["IconClass"] == DBNull.Value ? null : row["IconClass"].ToString(),
-                DisplayOrder = Convert.ToInt32(row["DisplayOrder"]),
-                IsActive = Convert.ToBoolean(row["IsActive"])
+                MenuItemID = Convert.ToInt32(row["menu_item_id"]),
+                ModuleID = Convert.ToInt32(row["module_id"]),
+                ParentMenuItemID = row["parent_menu_item_id"] == DBNull.Value ? null : (int?)Convert.ToInt32(row["parent_menu_item_id"]),
+                MenuText = row["menu_text"].ToString(),
+                MenuURL = row["menu_url"] == DBNull.Value ? null : row["menu_url"].ToString(),
+                IconClass = row["icon_class"] == DBNull.Value ? null : row["icon_class"].ToString(),
+                DisplayOrder = Convert.ToInt32(row["display_order"]),
+                IsActive = Convert.ToBoolean(row["is_active"])
             };
         }
     }

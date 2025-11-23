@@ -1,6 +1,6 @@
-﻿using System.Data;
-using Microsoft.Data.SqlClient;
-
+﻿using System;
+using System.Data;
+using Npgsql;
 
 namespace Infrastructure
 {
@@ -17,14 +17,14 @@ namespace Infrastructure
         {
             try
             {
-                var query = @"INSERT INTO core.ErrorLogs (ErrorMessage, StackTrace, Source, CreatedAt)
-                              VALUES (@ErrorMessage, @StackTrace, @Source, GETDATE())";
+                var query = @"INSERT INTO core.error_logs (error_message, stack_trace, source, created_at)
+                              VALUES (@ErrorMessage, @StackTrace, @Source, NOW() AT TIME ZONE 'UTC')";
 
                 var parameters = new[]
                 {
-                    new SqlParameter("@ErrorMessage", ex.Message),
-                    new SqlParameter("@StackTrace", (object)ex.StackTrace ?? DBNull.Value),
-                    new SqlParameter("@Source", (object)ex.Source ?? DBNull.Value)
+                    new NpgsqlParameter("@ErrorMessage", ex.Message),
+                    new NpgsqlParameter("@StackTrace", (object)ex.StackTrace ?? DBNull.Value),
+                    new NpgsqlParameter("@Source", (object)ex.Source ?? DBNull.Value)
                 };
                 
                 _sqlHelper.ExecuteNonQuery(query, parameters);

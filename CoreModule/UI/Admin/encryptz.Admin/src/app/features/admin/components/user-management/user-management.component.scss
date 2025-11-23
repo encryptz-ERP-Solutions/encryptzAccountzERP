@@ -40,3 +40,65 @@
         font-size: 11px !important;
     }
 }
+
+.user-management {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.list-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    flex-wrap: wrap;
+    gap: 12px;
+}
+
+.actions {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: wrap;
+}
+
+.filter-field {
+    width: 220px;
+}
+
+.muted {
+    margin: 0;
+    color: var(--mat-sys-outline);
+    font-size: 13px;
+}
+
+.user-table {
+    width: 100%;
+}
+
+.text-right {
+    text-align: right;
+}
+
+.empty-state {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+    padding: 24px 0;
+    color: var(--mat-sys-outline);
+
+    mat-icon {
+        color: var(--mat-sys-outline-variant);
+    }
+
+    .title {
+        font-weight: 600;
+    }
+}
+
+mat-chip {
+    font-size: 11px;
+    height: 20px;
+}

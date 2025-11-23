@@ -56,6 +56,22 @@
                             (click)="isForgotPassword = true">Forgot Password?</a>
                     </div>
                 </div>
+
+                <div class="wd-100 mt-3">
+                    <mat-label class="f-sz10 mont400">Full Name <span class="text-muted">(Optional - for incomplete profile)</span></mat-label>
+                    <mat-form-field class="wd-100 custom-form-field small mt-1" appearance="outline">
+                        <input matInput class="mont400 f-sz10" [formControl]="fullNameOTP" placeholder="Enter your full name">
+                    </mat-form-field>
+                </div>
+
+                <div class="wd-100 mt-2">
+                    <mat-label class="f-sz10 mont400">PAN Card Number <span class="text-muted">(Optional - for incomplete profile)</span></mat-label>
+                    <mat-form-field class="wd-100 custom-form-field small mt-1" appearance="outline">
+                        <input matInput class="mont400 f-sz10" [formControl]="panOTP" placeholder="ABCDE1234F" maxlength="10" 
+                            (input)="panOTP.setValue(panOTP.value?.toUpperCase() || '')">
+                        <mat-hint>Format: ABCDE1234F</mat-hint>
+                    </mat-form-field>
+                </div>
                 }
                 @else if(isForgotPassword && !isOTPValidation) {
                 <div class="wd-100 mt-2">
@@ -119,6 +135,22 @@
                             (keydown)="onOtpKeyDown($event,  $index);">
                     </mat-form-field>
                     }
+                </div>
+
+                <div class="wd-100 mt-3">
+                    <mat-label class="f-sz10 mont400">Full Name <span class="text-muted">(Optional - for first-time login)</span></mat-label>
+                    <mat-form-field class="wd-100 custom-form-field small mt-1" appearance="outline">
+                        <input matInput class="mont400 f-sz10" [formControl]="fullNameOTP" placeholder="Enter your full name">
+                    </mat-form-field>
+                </div>
+
+                <div class="wd-100 mt-2">
+                    <mat-label class="f-sz10 mont400">PAN Card Number <span class="text-muted">(Optional - for first-time login)</span></mat-label>
+                    <mat-form-field class="wd-100 custom-form-field small mt-1" appearance="outline">
+                        <input matInput class="mont400 f-sz10" [formControl]="panOTP" placeholder="ABCDE1234F" maxlength="10" 
+                            (input)="panOTP.setValue(panOTP.value?.toUpperCase() || '')">
+                        <mat-hint>Format: ABCDE1234F</mat-hint>
+                    </mat-form-field>
                 </div>
                 }
 

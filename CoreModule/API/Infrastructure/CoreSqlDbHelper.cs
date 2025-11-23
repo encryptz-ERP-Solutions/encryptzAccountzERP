@@ -1,6 +1,7 @@
 using System;
 using System.Data;
-using Microsoft.Data.SqlClient;
+using System.Threading.Tasks;
+using Npgsql;
 using Microsoft.Extensions.Configuration;
 
 namespace Infrastructure
@@ -8,8 +9,8 @@ namespace Infrastructure
     public class CoreSQLDbHelper
     {
         private readonly string _connectionString;
-        private SqlConnection _connection;
-        private SqlTransaction _transaction;
+        private NpgsqlConnection _connection;
+        private NpgsqlTransaction _transaction;
 
         public CoreSQLDbHelper(IConfiguration configuration)
         {
@@ -18,7 +19,7 @@ namespace Infrastructure
 
         public void BeginTransaction()
         {
-            _connection = new SqlConnection(_connectionString);
+            _connection = new NpgsqlConnection(_connectionString);
             _connection.Open();
             _transaction = _connection.BeginTransaction();
         }
@@ -35,10 +36,15 @@ namespace Infrastructure
             _connection?.Close();
         }
 
-        public int ExecuteNonQuery(string query, SqlParameter[] parameters = null)
+        public NpgsqlConnection GetConnection()
         {
-            using (var connection = new SqlConnection(_connectionString))
-            using (var command = new SqlCommand(query, connection))
+            return new NpgsqlConnection(_connectionString);
+        }
+
+        public int ExecuteNonQuery(string query, NpgsqlParameter[] parameters = null)
+        {
+            using (var connection = new NpgsqlConnection(_connectionString))
+            using (var command = new NpgsqlCommand(query, connection))
             {
                 command.CommandType = CommandType.Text;
                 if (parameters != null)
@@ -49,17 +55,17 @@ namespace Infrastructure
             }
         }
 
-        public async Task<DataTable> ExecuteQueryAsync(string query, SqlParameter[] parameters = null)
+        public async Task<DataTable> ExecuteQueryAsync(string query, NpgsqlParameter[] parameters = null)
         {
-            using (var connection = new SqlConnection(_connectionString))
-            using (var command = new SqlCommand(query, connection))
+            using (var connection = new NpgsqlConnection(_connectionString))
+            using (var command = new NpgsqlCommand(query, connection))
             {
                 command.CommandType = CommandType.Text;
                 if (parameters != null)
                     command.Parameters.AddRange(parameters);
 
                 var dataTable = new DataTable();
-                using (var adapter = new SqlDataAdapter(command))
+                using (var adapter = new NpgsqlDataAdapter(command))
                 {
                     await connection.OpenAsync();
                     adapter.Fill(dataTable);
@@ -68,11 +74,11 @@ namespace Infrastructure
             }
         }
 
-        public async Task<int> ExecuteNonQueryAsync(string query, SqlParameter[] parameters = null, bool useTransaction = false)
+        public async Task<int> ExecuteNonQueryAsync(string query, NpgsqlParameter[] parameters = null, bool useTransaction = false)
         {
             if (useTransaction)
             {
-                using (var command = new SqlCommand(query, _connection, _transaction))
+                using (var command = new NpgsqlCommand(query, _connection, _transaction))
                 {
                     command.CommandType = CommandType.Text;
                     if (parameters != null)
@@ -83,8 +89,8 @@ namespace Infrastructure
             }
             else
             {
-                using (var connection = new SqlConnection(_connectionString))
-                using (var command = new SqlCommand(query, connection))
+                using (var connection = new NpgsqlConnection(_connectionString))
+                using (var command = new NpgsqlCommand(query, connection))
                 {
                     command.CommandType = CommandType.Text;
                     if (parameters != null)
@@ -93,6 +99,22 @@ namespace Infrastructure
                     await connection.OpenAsync();
                     return await command.ExecuteNonQueryAsync();
                 }
+            }
+        }
+
+        public async Task<object?> ExecuteScalarAsync(string query, NpgsqlParameter[] parameters = null)
+        {
+            using (var connection = new NpgsqlConnection(_connectionString))
+            using (var command = new NpgsqlCommand(query, connection))
+            {
+                command.CommandType = CommandType.Text;
+                if (parameters != null)
+                {
+                    command.Parameters.AddRange(parameters);
+                }
+
+                await connection.OpenAsync();
+                return await command.ExecuteScalarAsync();
             }
         }
     }

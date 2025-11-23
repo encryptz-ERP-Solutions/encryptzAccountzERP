@@ -1,6 +1,11 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-
+import { RouterTestingModule } from '@angular/router/testing';
+import { CommonService } from '../../../../shared/services/common.service';
 import { AccountsSideBarComponent } from './accounts-side-bar.component';
+
+class CommonServiceStub {
+  showSnackbar() { }
+}
 
 describe('AccountsSideBarComponent', () => {
   let component: AccountsSideBarComponent;
@@ -8,7 +13,8 @@ describe('AccountsSideBarComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [AccountsSideBarComponent]
+      imports: [AccountsSideBarComponent, RouterTestingModule],
+      providers: [{ provide: CommonService, useClass: CommonServiceStub }]
     })
     .compileComponents();
 

@@ -1,1 +1,166 @@
-<p>dashboard works</p>
+<section class="admin-dashboard">
+    <div class="header">
+        <div>
+            <h2 class="mont600 f-sz20">System Overview</h2>
+            <p class="muted-text">Live snapshot of platform adoption and activity</p>
+        </div>
+        <button mat-stroked-button color="primary" (click)="loadSummary()" [disabled]="loading">
+            <mat-icon class="icon-16 mrR-8">refresh</mat-icon>
+            Refresh
+        </button>
+    </div>
+
+    <div class="kpi-grid" *ngIf="summary as data; else emptyState">
+        <mat-card class="kpi-card">
+            <div class="muted-label">Total Users</div>
+            <div class="kpi-value">{{ data.kpis.totalUsers | number }}</div>
+            <div class="kpi-sub">Active: {{ data.kpis.activeUsers | number }}</div>
+        </mat-card>
+        <mat-card class="kpi-card">
+            <div class="muted-label">Businesses</div>
+            <div class="kpi-value">{{ data.kpis.totalBusinesses | number }}</div>
+            <div class="kpi-sub">Active: {{ data.kpis.activeBusinesses | number }}</div>
+        </mat-card>
+        <mat-card class="kpi-card">
+            <div class="muted-label">Security Objects</div>
+            <div class="kpi-value">{{ data.kpis.totalRoles + data.kpis.totalPermissions }}</div>
+            <div class="kpi-sub">{{ data.kpis.totalRoles }} roles · {{ data.kpis.totalPermissions }} permissions</div>
+        </mat-card>
+        <mat-card class="kpi-card">
+            <div class="muted-label">Navigation Assets</div>
+            <div class="kpi-value">{{ data.kpis.totalMenuItems }}</div>
+            <div class="kpi-sub">{{ data.kpis.totalModules }} modules defined</div>
+        </mat-card>
+        <mat-card class="kpi-card">
+            <div class="muted-label">Subscription Plans</div>
+            <div class="kpi-value">{{ data.kpis.subscriptionPlans }}</div>
+            <div class="kpi-sub">Ready for provisioning</div>
+        </mat-card>
+    </div>
+
+    <div class="content-grid" *ngIf="summary as data">
+        <mat-card>
+            <div class="card-title">Recent Users</div>
+            <table mat-table [dataSource]="data.recentUsers" *ngIf="data.recentUsers.length; else noUsers">
+                <ng-container matColumnDef="userHandle">
+                    <th mat-header-cell *matHeaderCellDef> Handle </th>
+                    <td mat-cell *matCellDef="let element"> {{ element.userHandle }} </td>
+                </ng-container>
+                <ng-container matColumnDef="fullName">
+                    <th mat-header-cell *matHeaderCellDef> Name </th>
+                    <td mat-cell *matCellDef="let element"> {{ element.fullName }} </td>
+                </ng-container>
+                <ng-container matColumnDef="email">
+                    <th mat-header-cell *matHeaderCellDef> Email </th>
+                    <td mat-cell *matCellDef="let element"> {{ element.email || '—' }} </td>
+                </ng-container>
+                <ng-container matColumnDef="created">
+                    <th mat-header-cell *matHeaderCellDef> Joined </th>
+                    <td mat-cell *matCellDef="let element"> {{ element.createdAtUtc | date:'mediumDate' }} </td>
+                </ng-container>
+
+                <tr mat-header-row *matHeaderRowDef="displayedUserColumns"></tr>
+                <tr mat-row *matRowDef="let row; columns: displayedUserColumns;"></tr>
+            </table>
+            <ng-template #noUsers>
+                <div class="empty">No recent users</div>
+            </ng-template>
+        </mat-card>
+
+        <mat-card>
+            <div class="card-title">Recent Businesses</div>
+            <table mat-table [dataSource]="data.recentBusinesses" *ngIf="data.recentBusinesses.length; else noBiz">
+                <ng-container matColumnDef="businessName">
+                    <th mat-header-cell *matHeaderCellDef> Business </th>
+                    <td mat-cell *matCellDef="let element">{{ element.businessName }}</td>
+                </ng-container>
+                <ng-container matColumnDef="location">
+                    <th mat-header-cell *matHeaderCellDef> Location </th>
+                    <td mat-cell *matCellDef="let element">{{ element.city || '—' }}</td>
+                </ng-container>
+                <ng-container matColumnDef="created">
+                    <th mat-header-cell *matHeaderCellDef> Created </th>
+                    <td mat-cell *matCellDef="let element">{{ element.createdAtUtc | date:'mediumDate' }}</td>
+                </ng-container>
+
+                <tr mat-header-row *matHeaderRowDef="displayedBusinessColumns"></tr>
+                <tr mat-row *matRowDef="let row; columns: displayedBusinessColumns;"></tr>
+            </table>
+            <ng-template #noBiz>
+                <div class="empty">No businesses found</div>
+            </ng-template>
+        </mat-card>
+
+        <mat-card class="full-width">
+            <div class="card-title">Recent Activity</div>
+            <table mat-table [dataSource]="data.recentActivity" *ngIf="data.recentActivity.length; else noActivity">
+                <ng-container matColumnDef="table">
+                    <th mat-header-cell *matHeaderCellDef> Entity </th>
+                    <td mat-cell *matCellDef="let element">
+                        <div class="table-chip">
+                            <mat-chip color="primary" selected>{{ element.tableName }}</mat-chip>
+                            <span>{{ element.description }}</span>
+                        </div>
+                    </td>
+                </ng-container>
+                <ng-container matColumnDef="action">
+                    <th mat-header-cell *matHeaderCellDef> Action </th>
+                    <td mat-cell *matCellDef="let element">{{ element.action }}</td>
+                </ng-container>
+                <ng-container matColumnDef="user">
+                    <th mat-header-cell *matHeaderCellDef> By </th>
+                    <td mat-cell *matCellDef="let element">{{ element.changedByUserName || 'System' }}</td>
+                </ng-container>
+                <ng-container matColumnDef="date">
+                    <th mat-header-cell *matHeaderCellDef> When </th>
+                    <td mat-cell *matCellDef="let element">{{ element.changedAtUtc | date:'medium' }}</td>
+                </ng-container>
+
+                <tr mat-header-row *matHeaderRowDef="displayedActivityColumns"></tr>
+                <tr mat-row *matRowDef="let row; columns: displayedActivityColumns; trackBy: trackActivity"></tr>
+            </table>
+            <ng-template #noActivity>
+                <div class="empty">No audit activity logged yet</div>
+            </ng-template>
+        </mat-card>
+    </div>
+
+    <mat-card *ngIf="summary as data">
+        <div class="card-title">Subscription Plan Usage</div>
+        <table mat-table [dataSource]="data.planUsage" *ngIf="data.planUsage.length; else noPlans">
+            <ng-container matColumnDef="plan">
+                <th mat-header-cell *matHeaderCellDef> Plan </th>
+                <td mat-cell *matCellDef="let element">{{ element.planName }}</td>
+            </ng-container>
+            <ng-container matColumnDef="price">
+                <th mat-header-cell *matHeaderCellDef> Price </th>
+                <td mat-cell *matCellDef="let element">{{ element.price | currency:'INR':'symbol' }}</td>
+            </ng-container>
+            <ng-container matColumnDef="active">
+                <th mat-header-cell *matHeaderCellDef> Active Subs </th>
+                <td mat-cell *matCellDef="let element">{{ element.activeSubscriptions }}</td>
+            </ng-container>
+            <ng-container matColumnDef="status">
+                <th mat-header-cell *matHeaderCellDef> Status </th>
+                <td mat-cell *matCellDef="let element">
+                    <mat-chip [color]="element.isActive ? 'primary' : undefined">
+                        {{ element.isActive ? 'Active' : 'Disabled' }}
+                    </mat-chip>
+                </td>
+            </ng-container>
+
+            <tr mat-header-row *matHeaderRowDef="displayedPlanColumns"></tr>
+            <tr mat-row *matRowDef="let row; columns: displayedPlanColumns; trackBy: trackPlan"></tr>
+        </table>
+        <ng-template #noPlans>
+            <div class="empty">No plans configured</div>
+        </ng-template>
+    </mat-card>
+</section>
+
+<ng-template #emptyState>
+    <div class="empty large">
+        <mat-icon class="icon-32 mrR-8">dashboard</mat-icon>
+        Unable to load dashboard data. Please try again.
+    </div>
+</ng-template>

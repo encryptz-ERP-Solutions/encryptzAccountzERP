@@ -37,6 +37,13 @@ export const routes: Routes = [
             )
     },
     {
+        path: 'profile-setup',
+        loadComponent: () =>
+            import('./features/profile/profile-setup/profile-setup.component').then(
+                (m) => m.ProfileSetupComponent
+            )
+    },
+    {
         path: 'admin',
         loadChildren: () =>
             import("./features/admin/admin.module").then(

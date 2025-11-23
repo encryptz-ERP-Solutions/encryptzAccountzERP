@@ -1,0 +1,95 @@
+<section class="business-management">
+<header class="list-header">
+        <div>
+            <h2 class="mont600 f-sz18 mb-0">Businesses</h2>
+            <p class="muted">Manage businesses and organizations</p>
+        </div>
+        <div class="actions">
+            <mat-form-field appearance="outline" class="filter-field">
+                <mat-icon matPrefix>search</mat-icon>
+                <input matInput placeholder="Search businesses" [formControl]="filterControl">
+            </mat-form-field>
+        <button mat-icon-button matTooltip="Refresh" (click)="refresh()" [disabled]="loading">
+            <mat-icon>refresh</mat-icon>
+        </button>
+            <button mat-flat-button color="primary" (click)="openCreateDialog()">
+                <mat-icon class="icon-14 mrR-6">add</mat-icon>
+                Create business
+            </button>
+        </div>
+    </header>
+
+<mat-progress-bar *ngIf="loading" mode="indeterminate"></mat-progress-bar>
+
+    <mat-card>
+    <table mat-table [dataSource]="dataSource" matSort matSortActive="created" matSortDirection="desc"
+        class="business-table">
+
+            <ng-container matColumnDef="businessName">
+            <th mat-header-cell *matHeaderCellDef mat-sort-header> Business Name </th>
+                <td mat-cell *matCellDef="let element"> {{ element.businessName }} </td>
+            </ng-container>
+
+            <ng-container matColumnDef="businessCode">
+            <th mat-header-cell *matHeaderCellDef mat-sort-header> Code </th>
+                <td mat-cell *matCellDef="let element"> {{ element.businessCode || '—' }} </td>
+            </ng-container>
+
+            <ng-container matColumnDef="location">
+            <th mat-header-cell *matHeaderCellDef> Location </th>
+                <td mat-cell *matCellDef="let element">
+                    {{ element.city || '—' }}{{ element.city && element.pinCode ? ', ' : '' }}{{ element.pinCode || '' }}
+                </td>
+            </ng-container>
+
+            <ng-container matColumnDef="created">
+            <th mat-header-cell *matHeaderCellDef mat-sort-header> Created </th>
+                <td mat-cell *matCellDef="let element">{{ element.createdAtUTC | date:'mediumDate' }}</td>
+            </ng-container>
+
+            <ng-container matColumnDef="status">
+                <th mat-header-cell *matHeaderCellDef> Status </th>
+                <td mat-cell *matCellDef="let element">
+                <mat-chip [color]="element.isActive ? 'primary' : undefined">
+                    {{ element.isActive ? 'Active' : 'Disabled' }}
+                </mat-chip>
+                </td>
+            </ng-container>
+
+            <ng-container matColumnDef="actions">
+                <th mat-header-cell *matHeaderCellDef class="text-right"> </th>
+                <td mat-cell *matCellDef="let element" class="text-right">
+                    <button mat-icon-button matTooltip="Edit business" color="primary" (click)="openEditDialog(element)">
+                        <mat-icon>edit</mat-icon>
+                    </button>
+                    <button mat-icon-button matTooltip="Delete business" color="warn" (click)="deleteBusiness(element)">
+                        <mat-icon>delete</mat-icon>
+                    </button>
+                </td>
+            </ng-container>
+
+            <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+            <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+        <tr class="mat-row" *matNoDataRow>
+            <td class="empty-state" [attr.colspan]="displayedColumns.length">
+                {{ error || 'No businesses match the current filter.' }}
+            </td>
+        </tr>
+        </table>
+
+    <ng-container *ngIf="!loading && !hasBusinesses && !error">
+        <div class="empty-state">
+            <mat-icon>business</mat-icon>
+            <div>
+                <div class="title">No businesses yet</div>
+                <p class="muted">Create the first business to get started.</p>
+            </div>
+        </div>
+    </ng-container>
+
+    <div class="encryptz-pagination mt-2" *ngIf="hasBusinesses">
+        <mat-paginator [pageSize]="10" [pageSizeOptions]="[5, 10, 25, 100]"></mat-paginator>
+    </div>
+    </mat-card>
+</section>
+

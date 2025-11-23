@@ -17,7 +17,11 @@ public class TokenService
         _config = config;
     }
 
-    public (string, DateTime) GenerateAccessToken(string userId, string userHandle, Dictionary<Guid, IEnumerable<string>>? permissionsByBusiness)
+    public (string, DateTime) GenerateAccessToken(
+        string userId,
+        string userHandle,
+        Dictionary<Guid, IEnumerable<string>>? permissionsByBusiness,
+        Dictionary<string, string>? additionalClaims = null)
     {
         var key = Encoding.UTF8.GetBytes(_config["JwtSettings:SecretKey"]);
         var expirationMinutes = Convert.ToInt32(_config["JwtSettings:AccessTokenExpirationMinutes"]);
@@ -40,6 +44,14 @@ public class TokenService
         if (claims.Any(c => c.Type == "permission"))
         {
             claims.Add(new Claim(ClaimTypes.Role, "User"));
+        }
+
+        if (additionalClaims != null)
+        {
+            foreach (var kvp in additionalClaims)
+            {
+                claims.Add(new Claim(kvp.Key, kvp.Value));
+            }
         }
 
         var tokenDescriptor = new SecurityTokenDescriptor

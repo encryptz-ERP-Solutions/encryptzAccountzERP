@@ -1,0 +1,26 @@
+using BusinessLogic.Core.DTOs;
+using System;
+using System.Collections.Generic;
+using System.Threading.Tasks;
+
+namespace BusinessLogic.Core.Interface
+{
+    /// <summary>
+    /// Example updated IRoleService interface with audit support.
+    /// Update your existing IRoleService to include createdByUserId/updatedByUserId parameters.
+    /// </summary>
+    public interface IRoleService
+    {
+        Task<IEnumerable<RoleDto>> GetAllRolesAsync();
+        Task<RoleDto> GetRoleByIdAsync(int id);
+        
+        // Updated: Add createdByUserId parameter
+        Task<RoleDto> AddRoleAsync(RoleDto roleDto, Guid? createdByUserId);
+        
+        // Updated: Add updatedByUserId parameter
+        Task<bool> UpdateRoleAsync(int id, RoleDto roleDto, Guid? updatedByUserId);
+        
+        Task<bool> DeleteRoleAsync(int id);
+    }
+}
+

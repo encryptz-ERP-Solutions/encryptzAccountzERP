@@ -1,0 +1,152 @@
+<section class="role-permissions">
+  <header class="list-header">
+    <div>
+      <h2 class="mont600 f-sz18 mb-0">Role Permissions</h2>
+      <p class="muted">Manage permissions assigned to roles in Security Center</p>
+    </div>
+    <button mat-flat-button color="primary" (click)="refresh()" [disabled]="loading || saving">
+      <mat-icon class="icon-14 mrR-6">refresh</mat-icon>
+      Refresh
+    </button>
+  </header>
+
+  <div class="content-grid">
+    <!-- Role Selection Card -->
+    <mat-card class="role-selector-card">
+      <div class="card-header">
+        <h3 class="mont600 f-sz14 mb-0">Select Role</h3>
+      </div>
+      <div class="card-content">
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-label>Choose a role</mat-label>
+          <mat-select [formControl]="roleControl">
+            <mat-option *ngFor="let role of roles" [value]="role.roleID">
+              {{ role.roleName }}
+            </mat-option>
+          </mat-select>
+        </mat-form-field>
+
+        <div *ngIf="selectedRole" class="role-info">
+          <div class="info-row">
+            <span class="label">Role:</span>
+            <span class="value">{{ selectedRole.roleName }}</span>
+          </div>
+          <div class="info-row" *ngIf="selectedRole.description">
+            <span class="label">Description:</span>
+            <span class="value">{{ selectedRole.description }}</span>
+          </div>
+          <div class="info-row">
+            <span class="label">Permissions:</span>
+            <mat-chip class="permission-count">
+              {{ getSelectedCount(selectedRole.roleID) }} / {{ permissions.length }}
+            </mat-chip>
+          </div>
+        </div>
+
+        <div *ngIf="!selectedRole && !loading" class="empty-role-state">
+          <mat-icon>admin_panel_settings</mat-icon>
+          <p>Select a role to manage permissions</p>
+        </div>
+      </div>
+    </mat-card>
+
+    <!-- Permissions Management Card -->
+    <mat-card class="permissions-card" *ngIf="selectedRole">
+      <div class="card-header">
+        <h3 class="mont600 f-sz14 mb-0">Manage Permissions</h3>
+      </div>
+
+      <!-- Filters -->
+      <div class="filters-section">
+        <mat-form-field appearance="outline" class="search-field">
+          <mat-label>Search permissions</mat-label>
+          <input matInput [formControl]="searchControl" placeholder="Search by key or description">
+          <mat-icon matPrefix>search</mat-icon>
+        </mat-form-field>
+
+        <mat-form-field appearance="outline" class="module-filter-field">
+          <mat-label>Filter by module</mat-label>
+          <mat-select [formControl]="moduleFilterControl">
+            <mat-option [value]="null">All modules</mat-option>
+            <mat-option *ngFor="let module of modules" [value]="module.moduleID">
+              {{ module.moduleName }}
+            </mat-option>
+          </mat-select>
+        </mat-form-field>
+
+        <button mat-stroked-button (click)="clearFilters()" *ngIf="searchControl.value || moduleFilterControl.value">
+          <mat-icon class="icon-14 mrR-6">clear</mat-icon>
+          Clear filters
+        </button>
+      </div>
+
+      <mat-progress-bar *ngIf="loadingPermissions || saving" mode="indeterminate"></mat-progress-bar>
+
+      <div *ngIf="error && !loadingPermissions" class="error-message">
+        <mat-icon>error_outline</mat-icon>
+        <span>{{ error }}</span>
+      </div>
+
+      <div *ngIf="!loadingPermissions && filteredPermissions.length === 0" class="empty-state">
+        <mat-icon>security</mat-icon>
+        <h3>No permissions found</h3>
+        <p *ngIf="searchControl.value || moduleFilterControl.value">
+          Try adjusting your filters
+        </p>
+        <p *ngIf="!searchControl.value && !moduleFilterControl.value">
+          No permissions available
+        </p>
+      </div>
+
+      <div *ngIf="!loadingPermissions && filteredPermissions.length > 0" class="permissions-list">
+        <div *ngFor="let group of permissionGroups" class="permission-group">
+          <div class="group-header">
+            <div class="group-title">
+              <mat-icon class="group-icon">folder</mat-icon>
+              <span class="mont600 f-sz13">{{ group.moduleName }}</span>
+              <mat-chip class="group-count">
+                {{ group.permissions.length }}
+              </mat-chip>
+            </div>
+            <button 
+              mat-stroked-button 
+              (click)="selectAllInModule(group.moduleID)"
+              [disabled]="saving"
+              class="select-all-btn">
+              <mat-icon class="icon-12 mrR-4">
+                {{ isModuleFullySelected(group.moduleID) ? 'check_box' : 'check_box_outline_blank' }}
+              </mat-icon>
+              {{ isModuleFullySelected(group.moduleID) ? 'Deselect All' : 'Select All' }}
+            </button>
+          </div>
+
+          <mat-divider></mat-divider>
+
+          <div class="permission-items">
+            <div *ngFor="let permission of group.permissions" class="permission-item">
+              <mat-checkbox
+                [checked]="hasPermission(selectedRole!.roleID, permission.permissionID)"
+                (change)="togglePermission(permission, $event.checked!)"
+                [disabled]="saving">
+                <div class="permission-content">
+                  <span class="permission-key mont500 f-sz12">{{ permission.permissionKey }}</span>
+                  <span class="permission-description muted f-sz11">{{ permission.description }}</span>
+                </div>
+              </mat-checkbox>
+            </div>
+          </div>
+        </div>
+      </div>
+    </mat-card>
+
+    <!-- Empty State when no role selected -->
+    <mat-card class="permissions-card empty-card" *ngIf="!selectedRole && !loading">
+      <div class="empty-state-large">
+        <mat-icon>admin_panel_settings</mat-icon>
+        <h3>Select a Role</h3>
+        <p>Choose a role from the dropdown to view and manage its permissions</p>
+      </div>
+    </mat-card>
+  </div>
+</section>
+

@@ -1,3 +1,5 @@
+using System;
+
 namespace BusinessLogic.Core.DTOs
 {
     public class MenuItemDto
@@ -10,5 +12,10 @@ namespace BusinessLogic.Core.DTOs
         public string? IconClass { get; set; }
         public int DisplayOrder { get; set; }
         public bool IsActive { get; set; }
+        // Audit fields
+        public Guid? CreatedByUserID { get; set; }
+        public DateTime? CreatedAtUTC { get; set; }
+        public Guid? UpdatedByUserID { get; set; }
+        public DateTime? UpdatedAtUTC { get; set; }
     }
 }

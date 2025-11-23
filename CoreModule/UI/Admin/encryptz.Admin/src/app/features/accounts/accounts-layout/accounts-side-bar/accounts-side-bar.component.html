@@ -24,11 +24,11 @@
 
         @if(item.items.length == 0){
         <div class="position-relative" [matTooltip]="!isExpand ? item.label : ''" matTooltipPosition="right">
-            <a href="#" mat-button (click)="navigateMenu(item.label)"
-                [ngClass]="{'active-menu': selectedMenu === item.label}"
-                class="d-flex align-items-center justify-content-start pd-8 pdT-10 pdB-10 single-menu-wd cursor-pointer">
-                <mat-icon class="icon-12 material-symbols-outlined mrL-0">{{ item.icon }}</mat-icon>
-                <span class="mont400 f-sz11">{{ item.label }}</span>
+            <a href="#" mat-button (click)="navigateMenu(item)"
+                [ngClass]="{'active-menu': selectedMenu === (item.route || item.label)}"
+                class="d-flex align-items-center justify-content-start single-menu-wd cursor-pointer">
+                <mat-icon class="icon-14 material-symbols-outlined mrR-8">{{ item.icon }}</mat-icon>
+                <span class="mont400 f-sz12">{{ item.label }}</span>
             </a>
         </div>
         }
@@ -38,20 +38,20 @@
                 <mat-expansion-panel class="menu-item-first">
                     <mat-expansion-panel-header class="inner-expansel" [matTooltip]="!isExpand ? item.label : ''"
                         matTooltipPosition="right">
-                        <mat-panel-title class="mont400 f-sz11 letter-sp-n">
-                            <mat-icon class="icon-14 mrR-10 material-symbols-outlined mrL-0">{{ item.icon }}</mat-icon>
-                            <div class="text-left no-wrap wd-170p">{{ item.label }}</div>
+                        <mat-panel-title class="mont400 f-sz12 letter-sp-n d-flex align-items-center">
+                            <mat-icon class="icon-14 mrR-8 material-symbols-outlined">{{ item.icon }}</mat-icon>
+                            <span class="text-left no-wrap">{{ item.label }}</span>
                         </mat-panel-title>
                     </mat-expansion-panel-header>
 
                     @for (submenu of item.items; track $index) {
-                    <div class="position-relative" [ngClass]="{'first-sec-menu pdL-12': isExpand}"
+                    <div class="position-relative" [ngClass]="{'first-sec-menu': isExpand}"
                         [matTooltip]="!isExpand ? submenu.label : ''" matTooltipPosition="right">
-                        <a href="#" mat-button (click)="navigateMenu(submenu.label)"
-                            [ngClass]="{'active-menu': selectedMenu === submenu.label}"
-                            class="d-flex align-items-center justify-content-start pd-8 pdT-10 pdB-10 single-menu-wd-sec-1 cursor-pointer position-relative">
-                            <mat-icon class="icon-12 material-symbols-outlined mrL-0">{{ submenu.icon }}</mat-icon>
-                            <span class="mont400 f-sz11">{{ submenu.label }}</span>
+                        <a href="#" mat-button (click)="navigateMenu(submenu)"
+                            [ngClass]="{'active-menu': selectedMenu === (submenu.route || submenu.label)}"
+                            class="d-flex align-items-center justify-content-start single-menu-wd-sec-1 cursor-pointer position-relative">
+                            <mat-icon class="icon-14 material-symbols-outlined mrR-8">{{ submenu.icon }}</mat-icon>
+                            <span class="mont400 f-sz12">{{ submenu.label }}</span>
                         </a>
                     </div>
                     }

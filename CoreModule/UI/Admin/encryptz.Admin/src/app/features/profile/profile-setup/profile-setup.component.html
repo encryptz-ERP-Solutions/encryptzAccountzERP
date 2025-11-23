@@ -1,0 +1,37 @@
+<div class="profile-setup-wrapper">
+  <mat-card class="profile-card">
+    <div class="card-header">
+      <h1>Complete Your Profile</h1>
+      <p>We need a few details to set up your workspace.</p>
+    </div>
+
+    <form [formGroup]="form" (ngSubmit)="submit()">
+      <mat-form-field appearance="outline" class="full-width">
+        <mat-label>Full name</mat-label>
+        <input matInput formControlName="fullName" placeholder="Enter your full name" />
+        <mat-error *ngIf="form.get('fullName')?.hasError('required')">
+          Full name is required.
+        </mat-error>
+      </mat-form-field>
+
+      <mat-form-field appearance="outline" class="full-width">
+        <mat-label>PAN Number</mat-label>
+        <input matInput formControlName="panCardNumber" placeholder="ABCDE1234F" maxlength="10" />
+        <mat-error *ngIf="form.get('panCardNumber')?.hasError('required')">
+          PAN number is required.
+        </mat-error>
+        <mat-error *ngIf="form.get('panCardNumber')?.hasError('pattern')">
+          PAN must follow the format AAAAA9999A.
+        </mat-error>
+      </mat-form-field>
+
+      <div class="actions">
+        <button mat-raised-button color="primary" type="submit" [disabled]="isLoading">
+          <mat-spinner *ngIf="isLoading" diameter="20"></mat-spinner>
+          <span *ngIf="!isLoading">Save and continue</span>
+        </button>
+      </div>
+    </form>
+  </mat-card>
+</div>
+

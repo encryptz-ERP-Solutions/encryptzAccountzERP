@@ -1,1 +1,40 @@
-<p>dash</p>
+<div class="accounts-hero" *ngIf="business$ | async as business">
+  <div>
+    <div class="eyebrow">Accounts workspace</div>
+    <h1>{{ business.businessName || 'Accounts' }}</h1>
+    <p>{{ business.businessCode || 'Select a menu to get started with this company.' }}</p>
+  </div>
+  <mat-chip color="primary" selected>Active</mat-chip>
+</div>
+
+<div class="accounts-hero" *ngIf="!(business$ | async)">
+  <div>
+    <div class="eyebrow">Accounts workspace</div>
+    <h1>Select a business</h1>
+    <p>You will be redirected to the dashboard if no business is chosen.</p>
+  </div>
+</div>
+
+<div class="menu-grid">
+  <mat-card
+    appearance="outlined"
+    class="menu-card"
+    *ngFor="let card of menuCards"
+    (click)="openMenu(card)"
+    [ngClass]="{'disabled': card.comingSoon}"
+  >
+    <div class="menu-icon">
+      <mat-icon>{{ card.icon }}</mat-icon>
+    </div>
+    <div class="menu-body">
+      <div class="menu-title">
+        {{ card.title }}
+        <mat-chip color="accent" *ngIf="card.comingSoon" selected>Coming soon</mat-chip>
+      </div>
+      <p>{{ card.description }}</p>
+    </div>
+    <button mat-stroked-button color="primary">
+      {{ card.comingSoon ? 'Preview' : 'Open' }}
+    </button>
+  </mat-card>
+</div>

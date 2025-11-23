@@ -6,7 +6,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Entities.Accounts;
 using Infrastructure;
-using Microsoft.Data.SqlClient;
+using Npgsql;
 
 namespace Repository.Accounts
 {
@@ -25,32 +25,32 @@ namespace Repository.Accounts
             {
                 _sqlHelper.BeginTransaction();
 
-                var headerQuery = @"INSERT INTO Acct.TransactionHeaders
-                                    (TransactionHeaderID, BusinessID, TransactionDate, ReferenceNumber, Description, CreatedByUserID, CreatedAtUTC)
+                var headerQuery = @"INSERT INTO acct.transaction_headers
+                                    (transaction_header_id, business_id, transaction_date, reference_number, description, created_by_user_id, created_at_utc)
                                     VALUES (@TransactionHeaderID, @BusinessID, @TransactionDate, @ReferenceNumber, @Description, @CreatedByUserID, @CreatedAtUTC)";
                 var headerParams = new[]
                 {
-                    new SqlParameter("@TransactionHeaderID", transactionHeader.TransactionHeaderID),
-                    new SqlParameter("@BusinessID", transactionHeader.BusinessID),
-                    new SqlParameter("@TransactionDate", transactionHeader.TransactionDate),
-                    new SqlParameter("@ReferenceNumber", (object)transactionHeader.ReferenceNumber ?? DBNull.Value),
-                    new SqlParameter("@Description", transactionHeader.Description),
-                    new SqlParameter("@CreatedByUserID", transactionHeader.CreatedByUserID),
-                    new SqlParameter("@CreatedAtUTC", transactionHeader.CreatedAtUTC)
+                    new NpgsqlParameter("@TransactionHeaderID", transactionHeader.TransactionHeaderID),
+                    new NpgsqlParameter("@BusinessID", transactionHeader.BusinessID),
+                    new NpgsqlParameter("@TransactionDate", transactionHeader.TransactionDate),
+                    new NpgsqlParameter("@ReferenceNumber", (object)transactionHeader.ReferenceNumber ?? DBNull.Value),
+                    new NpgsqlParameter("@Description", transactionHeader.Description),
+                    new NpgsqlParameter("@CreatedByUserID", transactionHeader.CreatedByUserID),
+                    new NpgsqlParameter("@CreatedAtUTC", transactionHeader.CreatedAtUTC)
                 };
                 await _sqlHelper.ExecuteNonQueryAsync(headerQuery, headerParams, useTransaction: true);
 
                 foreach (var detail in transactionHeader.TransactionDetails)
                 {
-                    var detailQuery = @"INSERT INTO Acct.TransactionDetails
-                                        (TransactionHeaderID, AccountID, DebitAmount, CreditAmount)
+                    var detailQuery = @"INSERT INTO acct.transaction_details
+                                        (transaction_header_id, account_id, debit_amount, credit_amount)
                                         VALUES (@TransactionHeaderID, @AccountID, @DebitAmount, @CreditAmount)";
                     var detailParams = new[]
                     {
-                        new SqlParameter("@TransactionHeaderID", transactionHeader.TransactionHeaderID),
-                        new SqlParameter("@AccountID", detail.AccountID),
-                        new SqlParameter("@DebitAmount", detail.DebitAmount),
-                        new SqlParameter("@CreditAmount", detail.CreditAmount)
+                        new NpgsqlParameter("@TransactionHeaderID", transactionHeader.TransactionHeaderID),
+                        new NpgsqlParameter("@AccountID", detail.AccountID),
+                        new NpgsqlParameter("@DebitAmount", detail.DebitAmount),
+                        new NpgsqlParameter("@CreditAmount", detail.CreditAmount)
                     };
                     await _sqlHelper.ExecuteNonQueryAsync(detailQuery, detailParams, useTransaction: true);
                 }
@@ -67,23 +67,23 @@ namespace Repository.Accounts
 
         public async Task DeleteTransactionAsync(Guid transactionHeaderId)
         {
-            var query = "DELETE FROM Acct.TransactionHeaders WHERE TransactionHeaderID = @TransactionHeaderID";
-            var parameters = new[] { new SqlParameter("@TransactionHeaderID", transactionHeaderId) };
+            var query = "DELETE FROM acct.transaction_headers WHERE transaction_header_id = @TransactionHeaderID";
+            var parameters = new[] { new NpgsqlParameter("@TransactionHeaderID", transactionHeaderId) };
             await _sqlHelper.ExecuteNonQueryAsync(query, parameters);
         }
 
         public async Task<TransactionHeader> GetTransactionByIdAsync(Guid transactionHeaderId)
         {
-            var headerQuery = "SELECT * FROM Acct.TransactionHeaders WHERE TransactionHeaderID = @TransactionHeaderID";
-            var headerParams = new[] { new SqlParameter("@TransactionHeaderID", transactionHeaderId) };
+            var headerQuery = "SELECT * FROM acct.transaction_headers WHERE transaction_header_id = @TransactionHeaderID";
+            var headerParams = new[] { new NpgsqlParameter("@TransactionHeaderID", transactionHeaderId) };
             var headerTable = await _sqlHelper.ExecuteQueryAsync(headerQuery, headerParams);
 
             if (headerTable.Rows.Count == 0) return null;
 
             var header = MapDataRowToTransactionHeader(headerTable.Rows[0]);
 
-            var detailQuery = "SELECT * FROM Acct.TransactionDetails WHERE TransactionHeaderID = @TransactionHeaderID";
-            var detailParams = new[] { new SqlParameter("@TransactionHeaderID", transactionHeaderId) };
+            var detailQuery = "SELECT * FROM acct.transaction_details WHERE transaction_header_id = @TransactionHeaderID";
+            var detailParams = new[] { new NpgsqlParameter("@TransactionHeaderID", transactionHeaderId) };
             var detailTable = await _sqlHelper.ExecuteQueryAsync(detailQuery, detailParams);
 
             header.TransactionDetails = detailTable.AsEnumerable().Select(MapDataRowToTransactionDetail).ToList();
@@ -93,8 +93,8 @@ namespace Repository.Accounts
 
         public async Task<IEnumerable<TransactionHeader>> GetTransactionsByBusinessIdAsync(Guid businessId)
         {
-            var headerQuery = "SELECT * FROM Acct.TransactionHeaders WHERE BusinessID = @BusinessID ORDER BY TransactionDate DESC";
-            var headerParams = new[] { new SqlParameter("@BusinessID", businessId) };
+            var headerQuery = "SELECT * FROM acct.transaction_headers WHERE business_id = @BusinessID ORDER BY transaction_date DESC";
+            var headerParams = new[] { new NpgsqlParameter("@BusinessID", businessId) };
             var headerTable = await _sqlHelper.ExecuteQueryAsync(headerQuery, headerParams);
 
             if (headerTable.Rows.Count == 0) return new List<TransactionHeader>();
@@ -104,8 +104,8 @@ namespace Repository.Accounts
 
             if (!headerIds.Any()) return headers;
 
-            var detailQueryBuilder = new StringBuilder("SELECT * FROM Acct.TransactionDetails WHERE TransactionHeaderID IN (");
-            var sqlParameters = new List<SqlParameter>();
+            var detailQueryBuilder = new StringBuilder("SELECT * FROM acct.transaction_details WHERE transaction_header_id IN (");
+            var sqlParameters = new List<NpgsqlParameter>();
             for (int i = 0; i < headerIds.Count; i++)
             {
                 var paramName = $"@HeaderID{i}";
@@ -114,7 +114,7 @@ namespace Repository.Accounts
                 {
                     detailQueryBuilder.Append(", ");
                 }
-                sqlParameters.Add(new SqlParameter(paramName, headerIds[i]));
+                sqlParameters.Add(new NpgsqlParameter(paramName, headerIds[i]));
             }
             detailQueryBuilder.Append(")");
 
@@ -142,41 +142,43 @@ namespace Repository.Accounts
 
         public async Task UpdateTransactionHeaderAsync(TransactionHeader transactionHeader)
         {
-            var query = @"UPDATE Acct.TransactionHeaders
-                        SET ReferenceNumber = @ReferenceNumber, Description = @Description
-                        WHERE TransactionHeaderID = @TransactionHeaderID";
+            var query = @"UPDATE acct.transaction_headers
+                        SET reference_number = @ReferenceNumber, description = @Description
+                        WHERE transaction_header_id = @TransactionHeaderID";
             var parameters = new[]
             {
-                new SqlParameter("@TransactionHeaderID", transactionHeader.TransactionHeaderID),
-                new SqlParameter("@ReferenceNumber", (object)transactionHeader.ReferenceNumber ?? DBNull.Value),
-                new SqlParameter("@Description", transactionHeader.Description)
+                new NpgsqlParameter("@TransactionHeaderID", transactionHeader.TransactionHeaderID),
+                new NpgsqlParameter("@ReferenceNumber", (object)transactionHeader.ReferenceNumber ?? DBNull.Value),
+                new NpgsqlParameter("@Description", transactionHeader.Description)
             };
             await _sqlHelper.ExecuteNonQueryAsync(query, parameters);
         }
 
         private TransactionHeader MapDataRowToTransactionHeader(DataRow row)
         {
+            // Map from PostgreSQL snake_case to C# PascalCase
             return new TransactionHeader
             {
-                TransactionHeaderID = (Guid)row["TransactionHeaderID"],
-                BusinessID = (Guid)row["BusinessID"],
-                TransactionDate = (DateTime)row["TransactionDate"],
-                ReferenceNumber = row["ReferenceNumber"] as string,
-                Description = (string)row["Description"],
-                CreatedByUserID = (Guid)row["CreatedByUserID"],
-                CreatedAtUTC = (DateTime)row["CreatedAtUTC"]
+                TransactionHeaderID = (Guid)row["transaction_header_id"],
+                BusinessID = (Guid)row["business_id"],
+                TransactionDate = (DateTime)row["transaction_date"],
+                ReferenceNumber = row["reference_number"] as string,
+                Description = (string)row["description"],
+                CreatedByUserID = (Guid)row["created_by_user_id"],
+                CreatedAtUTC = (DateTime)row["created_at_utc"]
             };
         }
 
         private TransactionDetail MapDataRowToTransactionDetail(DataRow row)
         {
+            // Map from PostgreSQL snake_case to C# PascalCase
             return new TransactionDetail
             {
-                TransactionDetailID = (long)row["TransactionDetailID"],
-                TransactionHeaderID = (Guid)row["TransactionHeaderID"],
-                AccountID = (Guid)row["AccountID"],
-                DebitAmount = (decimal)row["DebitAmount"],
-                CreditAmount = (decimal)row["CreditAmount"]
+                TransactionDetailID = (long)row["transaction_detail_id"],
+                TransactionHeaderID = (Guid)row["transaction_header_id"],
+                AccountID = (Guid)row["account_id"],
+                DebitAmount = (decimal)row["debit_amount"],
+                CreditAmount = (decimal)row["credit_amount"]
             };
         }
     }

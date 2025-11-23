@@ -1,0 +1,105 @@
+::ng-deep {
+    .encryptz-pagination {
+        .mat-mdc-icon-button.mat-mdc-button-base {
+            width: 26px !important;
+            height: 26px !important;
+            padding: 0px !important;
+        }
+
+        .mat-mdc-button-touch-target {
+            width: 26px !important;
+            height: 26px !important;
+        }
+
+        .mat-mdc-paginator-icon {
+            width: 18px !important;
+            height: 18px !important;
+        }
+
+        .mat-mdc-paginator {
+            background-color: transparent !important;
+        }
+
+        .mat-mdc-paginator-container {
+            min-height: 24px !important;
+        }
+
+        .mat-mdc-paginator-touch-target {
+            min-height: 24px !important;
+            height: 24px !important;
+        }
+
+        .mat-mdc-form-field-infix {
+            padding: 0px !important;
+            min-height: 24px !important;
+        }
+    }
+
+    .mat-mdc-option {
+        min-height: 28px !important;
+        font-size: 11px !important;
+    }
+}
+
+.business-management {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.list-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    flex-wrap: wrap;
+    gap: 12px;
+}
+
+.actions {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: wrap;
+}
+
+.filter-field {
+    width: 220px;
+}
+
+.muted {
+    margin: 0;
+    color: var(--mat-sys-outline);
+    font-size: 13px;
+}
+
+.business-table {
+    width: 100%;
+}
+
+.text-right {
+    text-align: right;
+}
+
+.empty-state {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+    padding: 24px 0;
+    color: var(--mat-sys-outline);
+
+    mat-icon {
+        color: var(--mat-sys-outline-variant);
+    }
+
+    .title {
+        font-weight: 600;
+    }
+}
+
+mat-chip {
+    font-size: 11px;
+    height: 20px;
+}
+

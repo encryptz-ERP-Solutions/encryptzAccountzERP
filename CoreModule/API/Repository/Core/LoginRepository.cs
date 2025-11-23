@@ -2,7 +2,7 @@ using System;
 using System.Data;
 using System.Threading.Tasks;
 using Infrastructure;
-using Microsoft.Data.SqlClient;
+using Npgsql;
 using Repository.Core.Interface;
 
 namespace Repository.Core
@@ -18,11 +18,11 @@ namespace Repository.Core
 
         public async Task<bool> ChangePasswordAsync(Guid userId, string newHashedPassword)
         {
-            var query = "UPDATE core.Users SET HashedPassword = @HashedPassword, UpdatedAtUTC = @UpdatedAtUTC WHERE UserID = @UserID";
+            var query = "UPDATE core.users SET hashed_password = @HashedPassword, updated_at_utc = @UpdatedAtUTC WHERE user_id = @UserID";
             var parameters = new[] {
-                new SqlParameter("@UserID", userId),
-                new SqlParameter("@HashedPassword", newHashedPassword),
-                new SqlParameter("@UpdatedAtUTC", DateTime.UtcNow)
+                new NpgsqlParameter("@UserID", userId),
+                new NpgsqlParameter("@HashedPassword", newHashedPassword),
+                new NpgsqlParameter("@UpdatedAtUTC", DateTime.UtcNow)
             };
 
             int result = await _sqlHelper.ExecuteNonQueryAsync(query, parameters);
@@ -32,16 +32,16 @@ namespace Repository.Core
         public async Task<bool> SaveOTPAsync(string loginIdentifier, string otp)
         {
             var query = @"
-                DELETE FROM core.OneTimePasswords WHERE LoginIdentifier = @LoginIdentifier AND IsUsed = 0;
+                DELETE FROM core.one_time_passwords WHERE login_identifier = @LoginIdentifier AND is_used = FALSE;
 
-                INSERT INTO core.OneTimePasswords (LoginIdentifier, OTP, ExpiryTimeUTC, IsUsed, CreatedAtUTC)
-                VALUES (@LoginIdentifier, @OTP, @ExpiryTimeUTC, 0, @CreatedAtUTC)";
+                INSERT INTO core.one_time_passwords (login_identifier, otp, expiry_time_utc, is_used, created_at_utc)
+                VALUES (@LoginIdentifier, @OTP, @ExpiryTimeUTC, FALSE, @CreatedAtUTC)";
 
             var parameters = new[] {
-                new SqlParameter("@LoginIdentifier", loginIdentifier),
-                new SqlParameter("@OTP", otp),
-                new SqlParameter("@ExpiryTimeUTC", DateTime.UtcNow.AddMinutes(10)), // OTP valid for 10 minutes
-                new SqlParameter("@CreatedAtUTC", DateTime.UtcNow)
+                new NpgsqlParameter("@LoginIdentifier", loginIdentifier),
+                new NpgsqlParameter("@OTP", otp),
+                new NpgsqlParameter("@ExpiryTimeUTC", DateTime.UtcNow.AddMinutes(10)), // OTP valid for 10 minutes
+                new NpgsqlParameter("@CreatedAtUTC", DateTime.UtcNow)
             };
 
             int rows = await _sqlHelper.ExecuteNonQueryAsync(query, parameters);
@@ -50,10 +50,10 @@ namespace Repository.Core
 
         public async Task<bool> VerifyOTPAsync(string loginIdentifier, string otp)
         {
-            var query = "SELECT OtpID FROM core.OneTimePasswords WHERE LoginIdentifier = @LoginIdentifier AND OTP = @OTP AND ExpiryTimeUTC > GETUTCDATE() AND IsUsed = 0";
+            var query = "SELECT otp_id FROM core.one_time_passwords WHERE login_identifier = @LoginIdentifier AND otp = @OTP AND expiry_time_utc > NOW() AT TIME ZONE 'UTC' AND is_used = FALSE";
             var parameters = new[] {
-                new SqlParameter("@LoginIdentifier", loginIdentifier),
-                new SqlParameter("@OTP", otp),
+                new NpgsqlParameter("@LoginIdentifier", loginIdentifier),
+                new NpgsqlParameter("@OTP", otp),
             };
 
             var dataTable = await _sqlHelper.ExecuteQueryAsync(query, parameters);
@@ -64,9 +64,9 @@ namespace Repository.Core
             }
 
             // Mark OTP as used to prevent reuse
-            var otpId = Convert.ToInt64(dataTable.Rows[0]["OtpID"]);
-            var updateQuery = "UPDATE core.OneTimePasswords SET IsUsed = 1 WHERE OtpID = @OtpID";
-            var updateParameters = new[] { new SqlParameter("@OtpID", otpId) };
+            var otpId = Convert.ToInt64(dataTable.Rows[0]["otp_id"]);
+            var updateQuery = "UPDATE core.one_time_passwords SET is_used = TRUE WHERE otp_id = @OtpID";
+            var updateParameters = new[] { new NpgsqlParameter("@OtpID", otpId) };
 
             await _sqlHelper.ExecuteNonQueryAsync(updateQuery, updateParameters);
 

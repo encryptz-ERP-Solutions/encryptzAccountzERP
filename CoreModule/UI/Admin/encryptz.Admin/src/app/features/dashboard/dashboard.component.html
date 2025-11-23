@@ -1,199 +1,118 @@
 <div class="doted-theme z-1"></div>
-<div
-    class="wd-100 container-fluid p-0 d-flex justify-content-center align-items-center theme-background-primary ht-45vh position-relative">
-    <div class="pdT-100 pdB-100 px-2 z-1" style="color: #FFF;">
-        <div class="mont300 f-sz36">Hi, Zayed Mohammed</div>
-        <div class="mont300 f-sz18 pdB-50">Welcome to
-            <span class="mont600 f-sz22">encryptz</span> world
-        </div>
+<div class="hero-banner">
+  <div class="hero-text">
+    <div class="hero-greeting">Hi, {{ greetingName }}</div>
+    <div class="hero-subtitle">
+      Welcome to <span class="brand">encryptz</span> workspace
     </div>
-
-    <!-- <div class="moving-scroll d-flex flex-column align-items-center z-1">
-        <div class="round-outline d-flex align-items-center justify-content-center position-relative cursor-pointer" (click)="scrollToModuleSection()">
-            <mat-icon class="icon-14 material-symbols-outlined arrow-move">south</mat-icon>
-        </div>
-        <div class="text-center mont400 f-sz10 mt-2">Please click and explore your modules</div>
-    </div> -->
-
+    <div class="hero-helper">Select a business to continue where you left off.</div>
+  </div>
+  <div class="hero-actions">
+    <button mat-icon-button [matMenuTriggerFor]="userMenu" matTooltip="User menu">
+      <mat-icon>account_circle</mat-icon>
+    </button>
+    <mat-menu #userMenu="matMenu">
+      <button mat-menu-item (click)="logout()">
+        <mat-icon>logout</mat-icon>
+        <span>Logout</span>
+      </button>
+    </mat-menu>
+  </div>
 </div>
 
-<mat-card class="wd-100 modules-data py-5" id="modulesSection">
-    <div class="container">
-        <div class="row g-2">
-            <div class="col-md-12 mb-2">
-                <div class="wd-100 f-sz22 mont300 mb-1">Explore Now</div>
-
-
-                <div class="d-flex align-items-center">
-                    <div class="f-sz11 mont400 cursor-pointer" (click)="showModule = false">Company
-                    </div>
-                    @if(showModule){
-                    <div class="f-sz11 mont400 me-2 mx-2 opacity5">/</div>
-                    <div class="f-sz11 mont400 opacity5">Fingent Technologies</div>
-                    }
-
-                </div>
-
-            </div>
-
-            @if(!showModule){
-            <div class="col-6 col-sm-6 col-md-4 col-lg-3">
-                <mat-card appearance="outlined" (click)="showModule = true"
-                    class="p-2 radius-6 overflow-h position-relative d-flex align-items-center flex-row cursor-pointer comp-selection">
-                    <div class="company-logo-opt p-1 radius-4 d-flex align-items-center">
-                        <img src="../../../assets/images/module4.jpg" alt="">
-                    </div>
-                    <div class="mx-2 flex-1">
-                        <div class="mont600 f-sz11">Zayeds Info</div>
-                        <div class="mont400 f-sz10">Assistant Manager</div>
-                    </div>
-                    <!-- <mat-checkbox color="primary"></mat-checkbox> -->
-                    <div class="moving-scroll d-flex flex-column align-items-center z-1">
-                        <div
-                            class="round-outline d-flex align-items-center justify-content-center position-relative cursor-pointer">
-                            <mat-icon class="icon-12 material-symbols-outlined arrow-move">east</mat-icon>
-                        </div>
-                    </div>
-                </mat-card>
-            </div>
-
-            <div class="col-6 col-sm-6 col-md-4 col-lg-3">
-                <mat-card appearance="outlined" (click)="showModule = true"
-                    class="p-2 radius-6 overflow-h position-relative d-flex align-items-center flex-row cursor-pointer comp-selection">
-                    <div class="company-logo-opt p-1 radius-4 d-flex align-items-center">
-                        <img src="../../../assets/images/module2.jpg" alt="">
-                    </div>
-                    <div class="mx-2 flex-1">
-                        <div class="mont600 f-sz11">Mariapps Solutios</div>
-                        <div class="mont400 f-sz10">Senior Accountant</div>
-                    </div>
-                    <div class="moving-scroll d-flex flex-column align-items-center z-1">
-                        <div
-                            class="round-outline d-flex align-items-center justify-content-center position-relative cursor-pointer">
-                            <mat-icon class="icon-12 material-symbols-outlined arrow-move">east</mat-icon>
-                        </div>
-                    </div>
-                </mat-card>
-            </div>
-
-            <div class="col-6 col-sm-6 col-md-4 col-lg-3">
-                <mat-card appearance="outlined" (click)="showModule = true"
-                    class="p-2 radius-6 overflow-h position-relative d-flex align-items-center flex-row cursor-pointer comp-selection">
-                    <div class="company-logo-opt p-1 radius-4 d-flex align-items-center">
-                        <img src="../../../assets/images/module6.png" alt="">
-                    </div>
-                    <div class="mx-2 flex-1">
-                        <div class="mont600 f-sz11">Fingent Technologies</div>
-                        <div class="mont400 f-sz10">Senior Accountant</div>
-                    </div>
-                    <div class="moving-scroll d-flex flex-column align-items-center z-1">
-                        <div
-                            class="round-outline d-flex align-items-center justify-content-center position-relative cursor-pointer">
-                            <mat-icon class="icon-12 material-symbols-outlined arrow-move">east</mat-icon>
-                        </div>
-                    </div>
-                </mat-card>
-            </div>
-            <div class="col-6 col-sm-6 col-md-4 col-lg-3">
-                <mat-card appearance="outlined" (click)="showModule = true"
-                    class="p-2 radius-6 overflow-h position-relative d-flex align-items-center flex-row cursor-pointer comp-selection">
-                    <div class="company-logo-opt p-1 radius-4 d-flex align-items-center">
-                        <img src="../../../assets/images/module6.png" alt="">
-                    </div>
-                    <div class="mx-2 flex-1">
-                        <div class="mont600 f-sz11">Fingent Technologies</div>
-                        <div class="mont400 f-sz10">Senior Accountant</div>
-                    </div>
-                    <div class="moving-scroll d-flex flex-column align-items-center z-1">
-                        <div
-                            class="round-outline d-flex align-items-center justify-content-center position-relative cursor-pointer">
-                            <mat-icon class="icon-12 material-symbols-outlined arrow-move">east</mat-icon>
-                        </div>
-                    </div>
-                </mat-card>
-            </div>
-            }
-            @else{
-            <div class="col-6 col-sm-6 col-md-3 col-lg-2">
-                <mat-card appearance="outlined"  [routerLink]="['/accounts']" class="p-3 radius-15 overflow-h position-relative">
-                    <div class="notification-outline theme-background-error">
-                        <mat-icon class="icon-12 material-symbols-outlined icon-notification">notifications</mat-icon>
-                    </div>
-                    <div class="module-profile d-flex justify-content-center mb-3">
-                        <img src="../../../assets/images/module4.jpg" alt="">
-                    </div>
-                    <div class="mont600 f-sz11 text-center">Accounts</div>
-                    <mat-divider class="mb-2 mt-2"></mat-divider>
-                    <div class="mont400 f-sz9 opacity5 text-center">Last Active : <span class="mont600">30-05-2025
-                            12:30</span></div>
-                </mat-card>
-            </div>
-            <div class="col-6 col-sm-6 col-md-3 col-lg-2">
-                <mat-card appearance="outlined"  [routerLink]="['/accounts']" class="p-3 radius-15 overflow-h position-relative">
-                    <div class="module-profile d-flex justify-content-center mb-3">
-                        <img src="../../../assets/images/module1.jpg" alt="">
-                    </div>
-                    <div class="mont600 f-sz11 text-center">Stock</div>
-                    <mat-divider class="mb-2 mt-2"></mat-divider>
-                    <div class="mont400 f-sz9 opacity5 text-center">Last Active : <span class="mont600">30-05-2025
-                            12:30</span></div>
-                </mat-card>
-            </div>
-            <div class="col-6 col-sm-6 col-md-3 col-lg-2">
-                <mat-card appearance="outlined"  [routerLink]="['/accounts']" class="p-3 radius-15 overflow-h position-relative">
-                    <div class="module-profile d-flex justify-content-center mb-3">
-                        <img src="../../../assets/images/module2.jpg" alt="">
-                    </div>
-                    <div class="mont600 f-sz11 text-center">CRM</div>
-                    <mat-divider class="mb-2 mt-2"></mat-divider>
-                    <div class="mont400 f-sz9 opacity5 text-center">Last Active : <span class="mont600">30-05-2025
-                            12:30</span></div>
-                </mat-card>
-            </div>
-            <div class="col-6 col-sm-6 col-md-3 col-lg-2">
-                <mat-card appearance="outlined" [routerLink]="['/accounts']" class="p-3 radius-15 overflow-h position-relative">
-                    <div class="notification-outline theme-background-error">
-                        <mat-icon class="icon-12 material-symbols-outlined icon-notification">notifications</mat-icon>
-                    </div>
-                    <div class="module-profile d-flex justify-content-center mb-3">
-                        <img src="../../../assets/images/module3.jpg" alt="">
-                    </div>
-                    <div class="mont600 f-sz11 text-center">Inventory</div>
-                    <mat-divider class="mb-2 mt-2"></mat-divider>
-                    <div class="mont400 f-sz9 opacity5 text-center">Last Active : <span class="mont600">30-05-2025
-                            12:30</span></div>
-                </mat-card>
-            </div>
-            <div class="col-6 col-sm-6 col-md-3 col-lg-2">
-                <mat-card appearance="outlined" [routerLink]="['/accounts']" class="p-3 radius-15 overflow-h position-relative">
-                    <div class="notification-outline theme-background-error">
-                        <mat-icon class="icon-14 material-symbols-outlined icon-notification">notifications</mat-icon>
-                    </div>
-                    <div class="module-profile d-flex justify-content-center mb-3">
-                        <img src="../../../assets/images/module4.jpg" alt="">
-                    </div>
-                    <div class="mont600 f-sz11 text-center">Products</div>
-                    <mat-divider class="mb-2 mt-2"></mat-divider>
-                    <div class="mont400 f-sz9 opacity5 text-center">Last Active : <span class="mont600">30-05-2025
-                            12:30</span></div>
-                </mat-card>
-            </div>
-            <div class="col-6 col-sm-6 col-md-3 col-lg-2">
-                <mat-card appearance="outlined" [routerLink]="['/accounts']" class="p-3 radius-15 overflow-h position-relative">
-                    <div class="notification-outline theme-background-error">
-                        <mat-icon class="icon-12 material-symbols-outlined icon-notification">notifications</mat-icon>
-                    </div>
-                    <div class="module-profile d-flex justify-content-center mb-3">
-                        <img src="../../../assets/images/module6.png" alt="">
-                    </div>
-                    <div class="mont600 f-sz11 text-center">Plans</div>
-                    <mat-divider class="mb-2 mt-2"></mat-divider>
-                    <div class="mont400 f-sz9 opacity5 text-center">Last Active : <span class="mont600">30-05-2025
-                            12:30</span></div>
-                </mat-card>
-            </div>
-            }
+<mat-card class="modules-data py-5">
+  <div class="container">
+    <div class="workspace-grid">
+      <section class="workspace-column">
+        <div class="section-heading">
+          <div>
+            <div class="eyebrow">Step 1</div>
+            <h2>Your businesses</h2>
+          </div>
+          <div class="heading-actions">
+            <button mat-flat-button color="primary" class="create-btn" (click)="openCreateBusinessDialog()">
+              <mat-icon class="icon-14 mrR-6">add</mat-icon>
+              Create business
+            </button>
+            <button mat-stroked-button color="primary" class="change-btn" *ngIf="selectedBusiness" (click)="clearSelection()">
+              Change selection
+            </button>
+          </div>
         </div>
-    </div>
 
+        <div class="state-container" *ngIf="isLoadingBusinesses">
+          <mat-progress-spinner mode="indeterminate" diameter="36"></mat-progress-spinner>
+          <p class="state-text mt-2">Loading businesses...</p>
+        </div>
+
+        <div class="state-container" *ngIf="!isLoadingBusinesses && !businesses.length">
+          <mat-icon class="state-icon">business</mat-icon>
+          <p class="state-text">No businesses are linked to your account yet. Please contact your administrator.</p>
+        </div>
+
+        <div class="business-grid" *ngIf="!isLoadingBusinesses && businesses.length">
+          <mat-card
+            class="business-card"
+            appearance="outlined"
+            *ngFor="let business of businesses"
+            (click)="selectBusiness(business)"
+            [ngClass]="{'selected': selectedBusiness?.userBusinessID === business.userBusinessID}"
+          >
+            <div class="business-card-header">
+              <div class="avatar">{{ business.businessName?.charAt(0) || 'B' }}</div>
+              <div class="business-meta">
+                <div class="business-name">{{ business.businessName || 'Untitled business' }}</div>
+                <div class="business-code" *ngIf="business.businessCode">
+                  {{ business.businessCode }}
+                </div>
+              </div>
+              <mat-chip color="primary" *ngIf="business.isDefault" class="chip-default" selected>Default</mat-chip>
+            </div>
+            <div class="business-footer">
+              <span>{{ business.userBusinessID | slice:0:8 }}</span>
+              <mat-icon>arrow_forward</mat-icon>
+            </div>
+          </mat-card>
+        </div>
+      </section>
+
+      <section class="workspace-column">
+        <div class="section-heading">
+          <div>
+            <div class="eyebrow">Step 2</div>
+            <h2>Select a module</h2>
+            <p class="helper" *ngIf="selectedBusiness">
+              Showing modules for <strong>{{ selectedBusiness.businessName || 'business' }}</strong>
+            </p>
+          </div>
+        </div>
+
+        <div class="state-container" *ngIf="!selectedBusiness">
+          <mat-icon class="state-icon">touch_app</mat-icon>
+          <p class="state-text">Pick a business to unlock the modules available to you.</p>
+        </div>
+
+        <div class="modules-grid" *ngIf="selectedBusiness">
+          <mat-card
+            class="module-card"
+            appearance="outlined"
+            *ngFor="let module of modules"
+            (click)="openModule(module)"
+          >
+            <div class="module-icon">
+              <mat-icon>{{ module.icon }}</mat-icon>
+            </div>
+            <div class="module-body">
+              <div class="module-title">
+                {{ module.title }}
+                <mat-chip color="accent" *ngIf="module.badge" selected>{{ module.badge }}</mat-chip>
+              </div>
+              <p>{{ module.description }}</p>
+            </div>
+            <mat-icon class="module-arrow">north_east</mat-icon>
+          </mat-card>
+        </div>
+      </section>
+    </div>
+  </div>
 </mat-card>

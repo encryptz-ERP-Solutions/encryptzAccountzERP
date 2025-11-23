@@ -1,0 +1,28 @@
+using Entities.Core;
+using System;
+using System.Collections.Generic;
+using System.Threading.Tasks;
+
+namespace Repository.Core.Interface
+{
+    /// <summary>
+    /// Example updated IRoleRepository interface with audit support.
+    /// Update your existing IRoleRepository to include these method signatures.
+    /// </summary>
+    public interface IRoleRepository
+    {
+        Task<IEnumerable<Role>> GetAllAsync();
+        Task<Role> GetByIdAsync(int id);
+        
+        // Updated: Add createdByUserId parameter
+        Task<Role> AddAsync(Role role, Guid? createdByUserId);
+        
+        // Updated: Add updatedByUserId parameter
+        Task<bool> UpdateAsync(Role role, Guid? updatedByUserId);
+        
+        Task<bool> DeleteAsync(int id);
+        
+        // ... other existing methods ...
+    }
+}
+

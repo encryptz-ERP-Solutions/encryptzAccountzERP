@@ -1,6 +1,6 @@
 using Entities.Core;
 using Infrastructure;
-using Microsoft.Data.SqlClient;
+using Npgsql;
 using System;
 using System.Collections.Generic;
 using System.Data;
@@ -19,11 +19,11 @@ namespace Repository.Core
 
         public async Task<SubscriptionPlanPermission> CreateAsync(SubscriptionPlanPermission subscriptionPlanPermission)
         {
-            var sql = "INSERT INTO core.SubscriptionPlanPermissions (PlanID, PermissionID) VALUES (@PlanID, @PermissionID);";
+            var sql = "INSERT INTO core.subscription_plan_permissions (plan_id, permission_id) VALUES (@PlanID, @PermissionID)";
             var parameters = new[]
             {
-                new SqlParameter("@PlanID", subscriptionPlanPermission.PlanID),
-                new SqlParameter("@PermissionID", subscriptionPlanPermission.PermissionID)
+                new NpgsqlParameter("@PlanID", subscriptionPlanPermission.PlanID),
+                new NpgsqlParameter("@PermissionID", subscriptionPlanPermission.PermissionID)
             };
             await _dbHelper.ExecuteNonQueryAsync(sql, parameters);
             return subscriptionPlanPermission;
@@ -31,11 +31,11 @@ namespace Repository.Core
 
         public async Task<bool> DeleteAsync(int planId, int permissionId)
         {
-            var sql = "DELETE FROM core.SubscriptionPlanPermissions WHERE PlanID = @PlanID AND PermissionID = @PermissionID";
+            var sql = "DELETE FROM core.subscription_plan_permissions WHERE plan_id = @PlanID AND permission_id = @PermissionID";
             var parameters = new[] 
             { 
-                new SqlParameter("@PlanID", planId),
-                new SqlParameter("@PermissionID", permissionId)
+                new NpgsqlParameter("@PlanID", planId),
+                new NpgsqlParameter("@PermissionID", permissionId)
             };
             var rowsAffected = await _dbHelper.ExecuteNonQueryAsync(sql, parameters);
             return rowsAffected > 0;
@@ -43,7 +43,7 @@ namespace Repository.Core
 
         public async Task<IEnumerable<SubscriptionPlanPermission>> GetAllAsync()
         {
-            var sql = "SELECT * FROM core.SubscriptionPlanPermissions";
+            var sql = "SELECT * FROM core.subscription_plan_permissions";
             var dt = await _dbHelper.ExecuteQueryAsync(sql);
             var subscriptionPlanPermissions = new List<SubscriptionPlanPermission>();
             foreach (DataRow row in dt.Rows)
@@ -55,11 +55,11 @@ namespace Repository.Core
 
         public async Task<SubscriptionPlanPermission> GetByIdAsync(int planId, int permissionId)
         {
-            var sql = "SELECT * FROM core.SubscriptionPlanPermissions WHERE PlanID = @PlanID AND PermissionID = @PermissionID";
+            var sql = "SELECT * FROM core.subscription_plan_permissions WHERE plan_id = @PlanID AND permission_id = @PermissionID";
             var parameters = new[] 
             { 
-                new SqlParameter("@PlanID", planId),
-                new SqlParameter("@PermissionID", permissionId)
+                new NpgsqlParameter("@PlanID", planId),
+                new NpgsqlParameter("@PermissionID", permissionId)
             };
             var dt = await _dbHelper.ExecuteQueryAsync(sql, parameters);
             return dt.Rows.Count > 0 ? MapToSubscriptionPlanPermission(dt.Rows[0]) : null;
@@ -67,8 +67,8 @@ namespace Repository.Core
 
         public async Task<IEnumerable<SubscriptionPlanPermission>> GetByPlanIdAsync(int planId)
         {
-            var sql = "SELECT * FROM core.SubscriptionPlanPermissions WHERE PlanID = @PlanID";
-            var parameters = new[] { new SqlParameter("@PlanID", planId) };
+            var sql = "SELECT * FROM core.subscription_plan_permissions WHERE plan_id = @PlanID";
+            var parameters = new[] { new NpgsqlParameter("@PlanID", planId) };
             var dt = await _dbHelper.ExecuteQueryAsync(sql, parameters);
             var subscriptionPlanPermissions = new List<SubscriptionPlanPermission>();
             foreach (DataRow row in dt.Rows)
@@ -80,8 +80,8 @@ namespace Repository.Core
 
         public async Task<IEnumerable<SubscriptionPlanPermission>> GetByPermissionIdAsync(int permissionId)
         {
-            var sql = "SELECT * FROM core.SubscriptionPlanPermissions WHERE PermissionID = @PermissionID";
-            var parameters = new[] { new SqlParameter("@PermissionID", permissionId) };
+            var sql = "SELECT * FROM core.subscription_plan_permissions WHERE permission_id = @PermissionID";
+            var parameters = new[] { new NpgsqlParameter("@PermissionID", permissionId) };
             var dt = await _dbHelper.ExecuteQueryAsync(sql, parameters);
             var subscriptionPlanPermissions = new List<SubscriptionPlanPermission>();
             foreach (DataRow row in dt.Rows)
@@ -96,13 +96,15 @@ namespace Repository.Core
             // For junction tables, typically we don't update the primary key
             // Instead, we delete the old record and create a new one
             // This method is included for completeness but may not be used in practice
-            var sql = "UPDATE core.SubscriptionPlanPermissions SET PlanID = @PlanID, PermissionID = @PermissionID WHERE PlanID = @OldPlanID AND PermissionID = @OldPermissionID";
+            var sql = @"UPDATE core.subscription_plan_permissions 
+                        SET plan_id = @PlanID, permission_id = @PermissionID 
+                        WHERE plan_id = @OldPlanID AND permission_id = @OldPermissionID";
             var parameters = new[]
             {
-                new SqlParameter("@PlanID", subscriptionPlanPermission.PlanID),
-                new SqlParameter("@PermissionID", subscriptionPlanPermission.PermissionID),
-                new SqlParameter("@OldPlanID", subscriptionPlanPermission.PlanID),
-                new SqlParameter("@OldPermissionID", subscriptionPlanPermission.PermissionID)
+                new NpgsqlParameter("@PlanID", subscriptionPlanPermission.PlanID),
+                new NpgsqlParameter("@PermissionID", subscriptionPlanPermission.PermissionID),
+                new NpgsqlParameter("@OldPlanID", subscriptionPlanPermission.PlanID),
+                new NpgsqlParameter("@OldPermissionID", subscriptionPlanPermission.PermissionID)
             };
             await _dbHelper.ExecuteNonQueryAsync(sql, parameters);
             return subscriptionPlanPermission;
@@ -112,8 +114,8 @@ namespace Repository.Core
         {
             return new SubscriptionPlanPermission
             {
-                PlanID = Convert.ToInt32(row["PlanID"]),
-                PermissionID = Convert.ToInt32(row["PermissionID"])
+                PlanID = Convert.ToInt32(row["plan_id"]),
+                PermissionID = Convert.ToInt32(row["permission_id"])
             };
         }
     }

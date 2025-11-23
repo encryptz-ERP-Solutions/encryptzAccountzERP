@@ -6,6 +6,18 @@ import { MatExpansionModule } from '@angular/material/expansion';
 import { MatIconModule } from '@angular/material/icon';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { NavigationEnd, Router } from '@angular/router';
+import { filter, finalize, of, switchMap } from 'rxjs';
+import { CommonService } from '../../../../shared/services/common.service';
+import { AdminDataService } from '../../../../core/services/admin-data.service';
+import { MenuTreeNode } from '../../../../core/models/admin.models';
+
+interface AccountsMenuItem {
+  icon: string;
+  label: string;
+  route?: string;
+  disabled?: boolean;
+  items: AccountsMenuItem[];
+}
 
 @Component({
   selector: 'app-accounts-side-bar',
@@ -23,58 +35,87 @@ import { NavigationEnd, Router } from '@angular/router';
 export class AccountsSideBarComponent {
   @Input() isExpand: boolean = false;
   @Output() isOpenSideNav = new EventEmitter<boolean>();
-  selectedMenu: any
-  menuItems = [
-    { icon: 'dashboard', label: 'Dashboard', items: [] },
-    {
-      icon: 'person',
-      label: 'Profile',
-      items: [
-        { icon: 'person', label: 'Personal Info', },
-        { icon: 'manage_accounts', label: 'Account Settings' },
-        { icon: 'photo_camera', label: 'Profile Picture' },
-        { icon: 'work', label: 'Work Information' },
-      ]
-    },
-    { icon: 'account_box', label: 'Account Overview', items: [] },
-    { icon: 'account_balance_wallet', label: 'Income Summary', items: [] },
-    { icon: 'money_off', label: 'Expenses Summary', items: [] },
-    { icon: 'calculate', label: 'Tax Computation', items: [] },
-    { icon: 'receipt_long', label: 'GST Filing', items: [] },
-    { icon: 'summarize', label: 'TDS Filing', items: [] },
-    { icon: 'fact_check', label: 'Income Tax Filing	', items: [] },
-    { icon: 'payments', label: 'Advance Tax', items: [] },
-    { icon: 'history', label: 'Tax Payment History	', items: [] },
-    { icon: 'article', label: 'Challan Generation', items: [] },
-    { icon: 'description', label: 'Form 16 Management', items: [] },
-    { icon: 'insert_drive_file', label: 'Form 26AS', items: [] },
-    { icon: 'rule', label: 'Audit Reports', items: [] },
-    { icon: 'assessment', label: 'Balance Sheet', items: [] },
-    { icon: 'bar_chart', label: 'Profit & Loss Statement', items: [] },
-    { icon: 'library_books', label: 'Ledger Entries', items: [] },
-    { icon: 'account_balance', label: 'Bank Reconciliation', items: [] },
-    { icon: 'receipt', label: 'Invoice Management', items: [] },
-    { icon: 'note_add', label: 'Credit Notes', items: [] },
-    { icon: 'note', label: 'Debit Notes', items: [] },
-    { icon: 'group', label: 'Vendor Management', items: [] },
-    { icon: 'person_search', label: 'Client Management', items: [] },
-    { icon: 'inventory_2', label: 'Asset Register', items: [] },
-    { icon: 'functions', label: 'Depreciation Calculator', items: [] },
-    { icon: 'event', label: 'Compliance Calendar', items: [] }
-  ];
+  selectedMenu: string | null = null;
+  menuItems: AccountsMenuItem[] = [];
+  loadingMenu = false;
 
   constructor(
-    private router: Router
+    private router: Router,
+    private commonService: CommonService,
+    private adminDataService: AdminDataService
   ) { }
+
   ngOnInit() {
     this.selectedMenu = localStorage.getItem('currentAccountsMenu');
-    this.router.events.subscribe(event => {
-      if (event instanceof NavigationEnd) {
-        this.selectedMenu = this.router.url.slice(1);
-        localStorage.setItem('currentMenu', this.selectedMenu);
-      }
-    });
+    this.loadMenu();
+
+    this.router.events
+      .pipe(filter(event => event instanceof NavigationEnd))
+      .subscribe((event: NavigationEnd) => {
+        this.selectedMenu = event.urlAfterRedirects || event.url;
+        localStorage.setItem('currentAccountsMenu', this.selectedMenu ?? '');
+      });
   }
+
+  private loadMenu(): void {
+    this.loadingMenu = true;
+    this.commonService.loaderState(true);
+
+    this.adminDataService.getModules()
+      .pipe(
+        switchMap(modules => {
+          const accountsModule = modules.find(m => 
+            m.moduleName?.toLowerCase() === 'accounts' || 
+            m.moduleName?.toLowerCase().includes('account')
+          );
+          if (!accountsModule) {
+            return of<AccountsMenuItem[]>(this.getFallbackMenu());
+          }
+          return this.adminDataService.getMenuItemsByModule(accountsModule.moduleID)
+            .pipe(
+              switchMap(menuItems => {
+                const tree = this.adminDataService.buildMenuTree(menuItems);
+                return of(this.mapTreeToNav(tree));
+              })
+            );
+        }),
+        finalize(() => {
+          this.loadingMenu = false;
+          this.commonService.loaderState(false);
+        })
+      )
+      .subscribe({
+        next: items => {
+          this.menuItems = (items && items.length > 0)
+            ? items
+            : this.getFallbackMenu();
+        },
+        error: () => {
+          this.menuItems = this.getFallbackMenu();
+        }
+      });
+  }
+
+  private mapTreeToNav(nodes: MenuTreeNode[]): AccountsMenuItem[] {
+    return nodes.map(node => ({
+      icon: node.iconClass || 'menu',
+      label: node.menuText,
+      route: node.menuURL || undefined,
+      disabled: !node.isActive || !node.menuURL,
+      items: this.mapTreeToNav(node.children)
+    }));
+  }
+
+  private getFallbackMenu(): AccountsMenuItem[] {
+    return [
+      { icon: 'dashboard', label: 'Workspace Overview', route: '/accounts/dashboard', items: [] },
+      { icon: 'account_tree', label: 'Chart of Accounts', route: '/accounts/chartofaccounts', items: [] },
+      { icon: 'receipt_long', label: 'Vouchers', disabled: true, items: [] },
+      { icon: 'library_books', label: 'Ledger Reports', disabled: true, items: [] },
+      { icon: 'analytics', label: 'Trial Balance', disabled: true, items: [] }
+    ];
+  }
+
   openSideNav() {
     this.isOpenSideNav.emit(true);
   }
@@ -83,10 +124,15 @@ export class AccountsSideBarComponent {
     this.isOpenSideNav.emit(false);
   }
 
-  navigateMenu(url: string) {
-    // this.router.navigateByUrl(url);
-    this.selectedMenu = url;
-    localStorage.setItem('currentAccountsMenu', this.selectedMenu)
-    return false
+  navigateMenu(item: AccountsMenuItem) {
+    if (item.disabled || !item.route) {
+      this.commonService.showSnackbar('Feature coming soon.', 'INFO', 2500);
+      return false;
+    }
+
+    this.router.navigateByUrl(item.route);
+    this.selectedMenu = item.route;
+    localStorage.setItem('currentAccountsMenu', this.selectedMenu ?? '');
+    return false;
   }
 }

@@ -51,6 +51,13 @@ namespace BusinessLogic.Admin.Services
             // Hash the password before saving
             user.HashedPassword = PasswordHasher.HashPassword(userCreateDto.Password);
 
+            // Generate unique PAN card number if not provided to avoid duplicate key violations
+            // This is a placeholder - actual PAN should be encrypted and provided by the user
+            if (user.PanCardNumber_Encrypted == null || user.PanCardNumber_Encrypted.Length == 0)
+            {
+                user.PanCardNumber_Encrypted = Guid.NewGuid().ToByteArray();
+            }
+
             var addedUser = await _userRepository.AddAsync(user);
             return _mapper.Map<UserDto>(addedUser);
         }

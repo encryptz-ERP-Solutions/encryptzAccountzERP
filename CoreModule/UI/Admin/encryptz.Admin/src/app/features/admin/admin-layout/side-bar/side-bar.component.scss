@@ -11,6 +11,7 @@
     height: calc(100vh - 40px);
     overflow-y: auto;
     overflow-x: hidden;
+    padding: 0;
 
     &::-webkit-scrollbar {
         width: 0px;
@@ -19,15 +20,22 @@
     a {
         color: #FFF;
         border-radius: 0px !important;
+        display: flex;
+        align-items: center;
+        justify-content: flex-start;
+        width: 100%;
+        min-height: 40px;
     }
 }
 
 .single-menu-wd {
-    width: 200px;
+    width: 100%;
+    padding: 0 12px !important;
 }
 
 .single-menu-wd-sec-1 {
-    width: 188px;
+    width: 100%;
+    padding: 0 12px 0 24px !important;
 }
 
 ::ng-deep {
@@ -47,16 +55,21 @@
         }
 
         .mat-expansion-panel-header {
-            height: 34px !important;
+            height: 40px !important;
+            min-height: 40px !important;
             background-color: #202073;
             border-radius: 0px !important;
-            padding: 10px 8px;
+            padding: 0 12px !important;
+            display: flex;
+            align-items: center;
         }
 
         .mat-expansion-indicator {
             display: flex !important;
             justify-content: center !important;
+            align-items: center !important;
             width: 12px !important;
+            margin-left: auto;
         }
 
         .mat-expansion-panel-header:hover,
@@ -66,21 +79,22 @@
 
         .mat-expansion-panel-header-title {
             color: #FFF;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin: 0;
         }
 
         .mat-expansion-indicator::after {
             color: #FFF !important;
             border-width: 0 1px 1px 0 !important;
-            margin-right: 4px !important;
-            margin-left: 4px !important;
-            // margin-bottom: 5px !important;
+            margin: 0 !important;
         }
 
         .mat-expansion-panel-body {
-            padding: 0px 0px 0px 0px !important;
+            padding: 0px !important;
             background-color: #202073;
             border-radius: 0px !important;
-            // margin-bottom: -5px;
         }
     }
 }
